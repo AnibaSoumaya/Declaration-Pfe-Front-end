@@ -1,0 +1,24 @@
+<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+    <div class="flex flex-column align-items-center justify-content-center">
+        <!--<img src="assets/demo/images/access/logo-orange.svg" alt="Sakai logo" class="mb-5 w-6rem flex-shrink-0">-->
+        <img src="/assets/demo/images/logos/niger01.png" alt="Niger Logo" style="width: 90px; height: auto; object-fit: contain; image-rendering: crisp-edges;">
+        <div style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, rgba(247, 149, 48, 0.4) 10%, rgba(247, 149, 48, 0) 30%);">
+            <div class="w-full surface-card py-8 px-5 sm:px-8 flex flex-column align-items-center" style="border-radius:53px">
+                <div class="grid flex flex-column align-items-center">
+                    <div class="flex justify-content-center align-items-center bg-orange-500 border-circle" style="width:3.2rem; height:3.2rem;">
+                        <i class="text-50 pi pi-fw pi-lock text-2xl"></i>
+                    </div>
+                    <h1 class="text-900 font-bold text-4xl lg:text-5xl mb-2">Trouvez votre compte</h1>
+                    <!--<span class="text-600 mb-5">Veuillez entrer votre e-mail ou votre numéro de mobile pour rechercher votre compte</span>-->
+                    <span class="text-600 mb-5">Veuillez entrer votre nouveau mot de passe de mobile pour passer.</span>
+
+                    <div class="field">
+                        <p-password [(ngModel)]="value8" class="ng-invalid ng-dirty" placeholder="Nouveau mot de passe.."></p-password>
+                    </div>                    <img src="assets/demo/images/access/asset-access.svg" alt="Access denied" class="mb-5" width="80%">
+                    <button pButton pRipple icon="pi pi-arrow-left" label="Retour" class="p-button-text" [routerLink]="['/securite']"></button>
+                    <button pButton pRipple icon="pi pi-arrow-right" label="Continue" class="p-button-text" [routerLink]="['/']"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

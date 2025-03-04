@@ -1,0 +1,21 @@
+<div class="grid">
+    <div class="col-12 mb-3">
+        <h6 class="mb-2">Type vocabulaire</h6>
+        <p-dropdown [options]="sourceCities" [(ngModel)]="selectedDrop" 
+            placeholder="Choisir à partir de la liste..." [showClear]="true">
+        </p-dropdown>
+    </div>
+
+	
+    <div class="col-12 xl:col-4">
+        <div class="card">
+            <h5 class="mb-2">OrderList</h5>
+            <p-orderList [value]="orderCities" header="Cities" [dragdrop]="true" 
+                [listStyle]="{'height':'250px'}">
+                <ng-template let-city pTemplate="item">
+                    <div>{{ city.name }}</div>
+                </ng-template>
+            </p-orderList>
+        </div>
+    </div>
+</div>

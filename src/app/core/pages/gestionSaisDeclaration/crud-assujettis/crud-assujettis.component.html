@@ -1,0 +1,157 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card px-6 py-6">
+      <p-toast></p-toast>
+      <!--<p-toolbar styleClass="mb-4">
+        
+
+        <ng-template pTemplate="right">
+          <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+          <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help" (click)="dt.exportCSV()"></button>
+        </ng-template>
+      </p-toolbar>-->
+
+      <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            
+        <h5 class="m-0">Liste des Assujettis</h5>
+            
+            
+        <div class="flex flex-wrap gap-2">
+            <!-- Bouton de recherche qui se transforme en input -->
+            <ng-container *ngIf="!isSearching; else searchInput">
+              <button 
+                  pButton pRipple 
+                  type="button" 
+                  icon="pi pi-search" 
+                  class="p-button-rounded p-button-info p-button-outlined" 
+                  (click)="toggleSearch()">
+              </button>
+            </ng-container>
+
+            <!-- Zone de texte (remplace le bouton lors du clic) -->
+            <ng-template #searchInput>
+              <input 
+                  type="text" 
+                  pInputText 
+                  [(ngModel)]="searchQuery"
+                  (blur)="toggleSearch()"
+                  (input)="onGlobalFilter(dt, $event)"
+                  placeholder="Rechercher..." 
+                  autofocus />
+            </ng-template>                
+            <button pButton pRipple type="button" icon="pi pi-user-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="openNew()"></button>
+            <button pButton pRipple type="button" icon="pi pi-user-minus" class="p-button-rounded p-button-danger p-button-outlined" (click)="deleteSelectedAssujettis()" [disabled]="!selectedAssujettis || !selectedAssujettis.length"></button>
+
+        </div>
+        
+      </div>
+      <p-table #dt [value]="assujettis" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['nom']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedAssujettis" selectionMode="multiple" [rowHover]="true" dataKey="id">
+          
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="code">Code </th>
+            <th pSortableColumn="nom">Nom & Prenom <p-sortIcon field="nom"></p-sortIcon></th>
+            <th pSortableColumn="email">E-mail </th>
+            <th pSortableColumn="fonction">Fonction </th>
+            <th pSortableColumn="datep">Date Prise de Service </th>
+            <th pSortableColumn="contact">Contact </th>
+            <th pSortableColumn="etat">Etat</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-assujetti>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="assujetti"></p-tableCheckbox>
+            </td>
+            <td>{{ assujetti.code }}</td>
+            <td>{{ assujetti.nom }}</td>
+            <td>{{ assujetti.email }}</td>
+            <td>{{ assujetti.fonction }}</td>
+            <td>{{ assujetti.datep | date }}</td>
+            <td>{{ assujetti.contact }}</td>
+            <td>{{ assujetti.etat }}</td>
+            <td>
+              <div class="flex flex-wrap gap-2">
+                <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-success p-button-outlined" (click)="editAssujetti(assujetti)"></button>
+                <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" (click)="deleteAssujetti(assujetti)"></button>
+
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <!-- Assujetti Details Dialog -->
+    <p-dialog [(visible)]="assujettiDialog" [style]="{width: '450px'}" header="Assujetti Details" [modal]="true" class="p-fluid">
+      <ng-template pTemplate="content">
+        <div class="field">
+          <label for="code">Code</label>
+          <input type="text" pInputText id="code" [(ngModel)]="assujetti.code" required />
+        </div>
+        <div class="field">
+          <label for="nom">Nom & Prenom</label>
+          <input type="text" pInputText id="nom" [(ngModel)]="assujetti.nom" required />
+        </div>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input type="email" pInputText id="email" [(ngModel)]="assujetti.email" required />
+        </div>
+        <div class="field">
+          <label for="fonction">Fonction</label>
+          <p-dropdown [options]="fonctions" [(ngModel)]="assujetti.fonction" optionLabel="label" placeholder="Sélectionner une fonction"></p-dropdown>
+        </div>
+        <div class="field">
+          <label for="datep">Date Prise de Service</label>
+          <input type="date" pInputText id="datep" [(ngModel)]="assujetti.datep" required />
+        </div>
+        <div class="field">
+          <label for="contact">Contact</label>
+          <input type="text" pInputText id="contact" [(ngModel)]="assujetti.contact" required />
+        </div>
+        <div class="field">
+          <label for="etat">Etat</label>
+          <p-dropdown [options]="etats" [(ngModel)]="assujetti.etat" optionLabel="label" placeholder="Sélectionner un état"></p-dropdown>
+        </div>
+        <div class="field">
+          <label for="civilite">Civilité</label>
+          <p-dropdown [options]="civilites" [(ngModel)]="assujetti.civilite" optionLabel="label" placeholder="Sélectionner une civilité"></p-dropdown>
+        </div>
+        <div class="field">
+          <label for="institutions">Institution</label>
+          <p-dropdown [options]="institutionsList" [(ngModel)]="assujetti.institutions" optionLabel="label" placeholder="Sélectionner une institution"></p-dropdown>
+        </div>
+        <div class="field">
+          <label for="administration">Administration</label>
+          <p-dropdown [options]="administrations" [(ngModel)]="assujetti.administration" optionLabel="label" placeholder="Sélectionner une administration"></p-dropdown>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button pButton pRipple label="Annuler" icon="pi pi-times" (click)="assujettiDialog = false"></button>
+        <button pButton pRipple label="Sauvegarder" icon="pi pi-check" (click)="saveAssujetti()"></button>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Confirm Dialog for Deleting Assujetti -->
+    <p-dialog [(visible)]="deleteAssujettiDialog" [style]="{width: '400px'}" header="Confirmer" modal>
+      <p>Êtes-vous sûr de vouloir supprimer cet assujetti ?</p>
+      <p-footer>
+        <button pButton pRipple label="Annuler" icon="pi pi-times" (click)="deleteAssujettiDialog = false"></button>
+        <button pButton pRipple label="Confirmer" icon="pi pi-check" class="p-button-danger" (click)="confirmDelete()"></button>
+      </p-footer>
+    </p-dialog>
+
+    <!-- Dialog for Deleting Selected Assujettis -->
+    <p-dialog [(visible)]="deleteAssujettisDialog" [style]="{width: '400px'}" header="Confirmer" modal>
+      <p>Êtes-vous sûr de vouloir supprimer ces assujettis ?</p>
+      <p-footer>
+        <button pButton pRipple label="Annuler" icon="pi pi-times" (click)="deleteAssujettisDialog = false"></button>
+        <button pButton pRipple label="Confirmer" icon="pi pi-check" class="p-button-danger" (click)="deleteSelectedAssujettis()"></button>
+      </p-footer>
+    </p-dialog>
+  </div>
+</div>
