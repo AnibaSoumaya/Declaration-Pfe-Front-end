@@ -9,5 +9,6 @@ export class User {
     statutEmploi?: boolean;
     token?: string;
     firstLogin?: boolean;
+    
 
 }

@@ -1,21 +1,79 @@
 <div class="grid">
-    <div class="col-12 mb-3">
-        <h6 class="mb-2">Type vocabulaire</h6>
-        <p-dropdown [options]="sourceCities" [(ngModel)]="selectedDrop" 
-            placeholder="Choisir à partir de la liste..." [showClear]="true">
-        </p-dropdown>
-    </div>
+  <div class="col-12 mb-3">
+    <h6 class="mb-2">Type vocabulaire</h6>
+    <p-dropdown 
+          [options]="sourceCities" 
+          [(ngModel)]="selectedTypeVocabulaire"
+          placeholder="Choisir à partir de la liste..." 
+          [showClear]="true" 
+          (onChange)="onTypeVocabulaireChange()"
+          optionLabel="intitule" 
+      />
+  </div>
 
-	
-    <div class="col-12 xl:col-4">
-        <div class="card">
-            <h5 class="mb-2">OrderList</h5>
-            <p-orderList [value]="orderCities" header="Cities" [dragdrop]="true" 
-                [listStyle]="{'height':'250px'}">
-                <ng-template let-city pTemplate="item">
-                    <div>{{ city.name }}</div>
-                </ng-template>
-            </p-orderList>
+  <div class="col-12">
+    <div class="card">
+      <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+        <div class="flex flex-wrap gap-2 mb-3">
+          <!-- Buttons only show if we are not adding a new vocabulaire -->
+          <ng-container *ngIf="!isSearching && !tempVocabulaire">
+            <button pButton pRipple type="button" icon="pi pi-search" class="p-button-rounded p-button-info p-button-outlined" (click)="toggleSearch()"></button>
+            <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-button-outlined"
+                [disabled]="!selectedTypeVocabulaire" 
+                (click)="addNewRow()"></button>
+          </ng-container>
+
+          <!-- Search input always visible if isSearching is true -->
+          <ng-container *ngIf="isSearching">
+            <input type="text" pInputText [(ngModel)]="searchQuery" (input)="onGlobalFilter(dt, $event)" placeholder="Rechercher..." autofocus />
+            <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="toggleSearch()"></button>
+          </ng-container>
         </div>
+      </div>
+
+      <!-- Ligne temporaire pour l'ajout -->
+      <div *ngIf="tempVocabulaire" class="p-grid p-mt-2">
+        <div class="p-col">
+          <input pInputText [(ngModel)]="tempVocabulaire.intitule" placeholder="Entrez un vocabulaire" />
+        </div>
+        <div class="p-col">
+          <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" 
+                  [disabled]="!tempVocabulaire.intitule?.trim()" 
+                  (click)="saveVocabulaire()"></button>
+          <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
+                  (click)="cancelNewRow()"></button>
+        </div>
+      </div>
+
+      <p-table #dt [value]="vocabulaireList" [(selection)]="selectedUsers"
+          [rows]="10" [rowsPerPageOptions]="[10,20,30]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [rowHover]="true" styleClass="p-datatable-gridlines"
+          [paginator]="true" [globalFilterFields]="['intitule']"
+          responsiveLayout="scroll">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Valeur</th>
+            <th>Activer</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>{{ item.intitule }}</td>
+            <td>
+              <p-checkbox 
+                binary="true" 
+                [checked]="item.is_active"  
+                (onChange)="toggleActivation(item)">
+              </p-checkbox>
+            </td>
+          </tr>
+        </ng-template>
+        
+      </p-table>
     </div>
+  </div>
 </div>

@@ -13,6 +13,7 @@ export class UserService {
 
   private getAuthHeaders() {
     const token = localStorage.getItem('authToken');
+    console.log("Token d'authentification : ", token); // Vérifiez si le token est bien récupéré.
     if (!token) {
       throw new Error('No authentication token found!');
     }
@@ -22,6 +23,9 @@ export class UserService {
     });
   }
 
+  getUserById(userId: number): Observable<{ id: number, email: string, firstLogin: boolean }> {
+    return this.http.get<{ id: number, email: string, firstLogin: boolean }>(`${this.apiUrl}/${userId}`, { headers: this.getAuthHeaders() }).pipe(catchError(this.handleError));;
+  }
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl, { headers: this.getAuthHeaders() })
       .pipe(catchError(this.handleError));
@@ -48,18 +52,28 @@ export class UserService {
   }
 
   private handleError(error: any) {
+    console.error('Erreur détaillée :', error);  // Afficher plus d'informations sur l'erreur dans la console.
     if (error.status === 403) {
       alert('You do not have permission to access this resource.');
     } else {
-      console.error('Error:', error);  // More detailed logging for easier debugging
+      console.error('Erreur générée :', error);
     }
     return throwError(() => new Error(error.message || 'An unknown error occurred.'));
   }
-
+  
+  
   updateUser(user: User): Observable<User> {
+    console.log("Données envoyées à l'update :", user);
     return this.http.put<User>(`${this.apiUrl}/${user.id}`, user, { headers: this.getAuthHeaders() })
       .pipe(catchError(this.handleError));
   }
+  
+
+  
+  changePassword(newPassword: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/change-password`, { newPassword });
+  }
+  
   
 
   getUsersByName(keyword: string): Observable<User[]> {

@@ -10,22 +10,9 @@ import { RatingModule } from 'primeng/rating';
 import { ButtonModule } from 'primeng/button';
 import { VocabulaireComponent } from './vocabulaire/vocabulaire.component';
 import { ParametrageRoutingModule } from './parametrage-routing.module';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { MenubarModule } from 'primeng/menubar';
-import { TabMenuModule } from 'primeng/tabmenu';
-import { StepsModule } from 'primeng/steps';
-import { TieredMenuModule } from 'primeng/tieredmenu';
-import { MenuModule } from 'primeng/menu';
-import { ContextMenuModule } from 'primeng/contextmenu';
-import { MegaMenuModule } from 'primeng/megamenu';
-import { PanelMenuModule } from 'primeng/panelmenu';
-import { RouterModule } from '@angular/router';
-import { MenusComponent } from 'src/app/demo/components/uikit/menus/menus.component';
-import { PersonalComponent } from 'src/app/demo/components/uikit/menus/personal.component';
-import { ConfirmationComponent } from 'src/app/demo/components/uikit/menus/confirmation.component';
-import { PaymentComponent } from 'src/app/demo/components/uikit/menus/payment.component';
-import { SeatComponent } from 'src/app/demo/components/uikit/menus/seat.component';
+
 import { TableModule } from 'primeng/table';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @NgModule({
     imports: [
@@ -40,6 +27,7 @@ import { TableModule } from 'primeng/table';
         RatingModule,
         ButtonModule,
 
+        CheckboxModule,
         TableModule
 
         

@@ -14,8 +14,7 @@
       <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
             
         <h5 class="m-0">Liste des Assujettis</h5>
-            
-            
+
         <div class="flex flex-wrap gap-2">
             <!-- Bouton de recherche qui se transforme en input -->
             <ng-container *ngIf="!isSearching; else searchInput">
@@ -41,6 +40,7 @@
             </ng-template>                
             <button pButton pRipple type="button" icon="pi pi-user-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="openNew()"></button>
             <button pButton pRipple type="button" icon="pi pi-user-minus" class="p-button-rounded p-button-danger p-button-outlined" (click)="deleteSelectedAssujettis()" [disabled]="!selectedAssujettis || !selectedAssujettis.length"></button>
+            <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-secondary p-button-outlined"></button>
 
         </div>
         
@@ -52,13 +52,15 @@
             <th style="width: 3rem">
               <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
-            <th pSortableColumn="code">Code </th>
-            <th pSortableColumn="nom">Nom & Prenom <p-sortIcon field="nom"></p-sortIcon></th>
+            <th pSortableColumn="nom">Nom <p-sortIcon field="nom"></p-sortIcon></th>
+            <th pSortableColumn="prenom">Prénom </th>
             <th pSortableColumn="email">E-mail </th>
             <th pSortableColumn="fonction">Fonction </th>
+            <th pSortableColumn="civilite">Civilité </th>
+            <th pSortableColumn="administration">Administration </th>
+
             <th pSortableColumn="datep">Date Prise de Service </th>
             <th pSortableColumn="contact">Contact </th>
-            <th pSortableColumn="etat">Etat</th>
             <th></th>
           </tr>
         </ng-template>
@@ -67,20 +69,15 @@
             <td>
               <p-tableCheckbox [value]="assujetti"></p-tableCheckbox>
             </td>
-            <td>{{ assujetti.code }}</td>
             <td>{{ assujetti.nom }}</td>
+            <td>{{ assujetti.prenom }}</td>
             <td>{{ assujetti.email }}</td>
-            <td>{{ assujetti.fonction }}</td>
-            <td>{{ assujetti.datep | date }}</td>
-            <td>{{ assujetti.contact }}</td>
-            <td>{{ assujetti.etat }}</td>
-            <td>
-              <div class="flex flex-wrap gap-2">
-                <button pButton pRipple type="button" icon="pi pi-eye" class="p-button-rounded p-button-success p-button-outlined" (click)="editAssujetti(assujetti)"></button>
-                <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-outlined" (click)="deleteAssujetti(assujetti)"></button>
-
-              </div>
-            </td>
+            <td>{{ assujetti.fonction.intitule }}</td>
+            <td>{{ assujetti.civilite.intitule }}</td>
+            <td>{{ assujetti.administration.intitule }}</td>
+            <td>{{ assujetti.datePriseDeService }}</td>
+            <td>{{ assujetti.contacttel }}</td>
+           
           </tr>
         </ng-template>
       </p-table>
@@ -89,69 +86,50 @@
     <!-- Assujetti Details Dialog -->
     <p-dialog [(visible)]="assujettiDialog" [style]="{width: '450px'}" header="Assujetti Details" [modal]="true" class="p-fluid">
       <ng-template pTemplate="content">
+        <!-- Champs de texte fixes -->
         <div class="field">
-          <label for="code">Code</label>
-          <input type="text" pInputText id="code" [(ngModel)]="assujetti.code" required />
+          <label for="nom">Nom</label>
+          <input type="text" pInputText id="nom" [(ngModel)]="assujetti.nom" />
         </div>
         <div class="field">
-          <label for="nom">Nom & Prenom</label>
-          <input type="text" pInputText id="nom" [(ngModel)]="assujetti.nom" required />
+          <label for="prenom">Prénom</label>
+          <input type="text" pInputText id="prenom" [(ngModel)]="assujetti.prenom" />
         </div>
         <div class="field">
           <label for="email">E-mail</label>
-          <input type="email" pInputText id="email" [(ngModel)]="assujetti.email" required />
-        </div>
-        <div class="field">
-          <label for="fonction">Fonction</label>
-          <p-dropdown [options]="fonctions" [(ngModel)]="assujetti.fonction" optionLabel="label" placeholder="Sélectionner une fonction"></p-dropdown>
+          <input type="email" pInputText id="email" [(ngModel)]="assujetti.email" />
         </div>
         <div class="field">
           <label for="datep">Date Prise de Service</label>
-          <input type="date" pInputText id="datep" [(ngModel)]="assujetti.datep" required />
+          <input type="date" pInputText id="datep" [(ngModel)]="assujetti.datePriseDeService" />
         </div>
         <div class="field">
           <label for="contact">Contact</label>
-          <input type="text" pInputText id="contact" [(ngModel)]="assujetti.contact" required />
+          <input type="text" pInputText id="contact" [(ngModel)]="assujetti.contacttel" />
         </div>
-        <div class="field">
-          <label for="etat">Etat</label>
-          <p-dropdown [options]="etats" [(ngModel)]="assujetti.etat" optionLabel="label" placeholder="Sélectionner un état"></p-dropdown>
-        </div>
-        <div class="field">
-          <label for="civilite">Civilité</label>
-          <p-dropdown [options]="civilites" [(ngModel)]="assujetti.civilite" optionLabel="label" placeholder="Sélectionner une civilité"></p-dropdown>
-        </div>
-        <div class="field">
-          <label for="institutions">Institution</label>
-          <p-dropdown [options]="institutionsList" [(ngModel)]="assujetti.institutions" optionLabel="label" placeholder="Sélectionner une institution"></p-dropdown>
-        </div>
-        <div class="field">
-          <label for="administration">Administration</label>
-          <p-dropdown [options]="administrations" [(ngModel)]="assujetti.administration" optionLabel="label" placeholder="Sélectionner une administration"></p-dropdown>
+    
+        <!-- Parcours des types de vocabulaire dynamiquement -->
+        <div *ngFor="let type of typesVocabulaire">
+          <div class="field">
+            <label>{{ type.intitule }}</label>
+            <p-dropdown 
+              [(ngModel)]="assujetti[type.intitule]"  
+              [options]="vocabulaireListByType[type.id]" 
+              optionLabel="intitule"
+              placeholder="Choisir à partir de la liste..." 
+              [showClear]="true">
+            </p-dropdown>
+          </div>
         </div>
       </ng-template>
-      <ng-template pTemplate="footer">
+    
+      <p-footer>
         <button pButton pRipple label="Annuler" icon="pi pi-times" (click)="assujettiDialog = false"></button>
-        <button pButton pRipple label="Sauvegarder" icon="pi pi-check" (click)="saveAssujetti()"></button>
-      </ng-template>
-    </p-dialog>
-
-    <!-- Confirm Dialog for Deleting Assujetti -->
-    <p-dialog [(visible)]="deleteAssujettiDialog" [style]="{width: '400px'}" header="Confirmer" modal>
-      <p>Êtes-vous sûr de vouloir supprimer cet assujetti ?</p>
-      <p-footer>
-        <button pButton pRipple label="Annuler" icon="pi pi-times" (click)="deleteAssujettiDialog = false"></button>
-        <button pButton pRipple label="Confirmer" icon="pi pi-check" class="p-button-danger" (click)="confirmDelete()"></button>
+        <button pButton pRipple label="Confirmer" icon="pi pi-check" class="p-button-success" (click)="saveAssujetti()"></button>
       </p-footer>
     </p-dialog>
+    
 
-    <!-- Dialog for Deleting Selected Assujettis -->
-    <p-dialog [(visible)]="deleteAssujettisDialog" [style]="{width: '400px'}" header="Confirmer" modal>
-      <p>Êtes-vous sûr de vouloir supprimer ces assujettis ?</p>
-      <p-footer>
-        <button pButton pRipple label="Annuler" icon="pi pi-times" (click)="deleteAssujettisDialog = false"></button>
-        <button pButton pRipple label="Confirmer" icon="pi pi-check" class="p-button-danger" (click)="deleteSelectedAssujettis()"></button>
-      </p-footer>
-    </p-dialog>
+    
   </div>
 </div>

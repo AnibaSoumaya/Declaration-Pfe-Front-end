@@ -5,4 +5,7 @@ export class Vocabulaire {
   intitule: string;
   typevocabulaire: TypeVocabulaire;
   vocabulaireParent?: Vocabulaire;
+  is_active: boolean;
+
+  
 }

@@ -131,14 +131,26 @@ export class GestionUtilisateurComponent implements OnInit {
     this.userToEdit = null;
   }
 
-  // Méthode pour enregistrer l'utilisateur modifié
   saveUpdatedUser(): void {
-    if (this.userToEdit) {
-      this.userService.updateUser(this.userToEdit).subscribe({
+    if (this.userToEdit && this.userToEdit.id) {
+      console.log("Utilisateur authentifié (ID de l'utilisateur authentifié) : ", localStorage.getItem('authToken'));
+      console.log("Données envoyées à l'update :", this.userToEdit);
+  
+      // Créer un objet contenant uniquement les informations spécifiques
+      const userToUpdate = {
+        id: this.userToEdit.id,
+        firstname: this.userToEdit.firstname,
+        lastname: this.userToEdit.lastname,
+        email: this.userToEdit.email,
+        tel: this.userToEdit.tel,
+        role: this.userToEdit.role
+      };
+  
+      this.userService.updateUser(userToUpdate).subscribe({
         next: (updatedUser) => {
           const index = this.users.findIndex(user => user.id === updatedUser.id);
           if (index !== -1) {
-            this.users[index] = updatedUser;  // Mettre à jour l'utilisateur dans la liste
+            this.users[index] = updatedUser;
           }
           this.cancelEditUser();
         },
@@ -146,6 +158,10 @@ export class GestionUtilisateurComponent implements OnInit {
           console.error('Erreur lors de la mise à jour de l’utilisateur', err);
         }
       });
+    } else {
+      console.error("L'ID de l'utilisateur est manquant !");
     }
   }
-}
+  
+  
+}  

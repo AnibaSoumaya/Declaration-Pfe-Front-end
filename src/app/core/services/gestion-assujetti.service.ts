@@ -2,12 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { Assujetti } from '../models/Assujetti.model';
+import { Vocabulaire } from '../models/Vocabulaire.model';
+import { TypeVocabulaire } from '../models/TypeVocabulaire.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class gestionAssujettiService {
   private baseUrl = 'http://localhost:8084/api/assujetti';
+  private baseUrl2: string = 'http://localhost:8084/api'; 
+
+
 
   constructor(private http: HttpClient) { }
 
@@ -19,10 +24,28 @@ export class gestionAssujettiService {
     });
   }
 
-  getAllAssujettis(): Observable<Assujetti[]> {
-    return this.http.get<Assujetti[]>(this.baseUrl, { headers: this.getAuthHeaders() })
-      .pipe(catchError(this.handleError));
+  getVocabulaireByType(typeId: number): Observable<Vocabulaire[]> {
+    return this.http.get<Vocabulaire[]>(`${this.baseUrl2}/vocabulaire/type/${typeId}`, { headers: this.getAuthHeaders() });
   }
+  
+  // méthode pour obtenir le vocabulaire selon l'id du type
+getVocabulaireByTypeId(typeId: number): Observable<Vocabulaire[]> {
+  return this.http.get<Vocabulaire[]>(`${this.baseUrl2}/vocabulaire/type/${typeId}`, { headers: this.getAuthHeaders() })
+    .pipe(catchError(this.handleError));
+}
+
+  // Obtenir la liste des types de vocabulaire
+  getTypesVocabulaire(): Observable<TypeVocabulaire[]> {
+    return this.http.get<TypeVocabulaire[]>(`${this.baseUrl2}/type-vocabulaire`); // Utilisation de la bonne URL
+  }
+  getAllAssujettis(): Observable<Assujetti[]> {
+    
+    return this.http.get<Assujetti[]>(this.baseUrl, { headers: this.getAuthHeaders() })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+  
 
   createAssujetti(assujetti: Assujetti): Observable<Assujetti> {
     return this.http.post<Assujetti>(this.baseUrl, assujetti, { headers: this.getAuthHeaders() })

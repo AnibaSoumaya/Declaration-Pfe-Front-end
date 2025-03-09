@@ -1,59 +1,114 @@
-import { Component } from '@angular/core';
-import { MenuItem, SelectItem } from 'primeng/api';
-import { Product } from 'src/app/demo/api/product';
-import { ProductService } from 'src/app/demo/service/product.service';
+import { Component, OnInit } from '@angular/core';
+import { TypeVocabulaire } from 'src/app/core/models/TypeVocabulaire.model';
+import { Vocabulaire } from 'src/app/core/models/Vocabulaire.model';
+import { VocabulaireService } from 'src/app/core/services/vocabulaire.service';
 
 @Component({
   selector: 'app-vocabulaire',
   templateUrl: './vocabulaire.component.html',
 })
-export class VocabulaireComponent {
-   products: Product[] = [];
-   sortOptions: SelectItem[] = [];
-   sortOrder: number = 0;
-   sortField: string = '';
-   sourceCities: any[] = [];
-   targetCities: any[] = [];
-   orderCities: any[] = [];
+export class VocabulaireComponent implements OnInit {
+  sourceCities: TypeVocabulaire[] = [];
+  selectedTypeVocabulaire: TypeVocabulaire | null = null;
+  vocabulaireList: Vocabulaire[] = [];
+  selectedUsers: any[] = [];
+  searchQuery: string = '';
+  isSearching: boolean = false;
+  tempVocabulaireList: Vocabulaire | null = null;
 
-   selectedDrop: SelectItem = { value: '' };
+  // Objet temporaire pour la ligne d'ajout
+  tempVocabulaire: Vocabulaire | null = null;
 
+  constructor(private vocabulaireService: VocabulaireService) {}
 
+  ngOnInit(): void {
+    this.vocabulaireService.getTypesVocabulaire().subscribe(types => {
+      this.sourceCities = types;
+    });
 
-   constructor(private productService: ProductService) { }
+    // Initially, load all vocabulaire
+    this.loadAllVocabulaire();
+  }
 
-   ngOnInit() {
-       this.productService.getProducts().then(data => this.products = data);
+  onTypeVocabulaireChange() {
+    if (this.selectedTypeVocabulaire) {
+      // If a type is selected, fetch vocabulaire by that type
+      this.vocabulaireService.getVocabulaireByType(this.selectedTypeVocabulaire.id).subscribe(vocabulaire => {
+        this.vocabulaireList = vocabulaire;
+      });
+    } else {
+      // If no type is selected, fetch all vocabulaire
+      this.loadAllVocabulaire();
+    }
+  }
 
-       this.sourceCities = [
-           { name: 'San Francisco', code: 'SF' },
-           { name: 'London', code: 'LDN' },
-           { name: 'Paris', code: 'PRS' },
-           { name: 'Istanbul', code: 'IST' },
-           { name: 'Berlin', code: 'BRL' },
-           { name: 'Barcelona', code: 'BRC' },
-           { name: 'Rome', code: 'RM' }
-       ];
+  // Method to load all vocabulaire
+  loadAllVocabulaire() {
+    this.vocabulaireService.getAllVocabulaire().subscribe(vocabulaire => {
+      this.vocabulaireList = vocabulaire;
+    });
+  }
 
+  // Ajouter une ligne temporaire
+  addNewRow() {
+    if (!this.selectedTypeVocabulaire) return;
 
+    this.tempVocabulaire = {
+      intitule: '',
+      typevocabulaire: this.selectedTypeVocabulaire,
+      is_active: true,
+    };
+  }
 
-       this.targetCities = [];
-       this.orderCities = [...this.sourceCities];
+  // Annuler l'ajout
+  cancelNewRow() {
+    this.tempVocabulaire = null;
+  }
 
-       this.sortOptions = [
-           { label: 'Price High to Low', value: '!price' },
-           { label: 'Price Low to High', value: 'price' }
-       ];
-   }
+  // Sauvegarde du vocabulaire
+  saveVocabulaire() {
+    if (!this.tempVocabulaire || !this.tempVocabulaire.intitule?.trim()) {
+      console.error('L\'intitulé ne peut pas être vide');
+      return;
+    }
 
-   onSortChange(event: any) {
-       const value = event.value;
-       if (value.indexOf('!') === 0) {
-           this.sortOrder = -1;
-           this.sortField = value.substring(1);
-       } else {
-           this.sortOrder = 1;
-           this.sortField = value;
-       }
-   }
+    this.vocabulaireService.createVocabulaire(this.tempVocabulaire).subscribe(
+      (savedVocabulaire) => {
+        this.vocabulaireList.push(savedVocabulaire);
+        this.tempVocabulaire = null;
+        console.log('Vocabulaire ajouté avec succès');
+      },
+      (error) => {
+        console.error('Erreur lors de l\'ajout du vocabulaire:', error);
+      }
+    );
+  }
+
+  toggleSearch() {
+    this.isSearching = !this.isSearching;
+    
+    if (!this.isSearching) {
+      // Clear the search query when search mode is turned off
+      this.searchQuery = '';
+      this.onTypeVocabulaireChange();
+    }
+  }
+
+  onGlobalFilter(dt: any, event: any) {
+    // Ensure the filter is applied to the global fields such as 'intitule'
+    dt.filterGlobal(event.target.value, 'contains');
+  }
+  
+
+  toggleActivation(vocabulaire: Vocabulaire) {
+    vocabulaire.is_active = !vocabulaire.is_active;
+
+    const action = vocabulaire.is_active ? 
+      this.vocabulaireService.enableVocabulaire(vocabulaire.id) : 
+      this.vocabulaireService.disableVocabulaire(vocabulaire.id);
+
+    action.subscribe(() => {
+      console.log(`Vocabulaire ${vocabulaire.id} mis à jour.`);
+    });
+  }
 }
