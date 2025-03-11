@@ -26,6 +26,7 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
         GestionSaisDeclarationModule,
         //ParametrageModule,
         HttpClientModule,
+        
 
     ],
     providers: [

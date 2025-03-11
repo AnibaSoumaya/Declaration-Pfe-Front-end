@@ -131,7 +131,7 @@ export class GestionUtilisateurComponent implements OnInit {
     this.userToEdit = null;
   }
 
-  saveUpdatedUser(): void {
+  /*saveUpdatedUser(): void {
     if (this.userToEdit && this.userToEdit.id) {
       console.log("Utilisateur authentifié (ID de l'utilisateur authentifié) : ", localStorage.getItem('authToken'));
       console.log("Données envoyées à l'update :", this.userToEdit);
@@ -161,7 +161,29 @@ export class GestionUtilisateurComponent implements OnInit {
     } else {
       console.error("L'ID de l'utilisateur est manquant !");
     }
+  }*/ 
+ // Méthode pour enregistrer l'utilisateur modifié
+ saveUpdatedUser(): void {
+  if (this.userToEdit && this.userToEdit.id) {
+      console.log("Utilisateur authentifié (ID de l'utilisateur authentifié) : ", localStorage.getItem('authToken'));
+      console.log("Données envoyées à l'update :", this.userToEdit);
+
+      this.userService.updateUser(this.userToEdit).subscribe({
+          next: (updatedUser) => {
+              const index = this.users.findIndex(user => user.id === updatedUser.id);
+              if (index !== -1) {
+                  this.users[index] = updatedUser;
+              }
+              this.cancelEditUser();
+          },
+          error: (err) => {
+              console.error('Erreur lors de la mise à jour de l’utilisateur', err);
+          }
+      });
+  } else {
+      console.error("L'ID de l'utilisateur est manquant !");
   }
+}
   
   
 }  

@@ -21,6 +21,7 @@ import { ToastModule } from 'primeng/toast';
 import { GestionUtilisateurComponent } from './gestion-utilisateur/gestion-utilisateur.component';
 
 import { AccessComponent } from './access/access.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   imports: [
@@ -41,7 +42,8 @@ import { AccessComponent } from './access/access.component';
     MultiSelectModule,
     DropdownModule,
     ProgressBarModule,
-    ToastModule
+    ToastModule,
+    HttpClientModule,
     
   ],
   declarations: [

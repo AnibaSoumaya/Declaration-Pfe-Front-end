@@ -150,20 +150,31 @@ export class CrudAssujettisComponent implements OnInit {
       this.assujettiService.createAssujetti(this.assujetti).subscribe({
         next: (response) => {
           console.log("Réponse du backend :", response);
+          this.getAllAssujettis();  // Recharger la liste après la confirmation
+          this.assujettiDialog = false;  // Fermer le dialogue
         },
         error: (error) => {
           console.error("Erreur lors de la création :", error);
         }
       });
     }
-    
-    
 
 
     editAssujetti(assujetti: Assujetti) {
       this.assujetti = { ...assujetti };
+    
+      // Pré-sélectionner les valeurs dans chaque dropdown pour l'assujetti
+      this.selectedVoc = {}; // Réinitialisation de la sélection
+    
+      // Affecter les valeurs de vocabulaire pour chaque type à la sélection correspondante
+      this.typesVocabulaire.forEach(type => {
+        const key = type.intitule; // Utilisation de l'intitulé comme clé
+        this.selectedVoc[key] = assujetti[key] ? assujetti[key] : null;
+      });
+    
       this.assujettiDialog = true;
     }
+    
 
     deleteAssujetti(assujetti: Assujetti) {
       this.deleteAssujettiDialog = true;
@@ -177,13 +188,41 @@ export class CrudAssujettisComponent implements OnInit {
       });
     }
 
-    deleteSelectedAssujettis() {
+    deleteSelectedAssujetti(): void {
+      if (!this.selectedAssujettis || this.selectedAssujettis.length === 0) {
+        console.log('Aucun assujetti sélectionné.');
+        return;
+      }
+    
+      this.selectedAssujettis.forEach(assujetti => {
+        if (assujetti && assujetti.id) {
+          this.assujettiService.deleteAssujetti(assujetti.id).subscribe({
+            next: () => {
+              console.log(`Assujetti ${assujetti.id} supprimé.`);
+              // Retirer l'assujetti supprimé de la liste
+              this.assujettis = this.assujettis.filter(a => a.id !== assujetti.id);
+            },
+            error: (err) => {
+              console.error(`Erreur lors de la suppression de l’assujetti ${assujetti.id}`, err);
+            }
+          });
+        }
+      });
+    
+      // Réinitialiser la sélection après la suppression
+      this.selectedAssujettis = [];
+    }
+    
+
+
+
+    /*deleteSelectedAssujettis() {
       const ids = this.selectedAssujettis.map(a => a.id);
       this.assujettiService.deleteSelectedAssujettis(ids).subscribe(() => {
         this.getAllAssujettis();
         this.deleteAssujettisDialog = false;
       });
-    }
+    }*/
 
     // Function for global filter
     onGlobalFilter(dt: any, event: any) {

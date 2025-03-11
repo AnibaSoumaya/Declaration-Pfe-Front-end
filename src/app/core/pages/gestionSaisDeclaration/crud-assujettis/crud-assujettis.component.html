@@ -39,9 +39,11 @@
                   autofocus />
             </ng-template>                
             <button pButton pRipple type="button" icon="pi pi-user-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="openNew()"></button>
-            <button pButton pRipple type="button" icon="pi pi-user-minus" class="p-button-rounded p-button-danger p-button-outlined" (click)="deleteSelectedAssujettis()" [disabled]="!selectedAssujettis || !selectedAssujettis.length"></button>
-            <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-secondary p-button-outlined"></button>
-
+            <button pButton pRipple type="button" icon="pi pi-user-minus" class="p-button-rounded p-button-danger p-button-outlined" (click)="deleteSelectedAssujetti()" [disabled]="!selectedAssujettis || !selectedAssujettis.length"></button>
+            <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-secondary p-button-outlined" 
+            [disabled]="selectedAssujettis.length !== 1" (click)="editAssujetti(selectedAssujettis[0])">
+          </button>
+          
         </div>
         
       </div>
@@ -52,6 +54,7 @@
             <th style="width: 3rem">
               <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
+            <th pSortableColumn="code">Code </th>
             <th pSortableColumn="nom">Nom <p-sortIcon field="nom"></p-sortIcon></th>
             <th pSortableColumn="prenom">Prénom </th>
             <th pSortableColumn="email">E-mail </th>
@@ -61,6 +64,7 @@
 
             <th pSortableColumn="datep">Date Prise de Service </th>
             <th pSortableColumn="contact">Contact </th>
+
             <th></th>
           </tr>
         </ng-template>
@@ -69,6 +73,7 @@
             <td>
               <p-tableCheckbox [value]="assujetti"></p-tableCheckbox>
             </td>
+            <td>{{ assujetti.code }}</td>
             <td>{{ assujetti.nom }}</td>
             <td>{{ assujetti.prenom }}</td>
             <td>{{ assujetti.email }}</td>
@@ -87,6 +92,10 @@
     <p-dialog [(visible)]="assujettiDialog" [style]="{width: '450px'}" header="Assujetti Details" [modal]="true" class="p-fluid">
       <ng-template pTemplate="content">
         <!-- Champs de texte fixes -->
+        <div class="field">
+          <label for="code">Code</label>
+          <input type="text" pInputText id="code" [(ngModel)]="assujetti.code" />
+        </div>
         <div class="field">
           <label for="nom">Nom</label>
           <input type="text" pInputText id="nom" [(ngModel)]="assujetti.nom" />
@@ -107,13 +116,18 @@
           <label for="contact">Contact</label>
           <input type="text" pInputText id="contact" [(ngModel)]="assujetti.contacttel" />
         </div>
+        <div class="field">
+          <label for="matricule">Matricule</label>
+          <input type="text" pInputText id="contact" [(ngModel)]="assujetti.matricule" />
+        </div>
     
         <!-- Parcours des types de vocabulaire dynamiquement -->
         <div *ngFor="let type of typesVocabulaire">
           <div class="field">
             <label>{{ type.intitule }}</label>
             <p-dropdown 
-              [(ngModel)]="assujetti[type.intitule]"  
+            [(ngModel)]="selectedVoc[type.intitule]" 
+
               [options]="vocabulaireListByType[type.id]" 
               optionLabel="intitule"
               placeholder="Choisir à partir de la liste..." 

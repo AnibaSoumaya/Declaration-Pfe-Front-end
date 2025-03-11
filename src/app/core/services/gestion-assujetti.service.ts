@@ -48,6 +48,8 @@ getVocabulaireByTypeId(typeId: number): Observable<Vocabulaire[]> {
   
 
   createAssujetti(assujetti: Assujetti): Observable<Assujetti> {
+    console.log(assujetti);
+    console.log('Données envoyées :', JSON.stringify(assujetti, null, 2));
     return this.http.post<Assujetti>(this.baseUrl, assujetti, { headers: this.getAuthHeaders() })
       .pipe(catchError(this.handleError));
   }
@@ -62,10 +64,15 @@ getVocabulaireByTypeId(typeId: number): Observable<Vocabulaire[]> {
       .pipe(catchError(this.handleError));
   }
 
-  deleteSelectedAssujettis(ids: number[]): Observable<void> {
+  /*deleteSelectedAssujettis(ids: number[]): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/delete-multiple`, ids, { headers: this.getAuthHeaders() })
       .pipe(catchError(this.handleError));
+  }*/
+
+  archiveAssujetti(id: number): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/${id}`, {});  // Assure-toi que l'API prend en charge cette route
   }
+      
 
   private handleError(error: any) {
     if (error.status === 403) {
