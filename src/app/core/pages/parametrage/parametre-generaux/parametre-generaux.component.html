@@ -1,0 +1,51 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card">
+      <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+        <h5>Paramètres Généraux</h5>
+      </div>
+
+      <p-table #dt [value]="parametres">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>ID</th>
+            <th>Code</th>
+            <th>Description</th>
+            <th>Valeur</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-param>
+          <tr *ngIf="!isEditingParam || param.id !== paramToEdit?.id">
+            <td>{{ param.id }}</td>
+            <td>{{ param.code }}</td>
+            <td>{{ param.description }}</td>
+            <td>{{ param.valeur }}</td>
+            <td>
+              <button pButton pRipple type="button" icon="pi pi-pencil"
+                      class="p-button-rounded p-button-text"
+                      (click)="editParam(param)"></button>
+            </td>
+          </tr>
+
+          <!-- Mode édition -->
+          <tr *ngIf="isEditingParam && param.id === paramToEdit?.id">
+            <td>{{ param.id }}</td>
+            <td>{{ param.code }}</td>
+            <td>{{ param.description }}</td>
+            <td><input pInputText [(ngModel)]="paramToEdit.valeur" /></td>
+            <td>
+              <button pButton pRipple type="button" icon="pi pi-check"
+                      class="p-button-rounded p-button-text"
+                      (click)="saveUpdatedParam()"></button>
+              <button pButton pRipple type="button" icon="pi pi-times"
+                      class="p-button-rounded p-button-danger p-button-text"
+                      (click)="cancelEditParam()"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

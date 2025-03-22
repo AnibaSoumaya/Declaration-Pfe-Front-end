@@ -13,6 +13,8 @@ import { ParametrageRoutingModule } from './parametrage-routing.module';
 
 import { TableModule } from 'primeng/table';
 import { CheckboxModule } from 'primeng/checkbox';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { ParametreGenerauxComponent } from './parametre-generaux/parametre-generaux.component';
 
 @NgModule({
     imports: [
@@ -26,7 +28,7 @@ import { CheckboxModule } from 'primeng/checkbox';
         DropdownModule,
         RatingModule,
         ButtonModule,
-
+        ToggleButtonModule,
         CheckboxModule,
         TableModule
 
@@ -35,6 +37,7 @@ import { CheckboxModule } from 'primeng/checkbox';
     ],
     declarations: [
         VocabulaireComponent,
+        ParametreGenerauxComponent
     ]
 })
 export class ParametrageModule { }

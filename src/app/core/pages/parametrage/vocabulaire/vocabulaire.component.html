@@ -55,6 +55,7 @@
 
         <ng-template pTemplate="header">
           <tr>
+            <th>Type</th>
             <th>Valeur</th>
             <th>Activer</th>
           </tr>
@@ -62,6 +63,7 @@
 
         <ng-template pTemplate="body" let-item>
           <tr>
+            <td>{{ item.typevocabulaire.intitule }}</td>
             <td>{{ item.intitule }}</td>
             <td>
               <p-checkbox 
@@ -69,7 +71,9 @@
                 [checked]="item.is_active"  
                 (onChange)="toggleActivation(item)">
               </p-checkbox>
+              
             </td>
+
           </tr>
         </ng-template>
         

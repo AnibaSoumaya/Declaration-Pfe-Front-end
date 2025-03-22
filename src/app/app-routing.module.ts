@@ -4,6 +4,7 @@ import { NotfoundComponent } from './demo/components/notfound/notfound.component
 import { AppLayoutComponent } from "./layout/app.layout.component";
 import { GestionUtilisateurComponent } from './core/pages/securite/gestion-utilisateur/gestion-utilisateur.component';
 import { VocabulaireComponent } from './core/pages/parametrage/vocabulaire/vocabulaire.component';
+import { ParametreGenerauxComponent } from './core/pages/parametrage/parametre-generaux/parametre-generaux.component';
 //import { AdminGuard } from './core/guards/admin.guard';
 
 @NgModule({
@@ -24,7 +25,9 @@ import { VocabulaireComponent } from './core/pages/parametrage/vocabulaire/vocab
 
 
                     { path: 'utilisateur', component: GestionUtilisateurComponent },
-                    { path: 'vocabulaire', component: VocabulaireComponent }
+                    { path: 'vocabulaire', component: VocabulaireComponent },
+                    { path: 'parametres', component: ParametreGenerauxComponent }
+
                 ]
             },
            // {path: 'admin',Component: AdminComponent,canActivate: [AdminGuard] },

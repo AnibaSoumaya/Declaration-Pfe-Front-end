@@ -144,6 +144,12 @@ export class CrudAssujettisComponent implements OnInit {
       Object.keys(this.selectedVoc).forEach(key => {
         this.assujetti[key] = this.selectedVoc[key]; 
       });
+
+      // Vérification que le numéro ne dépasse pas 8 chiffres
+      if (this.assujetti.contacttel && this.assujetti.contacttel.length > 8) {
+        alert("Le numéro de téléphone ne doit pas dépasser 8 chiffres !");
+        return;
+      }
     
       console.log("Données envoyées :", this.assujetti); // Vérification
     

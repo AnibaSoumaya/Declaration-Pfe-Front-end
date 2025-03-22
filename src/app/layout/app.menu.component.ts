@@ -35,6 +35,11 @@ export class AppMenuComponent implements OnInit {
                                 icon: 'pi pi-language',
                                 routerLink: ['/vocabulaire']
                             },
+                            {
+                                label: 'Paramètres',
+                                icon: 'pi pi-cog',
+                                routerLink: ['/parametres']
+                            },
 
                         ]
                     },

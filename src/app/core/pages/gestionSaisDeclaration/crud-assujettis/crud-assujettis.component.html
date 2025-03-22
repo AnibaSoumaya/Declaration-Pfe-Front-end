@@ -89,59 +89,74 @@
     </div>
 
     <!-- Assujetti Details Dialog -->
-    <p-dialog [(visible)]="assujettiDialog" [style]="{width: '450px'}" header="Assujetti Details" [modal]="true" class="p-fluid">
+    <p-dialog [(visible)]="assujettiDialog" [style]="{width: '700px'}" header="Assujetti Details" [modal]="true" class="p-fluid">
       <ng-template pTemplate="content">
-        <!-- Champs de texte fixes -->
-        <div class="field">
-          <label for="code">Code</label>
-          <input type="text" pInputText id="code" [(ngModel)]="assujetti.code" />
+        <!-- Champs sur la même ligne (flexbox) -->
+        <div class="field" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="code">Code <span style="color: red; font-weight: bold;">*</span></label>
+            <input type="text" pInputText id="code" [(ngModel)]="assujetti.code" required />
+          </div>
+          <div style="flex: 1;">
+            <label for="nom">Nom <span style="color: red; font-weight: bold;">*</span></label>
+            <input type="text" pInputText id="nom" [(ngModel)]="assujetti.nom" required />
+          </div>
         </div>
-        <div class="field">
-          <label for="nom">Nom</label>
-          <input type="text" pInputText id="nom" [(ngModel)]="assujetti.nom" />
+    
+        <div class="field" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="prenom">Prénom <span style="color: red; font-weight: bold;">*</span></label>
+            <input type="text" pInputText id="prenom" [(ngModel)]="assujetti.prenom" required />
+          </div>
+          <div style="flex: 1;">
+            <label for="email">E-mail <span style="color: red; font-weight: bold;">*</span></label>
+            <input type="email" pInputText id="email" [(ngModel)]="assujetti.email" required />
+          </div>
         </div>
-        <div class="field">
-          <label for="prenom">Prénom</label>
-          <input type="text" pInputText id="prenom" [(ngModel)]="assujetti.prenom" />
+    
+        <div class="field" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="datep">Date Prise de Service <span style="color: red; font-weight: bold;">*</span></label>
+            <input type="date" pInputText id="datep" [(ngModel)]="assujetti.datePriseDeService" required />
+          </div>
+          <div style="flex: 1;">
+            <label for="contact">Contact <span style="color: red; font-weight: bold;">*</span></label>
+            <input type="text" pInputText id="contact" [(ngModel)]="assujetti.contacttel" required />
+          </div>
         </div>
-        <div class="field">
-          <label for="email">E-mail</label>
-          <input type="email" pInputText id="email" [(ngModel)]="assujetti.email" />
-        </div>
-        <div class="field">
-          <label for="datep">Date Prise de Service</label>
-          <input type="date" pInputText id="datep" [(ngModel)]="assujetti.datePriseDeService" />
-        </div>
-        <div class="field">
-          <label for="contact">Contact</label>
-          <input type="text" pInputText id="contact" [(ngModel)]="assujetti.contacttel" />
-        </div>
-        <div class="field">
-          <label for="matricule">Matricule</label>
-          <input type="text" pInputText id="contact" [(ngModel)]="assujetti.matricule" />
+    
+        <div class="field" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="matricule">Matricule <span style="color: red; font-weight: bold;">*</span></label>
+            <input type="text" pInputText id="matricule" [(ngModel)]="assujetti.matricule" required />
+          </div>
         </div>
     
         <!-- Parcours des types de vocabulaire dynamiquement -->
         <div *ngFor="let type of typesVocabulaire">
-          <div class="field">
-            <label>{{ type.intitule }}</label>
-            <p-dropdown 
-            [(ngModel)]="selectedVoc[type.intitule]" 
-
-              [options]="vocabulaireListByType[type.id]" 
-              optionLabel="intitule"
-              placeholder="Choisir à partir de la liste..." 
-              [showClear]="true">
-            </p-dropdown>
+          <div class="field" style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+              <label>{{ type.intitule }} <span style="color: red; font-weight: bold;">*</span></label>
+              <p-dropdown 
+                [(ngModel)]="selectedVoc[type.intitule]" 
+                [options]="vocabulaireListByType[type.id]" 
+                optionLabel="intitule"
+                placeholder="Choisir à partir de la liste..." 
+                [showClear]="true" 
+                required>
+              </p-dropdown>
+            </div>
           </div>
         </div>
       </ng-template>
     
       <p-footer>
-        <button pButton pRipple label="Annuler" icon="pi pi-times" (click)="assujettiDialog = false"></button>
-        <button pButton pRipple label="Confirmer" icon="pi pi-check" class="p-button-success" (click)="saveAssujetti()"></button>
+        <button pButton pRipple class="p-button-outlined p-button-warning" label="Annuler" icon="pi pi-times" (click)="assujettiDialog = false"></button>
+        <button pButton pRipple class="p-button-outlined p-button-success" label="Confirmer" icon="pi pi-check" (click)="saveAssujetti()"></button>
       </p-footer>
     </p-dialog>
+    
+    
     
 
     
