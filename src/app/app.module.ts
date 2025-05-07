@@ -14,6 +14,7 @@ import { PhotoService } from './demo/service/photo.service';
 import { GestionSaisDeclarationModule } from './core/pages/gestionSaisDeclaration/gestionSaisDeclaration.module';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { DialogModule } from 'primeng/dialog';
 //import { ParametrageModule } from './core/pages/parametrage/parametrage.module';
 
 @NgModule({
@@ -26,6 +27,9 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
         GestionSaisDeclarationModule,
         //ParametrageModule,
         HttpClientModule,
+        DialogModule
+
+        
         
 
     ],

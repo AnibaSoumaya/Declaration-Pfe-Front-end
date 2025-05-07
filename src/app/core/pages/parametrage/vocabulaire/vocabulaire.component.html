@@ -1,83 +1,226 @@
 <div class="grid">
-  <div class="col-12 mb-3">
-    <h6 class="mb-2">Type vocabulaire</h6>
-    <p-dropdown 
-          [options]="sourceCities" 
-          [(ngModel)]="selectedTypeVocabulaire"
-          placeholder="Choisir à partir de la liste..." 
-          [showClear]="true" 
-          (onChange)="onTypeVocabulaireChange()"
-          optionLabel="intitule" 
-      />
-  </div>
-
   <div class="col-12">
-    <div class="card">
-      <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-        <div class="flex flex-wrap gap-2 mb-3">
-          <!-- Buttons only show if we are not adding a new vocabulaire -->
-          <ng-container *ngIf="!isSearching && !tempVocabulaire">
-            <button pButton pRipple type="button" icon="pi pi-search" class="p-button-rounded p-button-info p-button-outlined" (click)="toggleSearch()"></button>
-            <button pButton pRipple type="button" icon="pi pi-plus" class="p-button-rounded p-button-success p-button-outlined"
-                [disabled]="!selectedTypeVocabulaire" 
-                (click)="addNewRow()"></button>
-          </ng-container>
-
-          <!-- Search input always visible if isSearching is true -->
-          <ng-container *ngIf="isSearching">
-            <input type="text" pInputText [(ngModel)]="searchQuery" (input)="onGlobalFilter(dt, $event)" placeholder="Rechercher..." autofocus />
-            <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="toggleSearch()"></button>
-          </ng-container>
-        </div>
-      </div>
-
-      <!-- Ligne temporaire pour l'ajout -->
-      <div *ngIf="tempVocabulaire" class="p-grid p-mt-2">
-        <div class="p-col">
-          <input pInputText [(ngModel)]="tempVocabulaire.intitule" placeholder="Entrez un vocabulaire" />
-        </div>
-        <div class="p-col">
-          <button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" 
-                  [disabled]="!tempVocabulaire.intitule?.trim()" 
-                  (click)="saveVocabulaire()"></button>
-          <button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" 
-                  (click)="cancelNewRow()"></button>
-        </div>
-      </div>
-
-      <p-table #dt [value]="vocabulaireList" [(selection)]="selectedUsers"
-          [rows]="10" [rowsPerPageOptions]="[10,20,30]"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-          [rowHover]="true" styleClass="p-datatable-gridlines"
-          [paginator]="true" [globalFilterFields]="['intitule']"
-          responsiveLayout="scroll">
-
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Type</th>
-            <th>Valeur</th>
-            <th>Activer</th>
-          </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-item>
-          <tr>
-            <td>{{ item.typevocabulaire.intitule }}</td>
-            <td>{{ item.intitule }}</td>
-            <td>
-              <p-checkbox 
-                binary="true" 
-                [checked]="item.is_active"  
-                (onChange)="toggleActivation(item)">
-              </p-checkbox>
-              
-            </td>
-
-          </tr>
-        </ng-template>
+    <!-- Styles pour le dialogue personnalisé -->
+    <style>
+      /* Style pour l'en-tête du dialogue */
+      :host ::ng-deep .custom-dialog .p-dialog-header {
+        background: linear-gradient(135deg, #FF8C00, #F57C00);
+        color: white;
+      }
+      
+      /* Style pour les boutons hover */
+      :host ::ng-deep .p-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      }
+      
+      /* Style pour les lignes du tableau hover */
+      :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+        background-color: #f9f9f9;
+      }
+      
+      /* Style pour les tables avec des coins arrondis */
+      :host ::ng-deep .rounded-table {
+        border-radius: 8px;
+        overflow: hidden;
+      }
+    </style>
+    
+    <!-- Carte principale avec ombre et bords arrondis -->
+    <div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
+      <div class="card px-6 py-6" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border-top: none;">
         
-      </p-table>
+        <p-toast></p-toast>
+
+        <!-- Header avec un dégradé orange plus moderne -->
+        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center" 
+             style="background: linear-gradient(135deg, #FF8C00, #F57C00); 
+                    padding: 1.5rem; 
+                    margin: -1.5rem -1.5rem 1.5rem -1.5rem; 
+                    border-radius: 12px 12px 0 0;">
+          <!-- Titre en blanc avec typographie améliorée -->
+          <h3 class="m-0" style="color: white; font-weight: 600; font-size: 1.5rem; letter-spacing: 0.5px;">Liste du vocabulaire</h3>
+
+          <div class="flex flex-wrap gap-3" style="margin-right: 0.5rem;">
+            <!-- Type de vocabulaire dropdown amélioré -->
+            <p-dropdown 
+              [options]="sourceCities" 
+              [(ngModel)]="selectedTypeVocabulaire"
+              placeholder="Choisir à partir de la liste..." 
+              [showClear]="true" 
+              (onChange)="onTypeVocabulaireChange()"
+              optionLabel="intitule" 
+              styleClass="mr-2"
+              [style]="{'min-width': '250px', 'border-radius': '20px', 'background': 'white'}"
+            />
+            
+            <ng-container *ngIf="!isSearching && !tempVocabulaire">
+              <button 
+                pButton pRipple 
+                type="button" 
+                icon="pi pi-search" 
+                class="p-button-rounded p-button-info p-button-outlined" 
+                style="color: white; border-color: white; width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+                (click)="toggleSearch()">
+              </button>
+              <button 
+                pButton pRipple 
+                type="button" 
+                icon="pi pi-plus" 
+                class="p-button-rounded p-button-success p-button-outlined" 
+                style="color: white; border-color: white; width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+                [disabled]="!selectedTypeVocabulaire" 
+                (click)="addNewRow()">
+              </button>
+            </ng-container>
+            
+            <ng-container *ngIf="isSearching">
+              <!-- Barre de recherche améliorée -->
+              <div style="position: relative;">
+                <i class="pi pi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+                <input 
+                  type="text" 
+                  pInputText 
+                  [(ngModel)]="searchQuery" 
+                  (input)="onGlobalFilter(dt, $event)" 
+                  placeholder="Rechercher..." 
+                  style="padding: 0.5rem 0.5rem 0.5rem 2.5rem; border-radius: 20px; width: 250px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
+                  autofocus />
+              </div>
+              <button 
+                pButton pRipple 
+                type="button" 
+                icon="pi pi-times" 
+                class="p-button-rounded p-button-danger p-button-outlined" 
+                style="color: white; border-color: white; width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+                (click)="toggleSearch()">
+              </button>
+            </ng-container>
+          </div>
+        </div>
+        
+        <!-- Ligne temporaire pour l'ajout avec style amélioré -->
+        <div *ngIf="tempVocabulaire" class="p-grid p-mt-2 mb-4 px-3">
+          <div class="flex align-items-center gap-2 p-3" style="background-color: #f8f9fa; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <input 
+              pInputText 
+              [(ngModel)]="tempVocabulaire.intitule" 
+              placeholder="Entrez un vocabulaire" 
+              class="flex-grow-1" 
+              style="padding: 0.75rem; border-radius: 6px; border: 1px solid #ced4da;" />
+            <button 
+              pButton pRipple 
+              type="button" 
+              icon="pi pi-check" 
+              class="p-button-rounded p-button-success" 
+              style="width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+              [disabled]="!tempVocabulaire.intitule?.trim()" 
+              (click)="saveVocabulaire()">
+            </button>
+            <button 
+              pButton pRipple 
+              type="button" 
+              icon="pi pi-times" 
+              class="p-button-rounded p-button-danger" 
+              style="width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+              (click)="cancelNewRow()">
+            </button>
+          </div>
+        </div>
+        
+        <!-- Le tableau avec les coins arrondis -->
+        <p-table 
+          #dt 
+          [value]="vocabulaireList" 
+          [(selection)]="selectedUsers"
+          [rows]="5" 
+          [rowsPerPageOptions]="[5,10]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+          [rowHover]="true" 
+          styleClass="p-datatable-gridlines" 
+          [tableStyle]="{'border-radius': '8px', 'overflow': 'hidden'}"
+          [paginator]="true" 
+          [globalFilterFields]="['intitule']"
+          responsiveLayout="scroll">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <!-- En-têtes de colonnes redessinés -->
+              <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Valeur</th>
+              <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef; width: 150px;">État</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-item>
+            <!-- Lignes du tableau améliorées -->
+            <tr style="transition: background-color 0.2s;">
+              <!-- Colonne intitule avec édition -->
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+                <ng-container *ngIf="editingVocabulaireId === item.id; else readMode">
+                  <div class="flex justify-content-between align-items-center w-full">
+                    <input 
+                      pInputText 
+                      [(ngModel)]="item.intitule" 
+                      class="flex-grow-1 mr-2"
+                      style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ced4da;" />
+                    <div class="flex gap-2">
+                      <button 
+                        pButton 
+                        pRipple 
+                        icon="pi pi-check" 
+                        class="p-button-rounded p-button-success p-button-text" 
+                        style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
+                        (click)="updateVocabulaire(item)">
+                      </button>
+                      <button 
+                        pButton 
+                        pRipple 
+                        icon="pi pi-times" 
+                        class="p-button-rounded p-button-danger p-button-text" 
+                        style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
+                        (click)="cancelEdit()">
+                      </button>
+                    </div>
+                  </div>
+                </ng-container>
+                
+                <ng-template #readMode>
+                  <div class="flex justify-content-between align-items-center w-full">
+                    <span style="color: #495057; font-weight: 400;">{{ item.intitule }}</span>
+                    <button 
+                      pButton 
+                      pRipple 
+                      icon="pi pi-pencil" 
+                      class="p-button-rounded p-button-secondary p-button-text" 
+                      style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
+                      (click)="editVocabulaire(item)">
+                    </button>
+                  </div>
+                </ng-template>
+              </td>
+              
+              <!-- Colonne active avec inputSwitch -->
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem; text-align: center;">
+                <p-inputSwitch 
+                  [(ngModel)]="item.active" 
+                  (ngModelChange)="toggleActivation(item, $event)">
+                </p-inputSwitch>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <!-- Template pour les lignes vides -->
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="2" style="text-align: center; padding: 2rem; color: #666;">
+                <i class="pi pi-info-circle" style="font-size: 2rem; margin-bottom: 1rem; color: #999;"></i>
+                <p>Aucun vocabulaire trouvé.</p>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
     </div>
   </div>
 </div>

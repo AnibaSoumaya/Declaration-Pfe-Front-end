@@ -1,4 +1,4 @@
-export class Parametrage {
+export class Parametre {
     id: number;
     code: string; 
     description: string; 

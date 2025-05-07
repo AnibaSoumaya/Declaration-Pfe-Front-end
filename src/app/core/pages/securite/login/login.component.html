@@ -1,46 +1,330 @@
-<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
-    <div class="flex flex-column align-items-center justify-content-center">
-        <img src="/assets/demo/images/logos/niger01.png" alt="Niger Logo" class="mb-5 w-6rem flex-shrink-0">
-        <!--<img src="/assets/demo/images/logos/niger-colors.png" alt="Niger Logo" class="a" height="100%">-->
-        <div style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, #E47724 10%, rgba(228, 119, 36, 0) 30%);">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail National du Niger - Connexion</title>
+    <style>
+        /* Styles d'animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulseGlow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(228, 119, 36, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(228, 119, 36, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(228, 119, 36, 0);
+            }
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Ajout d'animations au design original */
+        .surface-ground {
+            background: linear-gradient(-45deg, #f5f5f5, #e9e9e9, #f0f0f0, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        .logo-animate {
+            animation: fadeInUp 1.2s ease-out;
+        }
+        
+        .gradient-border {
+            position: relative;
+            animation: fadeInUp 1.5s ease-out, pulseGlow 3s infinite;
+            transition: all 0.3s ease;
+        }
+        
+        .gradient-border:hover {
+            transform: translateY(-5px);
+        }
+        
+        .login-card {
+            animation: fadeInUp 1.8s ease-out;
+            transition: all 0.3s ease;
+        }
+        
+        .input-animate {
+            transition: all 0.3s ease;
+        }
+        
+        .input-animate:focus {
+            transform: scale(1.02);
+            border-color: #E47724;
+        }
+        
+        .btn-animate {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-animate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(228, 119, 36, 0.25);
+        }
+        
+        .btn-animate:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+            transition: all 0.6s ease;
+        }
+        
+        .btn-animate:hover:before {
+            left: 100%;
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Petites particules décoratives */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(228, 119, 36, 0.2);
+            pointer-events: none;
+        }
+        
+        .p1 { width: 8px; height: 8px; left: 10%; top: 20%; animation: floating 4s ease-in-out infinite; }
+        .p2 { width: 12px; height: 12px; left: 25%; top: 60%; animation: floating 6s ease-in-out infinite; background-color: rgba(13, 176, 43, 0.2); }
+        .p3 { width: 7px; height: 7px; left: 60%; top: 25%; animation: floating 5s ease-in-out infinite; }
+        .p4 { width: 10px; height: 10px; left: 90%; top: 70%; animation: floating 7s ease-in-out infinite; background-color: rgba(13, 176, 43, 0.2); }
+        .p5 { width: 15px; height: 15px; left: 75%; top: 10%; animation: floating 8s ease-in-out infinite; }
+        .p6 { width: 6px; height: 6px; left: 40%; top: 80%; animation: floating 6s ease-in-out infinite; background-color: rgba(13, 176, 43, 0.2); }
+        
+       
+        
+        @keyframes flagWave {
+            0% { transform: perspective(500px) rotateY(-5deg); }
+            50% { transform: perspective(500px) rotateY(5deg); }
+            100% { transform: perspective(500px) rotateY(-5deg); }
+        }
+        
+        .flag-stripe {
+            width: 100%;
+            height: 33.33%;
+        }
+        
+        .flag-orange {
+            background-color: #E47724;
+        }
+        
+        .flag-white {
+            background-color: #FFFFFF;
+        }
+        
+        .flag-green {
+            background-color: #0DB02B;
+        }
+        
+        /* Texture subtile */
+        .texture-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23e47724' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 20L20 0h10L0 30v-10zm20 10L0 40v-10l10-10h10zm10-10L40 0v10L20 30h-10z'/%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Particules animées en arrière-plan -->
+    <div class="particles">
+        <div class="particle p1"></div>
+        <div class="particle p2"></div>
+        <div class="particle p3"></div>
+        <div class="particle p4"></div>
+        <div class="particle p5"></div>
+        <div class="particle p6"></div>
+    </div>
 
-            <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius:53px">
-                <div class="text-center mb-5">
-                    <span class="text-600 font-medium">Connectez-vous</span>
-                </div>
+    <!-- Cercles décoratifs en arrière-plan -->
+    <div class="decorative-circle circle-orange circle1"></div>
+    <div class="decorative-circle circle-green circle2"></div>
+    <div class="decorative-circle circle-white circle3"></div>
+    <div class="decorative-circle circle-orange circle4"></div>
+    
 
-                <!-- Affichage de l'alerte d'erreur générale -->
-                <div *ngIf="errorMessage" class="p-error mb-3">
-                    <p>{{ errorMessage }}</p>
-                </div>
+    
+    <!-- Texture subtile -->
+    <div class="texture-overlay"></div>
 
-                <!-- Affichage de l'alerte si les champs sont vides 
-                <div *ngIf="isFormInvalid" class="p-error mb-3">
-                    <p>Veuillez remplir tous les champs pour vous connecter.</p>
-                </div>-->
-
-                <div>
-                    <label for="email1" class="block text-900 text-xl font-medium mb-2">E-mail</label>
-                    <input id="email1" type="email" [(ngModel)]="email" placeholder="Email address" pInputText class="w-full md:w-30rem mb-5" style="padding:1rem" required email>
-
-                    <!-- Message d'erreur si l'email est invalide -->
-                    <div *ngIf="isEmailInvalid" class="text-red-500 text-sm">
-                        L'adresse email doit être valide (ex: user&#64;example.com).
+    <!-- Design original avec classes d'animation -->
+    <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+        <div class="flex flex-column align-items-center justify-content-center">
+            <img src="/assets/demo/images/logos/niger01.png" alt="Niger Logo">
+            
+            <div class="gradient-border" style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, #E47724 10%, rgba(228, 119, 36, 0) 30%);">
+                <div class="w-full surface-card py-8 px-5 sm:px-8 login-card" style="border-radius:53px">
+                    <div class="text-center mb-5">
+                        <span class="text-600 font-medium">Connectez-vous</span>
                     </div>
 
-                    <label for="password1" class="block text-900 font-medium text-xl mb-2">Mot de passe</label>
-                    <p-password id="password1" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-5" inputStyleClass="w-full p-3 md:w-30rem"></p-password>
+                    <!-- Affichage de l'alerte d'erreur générale -->
+                    <div *ngIf="errorMessage" class="p-error mb-3">
+                        <p>{{ errorMessage }}</p>
+                    </div>
 
-                    <div class="flex align-items-center justify-content-between mb-5 gap-5">
-                        <div class="flex align-items-center">
-                            <p-checkbox id="rememberme1" [binary]="true" styleClass="mr-2"></p-checkbox>
-                            <label for="rememberme1">Mémoriser mes informations</label>
+                    <div>
+                        <label for="email1" class="block text-900 text-xl font-medium mb-2">E-mail</label>
+                        <input id="email1" type="email" [(ngModel)]="email" placeholder="Email address" pInputText class="w-full md:w-30rem mb-5 input-animate" style="padding:1rem" required email>
+
+                        <!-- Message d'erreur si l'email est invalide -->
+                        <div *ngIf="isEmailInvalid" class="text-red-500 text-sm">
+                            L'adresse email doit être valide (ex: user&#64;example.com).
                         </div>
-                        <a class="font-medium no-underline ml-2 text-right cursor-pointer" routerLink="/securite/acces" style="color: #E47724">Mot de passe oublié?</a>
+
+                        <label for="password1" class="block text-900 font-medium text-xl mb-2">Mot de passe</label>
+                        <p-password id="password1" [(ngModel)]="password" placeholder="Password" [toggleMask]="true" styleClass="mb-5 input-animate" inputStyleClass="w-full p-3 md:w-30rem"></p-password>
+
+                        <div class="flex align-items-center justify-content-between mb-5 gap-5">
+                            <div class="flex align-items-center">
+                                <p-checkbox id="rememberme1" [binary]="true" styleClass="mr-2"></p-checkbox>
+                                <label for="rememberme1">Mémoriser mes informations</label>
+                            </div>
+                            <a class="font-medium no-underline ml-2 text-right cursor-pointer" routerLink="/securite/acces" style="color: #E47724">Mot de passe oublié?</a>
+                        </div>
+                        <button pButton pRipple label="Se connecter" class="w-full p-3 text-xl btn-animate" style="background-color: #E47724; border-color: #E47724;" (click)="onLogin()"></button>
                     </div>
-                    <button pButton pRipple label="Se connecter" class="w-full p-3 text-xl" style="background-color: #E47724; border-color: #E47724;" (click)="onLogin()"></button>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Script pour ajouter des particules animées dynamiquement -->
+    <script>
+        // Fonction pour créer des particules en mouvement
+        function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Taille et position aléatoires
+                const size = Math.random() * 8 + 3;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+                
+                // Couleur aléatoire (orange ou vert)
+                if (Math.random() > 0.5) {
+                    particle.style.backgroundColor = 'rgba(228, 119, 36, 0.2)';
+                } else {
+                    particle.style.backgroundColor = 'rgba(13, 176, 43, 0.2)';
+                }
+                
+                // Animation avec durée aléatoire
+                const duration = Math.random() * 8 + 4;
+                particle.style.animation = `floating ${duration}s ease-in-out infinite`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Créer des particules au chargement de la page
+        window.addEventListener('load', createParticles);
+        
+        // Effet de focus amélioré pour les champs de saisie
+        const inputs = document.querySelectorAll('.input-animate');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.style.boxShadow = '0 0 0 3px rgba(228, 119, 36, 0.25)';
+            });
+            
+            input.addEventListener('blur', () => {
+                input.style.boxShadow = 'none';
+            });
+        });
+
+        // Animation pour le contenu principal au chargement
+        window.addEventListener('load', () => {
+            const loginCard = document.querySelector('.login-card');
+            const logo = document.querySelector('.logo-animate');
+            
+            if (loginCard) {
+                loginCard.style.opacity = '0';
+                loginCard.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    loginCard.style.transition = 'all 0.8s ease-out';
+                    loginCard.style.opacity = '1';
+                    loginCard.style.transform = 'translateY(0)';
+                }, 300);
+            }
+            
+            if (logo) {
+                logo.style.opacity = '0';
+                logo.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    logo.style.transition = 'all 0.6s ease-out';
+                    logo.style.opacity = '1';
+                    logo.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>

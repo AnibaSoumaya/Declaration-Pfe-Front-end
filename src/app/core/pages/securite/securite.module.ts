@@ -5,7 +5,7 @@ import { LoginRoutingModule } from 'src/app/demo/components/auth/login/login-rou
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
 import { LoginComponent } from './login/login.component';
 import { TableDemoRoutingModule } from 'src/app/demo/components/uikit/table/tabledemo-routing.module';
@@ -22,7 +22,15 @@ import { GestionUtilisateurComponent } from './gestion-utilisateur/gestion-utili
 
 import { AccessComponent } from './access/access.component';
 import { HttpClientModule } from '@angular/common/http';
-
+import { ProfilComponent } from './profil/profil.component';
+import { DividerModule } from 'primeng/divider';
+import { AvatarModule } from 'primeng/avatar';
+import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
+/*
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+*/
 @NgModule({
   imports: [
     CommonModule,
@@ -44,12 +52,29 @@ import { HttpClientModule } from '@angular/common/http';
     ProgressBarModule,
     ToastModule,
     HttpClientModule,
+
+    ReactiveFormsModule,
+
+    DividerModule,
+    
+    AvatarModule,
+    CardModule,
+    RippleModule,
+    DialogModule
+
+    
+/*
+    BrowserModule,
+    BrowserAnimationsModule,
+    */
     
   ],
+  
   declarations: [
     LoginComponent,
     GestionUtilisateurComponent,
-    AccessComponent
+    AccessComponent,
+    ProfilComponent
     
   ],
 })

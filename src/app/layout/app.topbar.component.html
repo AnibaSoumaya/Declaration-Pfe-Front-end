@@ -1,13 +1,126 @@
-<div class="layout-topbar" >
+<!-- <div class="layout-topbar" style="display: flex; align-items: center; position: fixed; top: 0; left: 0; right: 0; height: 70px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); z-index: 999; overflow: hidden; background-color: #ffffff;">
+    <div style="position: absolute; top: 0; left: 350px; right: -50px; height: 100%; background-color: #ffffff; transform: skewX(-30deg); transform-origin: top right; z-index: 0;"></div>
+    
+    <a class="layout-topbar-logo" routerLink="" style="position: relative; z-index: 1; padding-left: 1.5rem; display: flex; align-items: center;">
+      <img src="/assets/demo/images/logos/niger01.png"
+        alt="Niger Logo"
+        style="width: 75px; height: auto; object-fit: contain; image-rendering: crisp-edges; ">
+    </a>
+    
+    <button #menubutton class="p-link layout-menu-button layout-topbar-button"  style="color: #ff8c00;" (click)="layoutService.onMenuToggle()">
+        <i class="pi pi-bars"></i>
+    </button>
+
+    <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button"  style="color: #ff8c00;" (click)="layoutService.showProfileSidebar()">
+        <i class="pi pi-ellipsis-v"></i>
+    </button>
+
+    <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}" >
+        <button class="p-link layout-topbar-button"  style="color: #ff8c00" >
+            <i class="pi pi-bell"></i>
+            <span>Notification</span>
+        </button>
+        <button class="p-link layout-topbar-button" [routerLink]="['/securite']"  style="color: #ff8c00;">
+            <i class="pi pi-user"></i>
+            <span>Profile</span>
+        </button>
+        
+        <button class="p-link layout-topbar-button" (click)="logout()"  style="color: #ff8c00;">
+            <i class="pi pi-sign-out"></i>
+            <span>Se déconnecter</span>
+        </button>
+    </div>
+  </div> -->
+  <div class="layout-topbar" >
     <a class="layout-topbar-logo" routerLink="">
-        <!--<img src="assets/layout/images/{{layoutService.config().colorScheme === 'light' ? 'logo-dark' : 'logo-white'}}.svg" alt="logo">
-        <span>SAKAI</span>-->
+        <img src="/assets/demo/images/logos/niger01.png" 
+             alt="Niger Logo" 
+             style="width: 60px; height: auto; object-fit: contain; image-rendering: crisp-edges;">
+    </a>
+
+    <button #menubutton class="p-link layout-menu-button layout-topbar-button" style="color: #F57C00" (click)="layoutService.onMenuToggle()">
+        <i class="pi pi-bars"></i>
+    </button>
+
+    <button #topbarmenubutton class="p-link layout-topbar-menu-button layout-topbar-button" style="color: #F57C00" (click)="layoutService.showProfileSidebar()">
+        <i class="pi pi-ellipsis-v"></i>
+    </button>
+
+    <div #topbarmenu class="layout-topbar-menu" style="color: #F57C00" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}" >
+        <button class="p-link layout-topbar-button" style="color: #F57C00">
+            <i class="pi pi-bell" ></i>
+            <span>Notification</span>
+        </button>
+        
+        <!-- Bouton Profile avec menu popup -->
+        <div style="position: relative; display: inline-block;">
+            <button class="p-link layout-topbar-button" style="color: #F57C00" (click)="toggleProfileMenu($event)">
+                <i class="pi pi-user"></i>
+                <span>Profile</span>
+            </button>
+            
+            <!-- Popup menu de profil -->
+            <div *ngIf="profileMenuVisible" 
+                 style="position: absolute; top: 100%; right: 0; width: 300px; background: white; border-radius: 16px; 
+                        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08); z-index: 1000; margin-top: 10px;">
+                 
+                <!-- En-tête du popup -->
+                <div style="background: white; padding: 20px; display: flex; align-items: center; border-radius: 16px 16px 0 0;">
+                    <!-- Avatar/Initiales -->
+                    <div style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid #F5F5F5; 
+                                overflow: hidden; display: flex; align-items: center; justify-content: center; 
+                                background-color: #F57C00;">
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; 
+                                    color: white; font-size: 1.5rem; font-weight: 600; text-transform: uppercase;">
+                            {{loginService.getUserPrenom()?.charAt(0) || ''}}{{loginService.getUserNom()?.charAt(0) || ''}}
+                        </div>
+                    </div>
+                    
+                    <!-- Infos utilisateur -->
+                    <div style="margin-left: 15px; color: #333;">
+                        <h3 style="margin: 0 0 5px 0; font-size: 1.1rem; font-weight: 600;">{{nomPrenom}}</h3>
+                        <p style="margin: 0; font-size: 0.9rem; color: #666;">{{loginService.getUserRole()}}</p>
+                    </div>
+                </div>
+                
+                <!-- Options du menu -->
+                <div style="padding: 10px 0; background: white; border-radius: 0 0 16px 16px;">
+                    <!-- Option Voir profil complet -->
+                    <a  (click)="closeProfileMenu()"
+                       style="display: flex; align-items: center; padding: 12px 20px; color: #333; text-decoration: none; cursor: pointer; border-radius: 8px; margin: 0 8px;">
+                        <i class="pi pi-user-edit" style="margin-right: 12px; font-size: 1.1rem; color: #666;"></i>
+                        <span>Voir profil complet</span>
+                    </a>
+                    
+                    <!-- Ligne séparatrice -->
+                    <div style="height: 1px; background-color: #f5f5f5; margin: 5px 12px;"></div>
+                    
+                    <!-- Option Déconnexion -->
+                    <a (click)="logout()" 
+                       style="display: flex; align-items: center; padding: 12px 20px; color: #333; text-decoration: none; cursor: pointer; border-radius: 8px; margin: 0 8px;">
+                        <i class="pi pi-sign-out" style="margin-right: 12px; font-size: 1.1rem; color: #666;"></i>
+                        <span>Se déconnecter</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+</div>
+<!-- <div class="layout-topbar" >
+    <a class="layout-topbar-logo" routerLink="">
+
         <img src="/assets/demo/images/logos/niger01.png" 
      alt="Niger Logo" 
      style="width: 60px; height: auto; object-fit: contain; image-rendering: crisp-edges;">
 
     </a>
 
+    <div #topbarmenu class="layout-topbar-menu flex align-items-center" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+        <span class="font-bold text-md text-gray-700 mr-3 hidden md:inline-block">
+          {{ nomPrenom }}
+        </span>
     <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
         <i class="pi pi-bars"></i>
     </button>
@@ -26,9 +139,13 @@
             <span>Profile</span>
         </button>
         
-        <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
-            <i class="pi pi-cog"></i>
-            <span>Settings</span>
+        <button class="p-link layout-topbar-button" (click)="logout()">
+            <i class="pi pi-sign-out"></i>
+            <span>Se déconnecter</span>
         </button>
+
     </div>
 </div>
+
+
+ -->

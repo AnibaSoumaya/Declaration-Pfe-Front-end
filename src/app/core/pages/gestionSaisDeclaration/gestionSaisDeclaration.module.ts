@@ -4,7 +4,7 @@ import { CrudAssujettisComponent } from './crud-assujettis/crud-assujettis.compo
 import { GestionSaisDeclarationRoutingModule } from './gestionSaisDeclaration-routing.module';
 import { CrudRoutingModule } from 'src/app/demo/components/pages/crud/crud-routing.module';
 import { TableModule } from 'primeng/table';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
@@ -17,9 +17,21 @@ import { DropdownModule } from 'primeng/dropdown';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
+import { DeclarationDetailsComponent } from './declaration-details/declaration-details.component';
+import { SecuriteRoutingModule } from '../securite/securite-routing.module';
+import { LoginRoutingModule } from 'src/app/demo/components/auth/login/login-routing.module';
+import { CheckboxModule } from 'primeng/checkbox';
+import { TableDemoRoutingModule } from 'src/app/demo/components/uikit/table/tabledemo-routing.module';
+import { SliderModule } from 'primeng/slider';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { ControleDeclarationComponent } from './controle-declaration/controle-declaration.component';
+import { SectionCommentsComponent } from './section-comments/section-comments.component';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 @NgModule({
-  declarations: [CrudAssujettisComponent],  // ✅ Déplacer ici
+  declarations: [CrudAssujettisComponent,DeclarationDetailsComponent,ControleDeclarationComponent,SectionCommentsComponent],  // ✅ Déplacer ici
   imports: [
     CommonModule,
     GestionSaisDeclarationRoutingModule,
@@ -38,7 +50,23 @@ import { DialogModule } from 'primeng/dialog';
     DropdownModule,
     RadioButtonModule,
     InputNumberModule,
-    DialogModule 
+    DialogModule,
+
+
+        LoginRoutingModule,
+        CheckboxModule,
+        InputTextModule,
+        FormsModule,
+        TableDemoRoutingModule,    
+  
+        SliderModule,
+        ToggleButtonModule,
+        MultiSelectModule,
+        ProgressBarModule,
+        SelectButtonModule,
+
+        ReactiveFormsModule,
+        
   ],
 })
 export class GestionSaisDeclarationModule { }

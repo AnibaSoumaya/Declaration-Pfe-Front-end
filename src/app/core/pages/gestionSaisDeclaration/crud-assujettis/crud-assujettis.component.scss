@@ -1,0 +1,11 @@
+@import '~primeng/resources/primeng.min.css';
+@import '~primeng/resources/themes/lara-light-indigo/theme.css'; 
+
+
+
+
+::ng-deep .p-datatable-thead th {
+    background-color: #F57C00 !important;  /* Orange du Niger */
+    color: white !important;  /* Texte blanc */
+}
+

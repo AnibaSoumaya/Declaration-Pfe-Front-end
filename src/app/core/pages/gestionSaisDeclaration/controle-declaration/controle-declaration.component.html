@@ -1,0 +1,779 @@
+<div class="declaration-details-container">
+    <div class="header-actions">
+      <h1>Détails de la Déclaration de Biens</h1>
+      <div class="action-buttons">
+        <button class="btn btn-secondary" (click)="goBack()">
+          <i class="fas fa-arrow-left"></i> Retour
+        </button>
+        <button class="btn btn-primary" (click)="printDeclaration()">
+          <i class="fas fa-print"></i> Imprimer
+        </button>
+      </div>
+    </div>
+  
+    <div class="loading-container" *ngIf="loading">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Chargement...</span>
+      </div>
+      <p>Chargement des données...</p>
+    </div>
+  
+    <div class="error-container" *ngIf="error">
+      <div class="alert alert-danger">
+        Une erreur est survenue lors du chargement des données de la déclaration.
+        Veuillez réessayer ultérieurement.
+      </div>
+      <button class="btn btn-primary" (click)="loadDeclaration()">Réessayer</button>
+    </div>
+  
+    <div class="declaration-content" *ngIf="!loading && !error && declaration">
+      <!-- En-tête de la déclaration -->
+      <div class="declaration-header">
+        <div class="declaration-status" [ngClass]="declaration.etatDeclaration">
+          {{declaration.etatDeclaration}}
+        </div>
+        <div class="declaration-meta">
+          <div class="meta-item">
+            <span class="label">N° Déclaration:</span>
+            <span class="value">{{declaration.id || 'N/A'}}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Date de Déclaration:</span>
+            <span class="value">{{formatDate(declaration.dateDeclaration)}}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Type de Déclaration:</span>
+            <span class="value">{{declaration.typeDeclaration || 'N/A'}}</span>
+          </div>
+          <div class="meta-item" *ngIf="declaration.dateValidation">
+            <span class="label">Date de Validation:</span>
+            <span class="value">{{formatDate(declaration.dateValidation)}}</span>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Section 1: Informations Personnelles -->
+      <div class="section-card">
+        <div class="section-header" (click)="toggleSection('informations')">
+          <h2>Assujetti</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('informations') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('informations')">
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="label">Nom:</span>
+              <span class="value">{{declaration.assujetti?.nom || 'N/A'}}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Prénom:</span>
+              <span class="value">{{declaration.assujetti?.prenom || 'N/A'}}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Civilité:</span>
+              <span class="value">{{declaration.assujetti?.civilite.intitule || 'N/A'}}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Téléphone:</span>
+              <span class="value">{{declaration.assujetti?.contacttel || 'N/A'}}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Email:</span>
+              <span class="value">{{declaration.assujetti?.email || 'N/A'}}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Institution:</span>
+              <span class="value">{{declaration.assujetti?.institutions?.intitule || 'N/A'}}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Administration:</span>
+              <span class="value">{{declaration.assujetti?.administration?.intitule || 'N/A'}}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Fonction:</span>
+              <span class="value">{{declaration.assujetti?.fonction?.intitule || 'N/A'}}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Matricule:</span>
+              <span class="value">{{declaration.assujetti?.matricule || 'N/A'}}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Date prise de service:</span>
+              <span class="value">{{formatDate(declaration.assujetti?.datePriseDeService)}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Section 2: Véhicules -->
+      <div class="section-card" *ngIf="declaration.vehicules && declaration.vehicules.length > 0">
+        <div class="section-header" (click)="toggleSection('Vehicule')">
+          <h2>Véhicules</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('Vehicule') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('Vehicule')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Désignation</th>
+                  <th>Marque</th>
+                  <th>Immatriculation</th>
+                  <th>Transmission</th>
+                  <th>Carburant</th>
+                  <th>Année</th>
+                  <th>Valeur (FCFA)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let vehicule of declaration.vehicules">
+                  <td>{{vehicule.designation?.intitule || 'N/A'}}</td>
+                  <td>{{vehicule.marque?.intitule || 'N/A'}}</td>
+                  <td>{{vehicule.immatriculation || 'N/A'}}</td>
+                  <td>{{vehicule.transmission?.intitule || 'N/A'}}</td>
+                  <td>{{vehicule.carburant?.intitule || 'N/A'}}</td>
+                  <td>{{vehicule.anneeAcquisition || 'N/A'}}</td>
+                  <td>{{formatNumber(vehicule.valeurAcquisition)}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <br>
+              <!-- Bouton pour afficher/masquer les commentaires -->
+              <button class="btn btn-sm btn-outline-primary mb-2"
+              *ngIf="isSectionExpanded('Vehicule')"
+              (click)="showComments['Vehicule'] = !showComments['Vehicule']">
+              {{ showComments['Vehicule'] ? 'Masquer les observations' : 'Voir les observations' }}
+              </button>
+
+              <!-- Composant de commentaires -->
+              <app-section-comments 
+              *ngIf="showComments['Vehicule']"
+              [declarationId]="declarationId"
+              [sectionType]="'Vehicule'"
+              [currentUserId]="currentUser?.id"
+              (commentAdded)="onCommentAdded($event, 'Vehicule')"
+              (commentDeleted)="onCommentDeleted($event, 'Vehicule')">
+              </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 3: Revenus -->
+      <div class="section-card" *ngIf="declaration.revenus && declaration.revenus.length > 0">
+        <div class="section-header" (click)="toggleSection('Revenus')">
+          <h2>Revenus</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('Revenus') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('Revenus')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Salaire Mensuel Net</th>
+                  <th>Autres Revenus</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let revenu of declaration.revenus">
+                  <td>{{formatNumber(revenu.salaireMensuelNet)}} FCFA</td>
+                  <td>{{revenu.autresRevenus?.intitule || 'N/A'}}</td>
+                  <td>{{formatDate(revenu.dateCreation)}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <br>
+              <!-- Bouton pour afficher/masquer les commentaires -->
+              <button class="btn btn-sm btn-outline-primary mb-2"
+              *ngIf="isSectionExpanded('Revenus')"
+              (click)="showComments['Revenus'] = !showComments['Revenus']">
+              {{ showComments['Revenus'] ? 'Masquer les observations' : 'Voir les observations' }}
+              </button>
+
+              <!-- Composant de commentaires -->
+              <app-section-comments 
+              *ngIf="showComments['Revenus']"
+              [declarationId]="declarationId"
+              [sectionType]="'Revenus'"
+              [currentUserId]="currentUser?.id"
+              (commentAdded)="onCommentAdded($event, 'Revenus')"
+              (commentDeleted)="onCommentDeleted($event, 'Revenus')">
+              </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 4: Biens Fonciers Bâtis -->
+      <div class="section-card" *ngIf="declaration.fonciersBatis && declaration.fonciersBatis.length > 0">
+        <div class="section-header" (click)="toggleSection('FoncierBati')">
+          <h2>Biens Fonciers Bâtis</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('FoncierBati') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('FoncierBati')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Nature</th>
+                  <th>Année Construction</th>
+                  <th>Mode Acquisition</th>
+                  <th>Superficie</th>
+                  <th>Localisation</th>
+                  <th>Usage</th>
+                  <th>Coût (FCFA)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let foncier of declaration.fonciersBatis">
+                  <td>{{foncier.nature?.intitule || 'N/A'}}</td>
+                  <td>{{foncier.anneeConstruction || 'N/A'}}</td>
+                  <td>{{foncier.modeAcquisition?.intitule || 'N/A'}}</td>
+                  <td>{{foncier.superficie || 'N/A'}}</td>
+                  <td>{{foncier.localis?.intitule || 'N/A'}}</td>
+                  <td>{{foncier.typeUsage?.intitule || 'N/A'}}</td>
+                  <td>{{formatNumber(foncier.coutAcquisitionFCFA)}} FCFA</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <br>
+              <!-- Bouton pour afficher/masquer les commentaires -->
+              <button class="btn btn-sm btn-outline-primary mb-2"
+              *ngIf="isSectionExpanded('FoncierBati')"
+              (click)="showComments['FoncierBati'] = !showComments['FoncierBati']">
+              {{ showComments['FoncierBati'] ? 'Masquer les observations' : 'Voir les observations' }}
+              </button>
+
+              <!-- Composant de commentaires -->
+              <app-section-comments 
+              *ngIf="showComments['FoncierBati']"
+              [declarationId]="declarationId"
+              [sectionType]="'FoncierBati'"
+              [currentUserId]="currentUser?.id"
+              (commentAdded)="onCommentAdded($event, 'FoncierBati')"
+              (commentDeleted)="onCommentDeleted($event, 'FoncierBati')">
+              </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 5: Biens Fonciers Non Bâtis -->
+      <div class="section-card" *ngIf="declaration.fonciersNonBatis && declaration.fonciersNonBatis.length > 0">
+        <div class="section-header" (click)="toggleSection('FoncierNonBati')">
+          <h2>Biens Fonciers Non Bâtis</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('FoncierNonBati') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('FoncierNonBati')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Nature</th>
+                  <th>Mode Acquisition</th>
+                  <th>Superficie</th>
+                  <th>Localité</th>
+                  <th>Titre Propriété</th>
+                  <th>Année</th>
+                  <th>Valeur (FCFA)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let foncier of declaration.fonciersNonBatis">
+                  <td>{{foncier.nature?.intitule || 'N/A'}}</td>
+                  <td>{{foncier.modeAcquisition?.intitule || 'N/A'}}</td>
+                  <td>{{foncier.superficie || 'N/A'}}</td>
+                  <td>{{foncier.localite || 'N/A'}}</td>
+                  <td>{{foncier.titrePropriete || 'N/A'}}</td>
+                  <td>{{foncier.dateAcquis || 'N/A'}}</td>
+                  <td>{{formatNumber(foncier.valeurAcquisFCFA)}} FCFA</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+           <!-- Bouton pour afficher/masquer les commentaires -->
+           <button class="btn btn-sm btn-outline-primary mb-2"
+           *ngIf="isSectionExpanded('FoncierNonBati')"
+           (click)="showComments['FoncierNonBati'] = !showComments['FoncierNonBati']">
+           {{ showComments['FoncierNonBati'] ? 'Masquer les observations' : 'Voir les observations' }}
+           </button>
+
+           <!-- Composant de commentaires -->
+           <app-section-comments 
+           *ngIf="showComments['FoncierNonBati']"
+           [declarationId]="declarationId"
+           [sectionType]="'FoncierNonBati'"
+           [currentUserId]="currentUser?.id"
+           (commentAdded)="onCommentAdded($event, 'FoncierNonBati')"
+           (commentDeleted)="onCommentDeleted($event, 'FoncierNonBati')">
+           </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 6: Emprunts -->
+      <div class="section-card" *ngIf="declaration.emprunts && declaration.emprunts.length > 0">
+        <div class="section-header" (click)="toggleSection('Emprunts')">
+          <h2>Emprunts</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('Emprunts') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('Emprunts')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Institution</th>
+                  <th>Numéro Compte</th>
+                  <th>Type</th>
+                  <th>Montant (FCFA)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let emprunt of declaration.emprunts">
+                  <td>{{emprunt.institutionsFinancieres?.intitule || 'N/A'}}</td>
+                  <td>{{emprunt.numeroCompte || 'N/A'}}</td>
+                  <td>{{emprunt.typeEmprunt?.intitule || 'N/A'}}</td>
+                  <td>{{formatNumber(emprunt.montantEmprunt)}} FCFA</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+           <!-- Bouton pour afficher/masquer les commentaires -->
+           <button class="btn btn-sm btn-outline-primary mb-2"
+           *ngIf="isSectionExpanded('Emprunts')"
+           (click)="showComments['Emprunts'] = !showComments['Emprunts']">
+           {{ showComments['Emprunts'] ? 'Masquer les observations' : 'Voir les observations' }}
+           </button>
+
+           <!-- Composant de commentaires -->
+           <app-section-comments 
+           *ngIf="showComments['Emprunts']"
+           [declarationId]="declarationId"
+           [sectionType]="'Emprunts'"
+           [currentUserId]="currentUser?.id"
+           (commentAdded)="onCommentAdded($event, 'Emprunts')"
+           (commentDeleted)="onCommentDeleted($event, 'Emprunts')">
+           </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 7: Disponibilités Bancaires -->
+      <div class="section-card" *ngIf="declaration.disponibilitesBanque && declaration.disponibilitesBanque.length > 0">
+        <div class="section-header" (click)="toggleSection('DisponibilitesEnBanque')">
+          <h2>Disponibilités Bancaires</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('DisponibilitesEnBanque') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('DisponibilitesEnBanque')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Banque</th>
+                  <th>Numéro Compte</th>
+                  <th>Type Compte</th>
+                  <th>Solde (FCFA)</th>
+                  <th>Date Solde</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let disponibilite of declaration.disponibilitesBanque">
+                  <td>{{disponibilite.banque?.intitule || 'N/A'}}</td>
+                  <td>{{disponibilite.numeroCompte || 'N/A'}}</td>
+                  <td>{{disponibilite.typeCompte?.intitule || 'N/A'}}</td>
+                  <td>{{formatNumber(disponibilite.soldeFCFA)}} FCFA</td>
+                  <td>{{formatDate(disponibilite.dateSolde)}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+           <!-- Bouton pour afficher/masquer les commentaires -->
+           <button class="btn btn-sm btn-outline-primary mb-2"
+           *ngIf="isSectionExpanded('DisponibilitesEnBanque')"
+           (click)="showComments['DisponibilitesEnBanque'] = !showComments['DisponibilitesEnBanque']">
+           {{ showComments['DisponibilitesEnBanque'] ? 'Masquer les observations' : 'Voir les observations' }}
+           </button>
+
+           <!-- Composant de commentaires -->
+           <app-section-comments 
+           *ngIf="showComments['DisponibilitesEnBanque']"
+           [declarationId]="declarationId"
+           [sectionType]="'DisponibilitesEnBanque'"
+           [currentUserId]="currentUser?.id"
+           (commentAdded)="onCommentAdded($event, 'DisponibilitesEnBanque')"
+           (commentDeleted)="onCommentDeleted($event, 'DisponibilitesEnBanque')">
+           </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 8: Espèces -->
+      <div class="section-card" *ngIf="declaration.especes && declaration.especes.length > 0">
+        <div class="section-header" (click)="toggleSection('Especes')">
+          <h2>Espèces</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('Especes') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('Especes')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Monnaie</th>
+                  <th>Devise</th>
+                  <th>Taux Change</th>
+                  <th>Montant FCFA</th>
+                  <th>Total FCFA</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let espece of declaration.especes">
+                  <td>{{formatNumber(espece.monnaie)}} FCFA</td>
+                  <td>{{formatNumber(espece.devise)}} FCFA</td>
+                  <td>{{espece.tauxChange || 'N/A'}}</td>
+                  <td>{{formatNumber(espece.montantFCFA)}} FCFA</td>
+                  <td>{{formatNumber(espece.montantTotalFCFA)}} FCFA</td>
+                  <td>{{formatDate(espece.dateEspece)}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+           <!-- Bouton pour afficher/masquer les commentaires -->
+           <button class="btn btn-sm btn-outline-primary mb-2"
+           *ngIf="isSectionExpanded('Especes')"
+           (click)="showComments['Especes'] = !showComments['Especes']">
+           {{ showComments['Especes'] ? 'Masquer les observations' : 'Voir les observations' }}
+           </button>
+
+           <!-- Composant de commentaires -->
+           <app-section-comments 
+           *ngIf="showComments['Especes']"
+           [declarationId]="declarationId"
+           [sectionType]="'Especes'"
+           [currentUserId]="currentUser?.id"
+           (commentAdded)="onCommentAdded($event, 'Especes')"
+           (commentDeleted)="onCommentDeleted($event, 'Especes')">
+           </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 9: Animaux -->
+      <div class="section-card" *ngIf="declaration.animaux && declaration.animaux.length > 0">
+        <div class="section-header" (click)="toggleSection('Animaux')">
+          <h2>Animaux</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('Animaux') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('Animaux')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Espèce</th>
+                  <th>Nombre Têtes</th>
+                  <th>Mode Acquisition</th>
+                  <th>Année</th>
+                  <th>Valeur (FCFA)</th>
+                  <th>Localité</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let animal of declaration.animaux">
+                  <td>{{animal.especes || 'N/A'}}</td>
+                  <td>{{animal.nombreTetes || 'N/A'}}</td>
+                  <td>{{animal.modeAcquisition?.intitule || 'N/A'}}</td>
+                  <td>{{animal.anneeAcquisition || 'N/A'}}</td>
+                  <td>{{formatNumber(animal.valeurAcquisition)}} FCFA</td>
+                  <td>{{animal.localite?.intitule || 'N/A'}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+           <!-- Bouton pour afficher/masquer les commentaires -->
+           <button class="btn btn-sm btn-outline-primary mb-2"
+           *ngIf="isSectionExpanded('Animaux')"
+           (click)="showComments['Animaux'] = !showComments['Animaux']">
+           {{ showComments['Animaux'] ? 'Masquer les observations' : 'Voir les observations' }}
+           </button>
+
+           <!-- Composant de commentaires -->
+           <app-section-comments 
+           *ngIf="showComments['Animaux']"
+           [declarationId]="declarationId"
+           [sectionType]="'Animaux'"
+           [currentUserId]="currentUser?.id"
+           (commentAdded)="onCommentAdded($event, 'Animaux')"
+           (commentDeleted)="onCommentDeleted($event, 'Animaux')">
+           </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 10: Meubles Meublants -->
+      <div class="section-card" *ngIf="declaration.meublesMeublants && declaration.meublesMeublants.length > 0">
+        <div class="section-header" (click)="toggleSection('MeublesMeublants')">
+          <h2>Meubles Meublants</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('MeublesMeublants') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('MeublesMeublants')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Désignation</th>
+                  <th>Année</th>
+                  <th>Valeur (FCFA)</th>
+                  <th>État</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let meuble of declaration.meublesMeublants">
+                  <td>{{meuble.designation?.intitule || 'N/A'}}</td>
+                  <td>{{meuble.anneeAcquisition || 'N/A'}}</td>
+                  <td>{{formatNumber(meuble.valeurAcquisition)}} FCFA</td>
+                  <td>{{meuble.etatGeneral?.intitule || 'N/A'}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+           <!-- Bouton pour afficher/masquer les commentaires -->
+           <button class="btn btn-sm btn-outline-primary mb-2"
+           *ngIf="isSectionExpanded('MeublesMeublants')"
+           (click)="showComments['MeublesMeublants'] = !showComments['MeublesMeublants']">
+           {{ showComments['MeublesMeublants'] ? 'Masquer les observations' : 'Voir les observations' }}
+           </button>
+
+           <!-- Composant de commentaires -->
+           <app-section-comments 
+           *ngIf="showComments['MeublesMeublants']"
+           [declarationId]="declarationId"
+           [sectionType]="'MeublesMeublants'"
+           [currentUserId]="currentUser?.id"
+           (commentAdded)="onCommentAdded($event, 'MeublesMeublants')"
+           (commentDeleted)="onCommentDeleted($event, 'MeublesMeublants')">
+           </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 11: Titres -->
+      <div class="section-card" *ngIf="declaration.titres && declaration.titres.length > 0">
+        <div class="section-header" (click)="toggleSection('Titres')">
+          <h2>Titres</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('Titres') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('Titres')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Nature/Actions</th>
+                  <th>Valeur (FCFA)</th>
+                  <th>Emplacement</th>
+                  <th>Précisions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let titre of declaration.titres">
+                  <td>{{titre.designationNatureActions?.intitule || 'N/A'}}</td>
+                  <td>{{formatNumber(titre.valeurEmplacement)}} FCFA</td>
+                  <td>{{titre.emplacement?.intitule || 'N/A'}}</td>
+                  <td>{{titre.autrePrecisions?.intitule || 'N/A'}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+           <!-- Bouton pour afficher/masquer les commentaires -->
+           <button class="btn btn-sm btn-outline-primary mb-2"
+           *ngIf="isSectionExpanded('Titres')"
+           (click)="showComments['Titres'] = !showComments['Titres']">
+           {{ showComments['Titres'] ? 'Masquer les observations' : 'Voir les observations' }}
+           </button>
+
+           <!-- Composant de commentaires -->
+           <app-section-comments 
+           *ngIf="showComments['Titres']"
+           [declarationId]="declarationId"
+           [sectionType]="'Titres'"
+           [currentUserId]="currentUser?.id"
+           (commentAdded)="onCommentAdded($event, 'Titres')"
+           (commentDeleted)="onCommentDeleted($event, 'Titres')">
+           </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 12: Créances -->
+      <div class="section-card" *ngIf="declaration.creances && declaration.creances.length > 0">
+        <div class="section-header" (click)="toggleSection('LesCreances')">
+          <h2>Créances</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('LesCreances') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('LesCreances')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Débiteur</th>
+                  <th>Montant (FCFA)</th>
+                  <th>Précisions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let creance of declaration.creances">
+                  <td>{{creance.debiteurs?.intitule || 'N/A'}}</td>
+                  <td>{{formatNumber(creance.montant)}} FCFA</td>
+                  <td>{{creance.autresPrecisions?.intitule || 'N/A'}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+           <!-- Bouton pour afficher/masquer les commentaires -->
+           <button class="btn btn-sm btn-outline-primary mb-2"
+           *ngIf="isSectionExpanded('LesCreances')"
+           (click)="showComments['LesCreances'] = !showComments['LesCreances']">
+           {{ showComments['LesCreances'] ? 'Masquer les observations' : 'Voir les observations' }}
+           </button>
+
+           <!-- Composant de commentaires -->
+           <app-section-comments 
+           *ngIf="showComments['LesCreances']"
+           [declarationId]="declarationId"
+           [sectionType]="'LesCreances'"
+           [currentUserId]="currentUser?.id"
+           (commentAdded)="onCommentAdded($event, 'LesCreances')"
+           (commentDeleted)="onCommentDeleted($event, 'LesCreances')">
+           </app-section-comments>
+        </div>
+      </div>
+  
+      <!-- Section 13: Autres Dettes -->
+      <div class="section-card" *ngIf="declaration.autresDettes && declaration.autresDettes.length > 0">
+        <div class="section-header" (click)="toggleSection('AutresDettes')">
+          <h2>Autres Dettes</h2>
+          <i class="fas" [ngClass]="isSectionExpanded('AutresDettes') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="section-content" *ngIf="isSectionExpanded('AutresDettes')">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Créancier</th>
+                  <th>Montant (FCFA)</th>
+                  <th>Justificatifs</th>
+                  <th>Précisions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let dette of declaration.autresDettes">
+                  <td>{{dette.creanciers?.intitule || 'N/A'}}</td>
+                  <td>{{formatNumber(dette.montant)}} FCFA</td>
+                  <td>{{dette.justificatifs?.intitule || 'N/A'}}</td>
+                  <td>{{dette.autresPrecisions?.intitule || 'N/A'}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+           <!-- Bouton pour afficher/masquer les commentaires -->
+           <button class="btn btn-sm btn-outline-primary mb-2"
+           *ngIf="isSectionExpanded('AutresDettes')"
+           (click)="showComments['AutresDettes'] = !showComments['AutresDettes']">
+           {{ showComments['AutresDettes'] ? 'Masquer les observations' : 'Voir les observations' }}
+           </button>
+
+           <!-- Composant de commentaires -->
+           <app-section-comments 
+           *ngIf="showComments['AutresDettes']"
+           [declarationId]="declarationId"
+           [sectionType]="'AutresDettes'"
+           [currentUserId]="currentUser?.id"
+           (commentAdded)="onCommentAdded($event, 'AutresDettes')"
+           (commentDeleted)="onCommentDeleted($event, 'AutresDettes')">
+           </app-section-comments>
+        </div>
+      </div>
+      <!-- Section 14: Autres Biens de Valeur -->
+<div class="section-card" *ngIf="declaration.autresBiensDeValeur && declaration.autresBiensDeValeur.length > 0">
+    <div class="section-header" (click)="toggleSection('AutresBiensDeValeur')">
+      <h2>Autres Biens de Valeur</h2>
+      <i class="fas" [ngClass]="isSectionExpanded('AutresBiensDeValeur') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+    <div class="section-content" *ngIf="isSectionExpanded('AutresBiensDeValeur')">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Désignation</th>
+              <th>Localité</th>
+              <th>Année</th>
+              <th>Valeur (FCFA)</th>
+              <th>Précisions</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bien of declaration.autresBiensDeValeur">
+              <td>{{bien.designation?.intitule || 'N/A'}}</td>
+              <td>{{bien.localite?.intitule || 'N/A'}}</td>
+              <td>{{bien.anneeAcquis || 'N/A'}}</td>
+              <td>{{formatNumber(bien.valeurAcquisition)}} FCFA</td>
+              <td>{{bien.autrePrecisions?.intitule || 'N/A'}}</td>
+              <td>{{bien.type?.intitule || 'N/A'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+       <!-- Bouton pour afficher/masquer les commentaires -->
+       <button class="btn btn-sm btn-outline-primary mb-2"
+       *ngIf="isSectionExpanded('AutresBiensDeValeur')"
+       (click)="showComments['AutresBiensDeValeur'] = !showComments['AutresBiensDeValeur']">
+       {{ showComments['AutresBiensDeValeur'] ? 'Masquer les observations' : 'Voir les observations' }}
+       </button>
+
+       <!-- Composant de commentaires -->
+       <app-section-comments 
+       *ngIf="showComments['AutresBiensDeValeur']"
+       [declarationId]="declarationId"
+       [sectionType]="'AutresBiensDeValeur'"
+       [currentUserId]="currentUser?.id"
+       (commentAdded)="onCommentAdded($event, 'AutresBiensDeValeur')"
+       (commentDeleted)="onCommentDeleted($event, 'AutresBiensDeValeur')">
+       </app-section-comments>
+    </div>
+  </div>
+  
+  <!-- Section 15: Appareils Électroménagers -->
+  <div class="section-card" *ngIf="declaration.appareilsElectromenagers && declaration.appareilsElectromenagers.length > 0">
+    <div class="section-header" (click)="toggleSection('AppareilsElectroMenagers')">
+      <h2>Appareils Électroménagers</h2>
+      <i class="fas" [ngClass]="isSectionExpanded('AppareilsElectroMenagers') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+    </div>
+    <div class="section-content" *ngIf="isSectionExpanded('AppareilsElectroMenagers')">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Désignation</th>
+              <th>Année</th>
+              <th>Valeur (FCFA)</th>
+              <th>État</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let appareil of declaration.appareilsElectromenagers">
+              <td>{{appareil.designation?.intitule || 'N/A'}}</td>
+              <td>{{appareil.anneeAcquisition || 'N/A'}}</td>
+              <td>{{formatNumber(appareil.valeurAcquisition)}} FCFA</td>
+              <td>{{appareil.etatGeneral?.intitule || 'N/A'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+       <!-- Bouton pour afficher/masquer les commentaires -->
+       <button class="btn btn-sm btn-outline-primary mb-2"
+       *ngIf="isSectionExpanded('AppareilsElectroMenagers')"
+       (click)="showComments['AppareilsElectroMenagers'] = !showComments['AppareilsElectroMenagers']">
+       {{ showComments['AppareilsElectroMenagers'] ? 'Masquer les observations' : 'Voir les observations' }}
+       </button>
+
+       <!-- Composant de commentaires -->
+       <app-section-comments 
+       *ngIf="showComments['AppareilsElectroMenagers']"
+       [declarationId]="declarationId"
+       [sectionType]="'AppareilsElectroMenagers'"
+       [currentUserId]="currentUser?.id"
+       (commentAdded)="onCommentAdded($event, 'AppareilsElectroMenagers')"
+       (commentDeleted)="onCommentDeleted($event, 'AppareilsElectroMenagers')">
+       </app-section-comments>
+    </div>
+  </div>

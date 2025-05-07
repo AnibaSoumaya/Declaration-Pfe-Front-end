@@ -1,0 +1,140 @@
+<div class="profile-container p-4">
+  <div class="profile-card">
+    <!-- En-tête plus sobre et professionnel -->
+    <div class="profile-header p-4">
+      <div class="flex flex-column md:flex-row align-items-center">
+        <div class="profile-avatar">
+          <div class="avatar-initials" *ngIf="!userProfileImage">
+            {{user?.firstname?.charAt(0) || ''}}{{user?.lastname?.charAt(0) || ''}}
+          </div>
+          <img *ngIf="userProfileImage" [src]="userProfileImage" alt="Photo de profil" class="border-circle" />
+        </div>
+        <div class="profile-header-info ml-0 md:ml-5 mt-3 md:mt-0 text-center md:text-left">
+          <h1 class="m-0 text-dark">{{user?.firstname}} {{user?.lastname}}</h1>
+          <p class="role-badge my-2">{{userRole}}</p>
+          <p class="mb-2"><i class="pi pi-envelope mr-2"></i>{{user?.email}}</p>
+          <p class="mb-2"><i class="pi pi-phone mr-2"></i>{{user?.tel}}</p>
+          
+          <div class="profile-actions mt-3">
+            <button *ngIf="!editMode" pButton type="button" 
+                    icon="pi pi-pencil" label="Modifier le profil" 
+                    class="p-button-rounded p-button-primary" 
+                    (click)="enableEdit()"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Formulaire de profil -->
+    <div class="profile-form-container p-4" [ngClass]="{'edit-mode': editMode}">
+      <div class="section-header mb-4">
+        <h3 class="font-bold">Informations personnelles</h3>
+        <div class="divider"></div>
+      </div>
+      
+      <!-- Mode lecture seule (par défaut) -->
+      <div *ngIf="!editMode" class="read-only-view">
+        <div class="p-grid grid">
+          <div class="field-row col-12 md:col-6">
+            <div class="field-label">Nom</div>
+            <div class="field-value">{{user?.firstname}}</div>
+          </div>
+          
+          <div class="field-row col-12 md:col-6">
+            <div class="field-label">Prénom</div>
+            <div class="field-value">{{user?.lastname}}</div>
+          </div>
+          
+          <div class="field-row col-12 md:col-6">
+            <div class="field-label">Email</div>
+            <div class="field-value">{{user?.email}}</div>
+          </div>
+          
+          <div class="field-row col-12 md:col-6">
+            <div class="field-label">Téléphone</div>
+            <div class="field-value">{{user?.tel}}</div>
+          </div>
+          
+          <div class="field-row col-12 md:col-6">
+            <div class="field-label">Rôle</div>
+            <div class="field-value">{{userRole}}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mode d'édition (affiché seulement après avoir cliqué sur "Modifier") -->
+      <form *ngIf="editMode" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+        <div class="p-fluid grid formgrid">
+          <!-- Nom -->
+          <div class="field col-12 md:col-6">
+            <span class="p-float-label">
+              <input id="firstname" type="text" pInputText formControlName="firstname" />
+              <label for="firstname">Nom</label>
+            </span>
+            <small *ngIf="userForm.get('firstname')?.invalid && userForm.get('firstname')?.touched" 
+                   class="p-error">Nom requis</small>
+          </div>
+          
+          <!-- Prénom -->
+          <div class="field col-12 md:col-6">
+            <span class="p-float-label">
+              <input id="lastname" type="text" pInputText formControlName="lastname" />
+              <label for="lastname">Prénom</label>
+            </span>
+            <small *ngIf="userForm.get('lastname')?.invalid && userForm.get('lastname')?.touched" 
+                   class="p-error">Prénom requis</small>
+          </div>
+          
+          <!-- Email -->
+          <div class="field col-12 md:col-6">
+            <span class="p-float-label">
+              <input id="email" type="email" pInputText formControlName="email" />
+              <label for="email">Email</label>
+            </span>
+            <small *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" 
+                   class="p-error">Email invalide</small>
+          </div>
+          
+          <!-- Téléphone -->
+          <div class="field col-12 md:col-6">
+            <span class="p-float-label">
+              <input id="tel" type="text" pInputText formControlName="tel" />
+              <label for="tel">Téléphone</label>
+            </span>
+            <small *ngIf="userForm.get('tel')?.invalid && userForm.get('tel')?.touched" 
+                   class="p-error">Téléphone requis</small>
+          </div>
+          
+          <!-- Rôle (toujours désactivé) -->
+          <div class="field col-12 md:col-6">
+            <span class="p-float-label">
+              <input id="role" type="text" pInputText [value]="userRole" disabled />
+              <label for="role">Rôle</label>
+            </span>
+          </div>
+        </div>
+        
+        <!-- Boutons d'action (visibles uniquement en mode édition) -->
+        <div class="profile-form-actions flex justify-content-end mt-4">
+          <button pButton type="button" 
+                  label="Annuler" 
+                  icon="pi pi-times" 
+                  class="p-button-outlined p-button-secondary mr-2" 
+                  (click)="cancelEdit()"></button>
+          <button pButton type="submit" 
+                  label="Enregistrer" 
+                  icon="pi pi-check" 
+                  class="p-button-primary"></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Indicateur de chargement global -->
+<div *ngIf="loading" class="loading-overlay">
+  <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="4" fill="var(--surface-ground)" animationDuration=".5s"></p-progressSpinner>
+</div>
+
+<!-- Toast pour les notifications -->
+<p-toast></p-toast>

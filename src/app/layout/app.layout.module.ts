@@ -31,6 +31,7 @@ import { PersonalComponent } from '../demo/components/uikit/menus/personal.compo
 import { ConfirmationComponent } from '../demo/components/uikit/menus/confirmation.component';
 import { SeatComponent } from '../demo/components/uikit/menus/seat.component';
 import { PaymentComponent } from '../demo/components/uikit/menus/payment.component';
+import { DialogModule } from 'primeng/dialog';
 
 @NgModule({
     declarations: [
@@ -66,6 +67,7 @@ import { PaymentComponent } from '../demo/components/uikit/menus/payment.compone
         ContextMenuModule,
         MegaMenuModule,
         PanelMenuModule,
+        DialogModule,
         RouterModule.forChild([
                             {
                                 path: '', component: MenusComponent, children: [

@@ -1,0 +1,85 @@
+<div class="comments-section">
+    <h3>Observations</h3>
+  
+    <!-- Chargement -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Chargement...</span>
+      </div>
+    </div>
+  
+    <!-- Liste des commentaires -->
+    <div class="comment-list" *ngIf="!loading && commentaires && commentaires.length > 0">
+      <div class="comment-item" *ngFor="let comment of commentaires">
+        <div class="comment-header">
+          <div class="user-info">
+            <div class="user-avatar">
+              {{ (comment.utilisateur?.firstname || 'U')[0].toUpperCase() }}
+            </div>
+            <div class="user-details">
+              <span class="comment-author">
+                {{ comment.utilisateur?.firstname || 'Utilisateur #' + comment.utilisateur?.id || 'Inconnu' }}
+              </span>
+              <span class="comment-date">
+                {{ formatDate(comment.dateComment) }}
+              </span>
+            </div>
+          </div>
+          <div class="comment-actions" *ngIf="isCommentAuthor(comment)">
+            <!-- Corbeille pour supprimer le commentaire -->
+            <button class="delete-btn" (click)="deleteComment(comment.id)">
+              <i class="pi pi-trash"></i>
+            </button>
+            <button class="edit-btn" (click)="editComment(comment)">
+              <i class="pi pi-pencil"></i> 
+            </button>
+          </div>
+        </div>
+  
+        <div class="comment-content">
+          <!-- Si le commentaire est en mode édition -->
+          <div *ngIf="editingCommentId === comment.id">
+            <textarea 
+              class="form-control" 
+              [(ngModel)]="comment.commentaire"
+              rows="3"></textarea>
+            <button (click)="submitEdit(comment)">Sauvegarder</button>
+          </div>
+          <!-- Sinon, on affiche simplement le commentaire -->
+          <div *ngIf="editingCommentId !== comment.id">
+            {{ comment.commentaire }}
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Aucun commentaire -->
+    <div class="no-comments" *ngIf="!loading && (!commentaires || commentaires.length === 0)">
+      <p>Aucune Observation pour l'instant</p>
+    </div>
+  
+    <!-- Bouton pour afficher/masquer le formulaire -->
+    <button class="add-comment-btn mt-4" (click)="toggleCommentForm()">
+      <i class="fas" [ngClass]="showCommentForm ? 'fa-times' : 'fa-comment'"></i>
+      {{ showCommentForm ? 'Annuler' : 'Ajouter un commentaire' }}
+    </button>
+  
+    <!-- Formulaire d'ajout de commentaire -->
+    <div class="comment-form" *ngIf="showCommentForm" [@fadeInOut]>
+      <form [formGroup]="commentForm" (ngSubmit)="submitComment()">
+        <div class="form-group">
+          <textarea 
+            class="form-control" 
+            formControlName="contenu"
+            placeholder="Partagez votre avis..." 
+            rows="3"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn" [disabled]="!commentForm.valid">
+            <i class="fas fa-paper-plane me-2"></i> Publier
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  

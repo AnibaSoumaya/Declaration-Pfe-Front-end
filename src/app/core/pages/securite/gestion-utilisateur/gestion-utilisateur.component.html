@@ -1,87 +1,418 @@
 <div class="grid">
 	<div class="col-12">
-	  <div class="card">
-		<div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-		  <h5>Liste des utilisateurs de cour de compte</h5>
-		  <div class="flex flex-wrap gap-2 mb-3">
-			<ng-container *ngIf="!isSearching; else searchInput">
-			  <button pButton pRipple type="button" icon="pi pi-search" class="p-button-rounded p-button-info p-button-outlined" (click)="toggleSearch()"></button>
-			</ng-container>
+	  <style>
+		:host ::ng-deep .p-button:hover {
+		  transform: translateY(-2px);
+		  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+		}
+		
+		:host ::ng-deep .p-datatable {
+		  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+		}
+		
+		:host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+		  background-color: #f8f9fa;
+		}
+		
+		:host ::ng-deep .p-togglebutton.p-button.p-highlight {
+		  background: #F57C00;
+		  border-color: #F57C00;
+		}
+	  </style>
+	  
+	  <div class="card" style="border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+		<p-toast></p-toast>
+		
+		<div class="flex justify-content-between align-items-center mb-4">
+		  <h3 class="m-0" style="font-weight: 500; color: #333; border-left: 3px solid #F57C00; padding-left: 10px;">
+			{{ showArchived ? 'Utilisateurs archivés' : 'Utilisateurs actifs' }}
+		  </h3>
+		  
+		  <div class="flex gap-2 align-items-center">
+			<!-- Barre de recherche -->
+			<div class="p-input-icon-left" *ngIf="isSearching">
+			  <i class="pi pi-search"></i>
+			  <input 
+				type="text" 
+				pInputText 
+				[(ngModel)]="searchQuery"
+				(blur)="toggleSearch()"
+				(input)="onGlobalFilter(dt, $event)"
+				placeholder="Rechercher..." 
+				style="border-radius: 20px; width: 250px;"
+				autofocus
+			  />
+			</div>
 			
-			<ng-template #searchInput>
-			  <input type="text" pInputText [(ngModel)]="searchQuery" (blur)="toggleSearch()" (input)="onGlobalFilter(dt, $event)" placeholder="Rechercher..." autofocus />
-			</ng-template>
+			<!-- Bouton recherche -->
+			<button 
+			  *ngIf="!isSearching"
+			  pButton 
+			  type="button" 
+			  icon="pi pi-search" 
+			  class="p-button-rounded p-button-success p-button-outlined"
+			  style="width: 2.5rem; height: 2.5rem;"
+			  (click)="toggleSearch()">
+			</button>
 			
-			<button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-secondary p-button-outlined" (click)="editUser(selectedUsers[0])" [disabled]="selectedUsers.length !== 1"></button>
-			<button pButton pRipple type="button" icon="pi pi-user-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="isAddingUser = true"></button>
-			<button pButton pRipple type="button" icon="pi pi-user-minus" class="p-button-rounded p-button-danger p-button-outlined" (click)="archiveSelectedUser()" [disabled]="!selectedUsers.length"></button>
+			
+			<!-- Bouton d'ajout utilisateur -->
+			<button 
+			  *ngIf="!showArchived"
+			  pButton 
+			  type="button" 
+			  icon="pi pi-user-plus" 
+			  class="p-button-rounded p-button-success p-button-outlined"
+			  style="width: 2.5rem; height: 2.5rem;"
+			  (click)="isAddingUser = true"
+			></button>
+			
+			<!-- Actions sur la sélection -->
+			<button 
+			  *ngIf="!showArchived && selectedUsers?.length"
+			  pButton 
+			  type="button" 
+			  icon="pi pi-user-minus" 
+			  class="p-button-rounded p-button-danger p-button-outlined" 
+			  style="width: 2.5rem; height: 2.5rem;"
+			  (click)="archiveSelectedUser()"
+			></button>
+			
+			<button 
+			  *ngIf="showArchived && selectedUsers?.length"
+			  pButton 
+			  type="button" 
+			  icon="pi pi-replay" 
+			  class="p-button-rounded p-button-success p-button-outlined" 
+			  style="width: 2.5rem; height: 2.5rem;"
+			  (click)="restoreSelectedUsers()"
+			></button>
+					<!-- Toggle archivés/actifs -->
+					<p-toggleButton 
+					[(ngModel)]="showArchived"
+					onLabel="Archivés" 
+					offLabel="Actifs"
+					Icon="pi pi-trash" 
+					offIcon="pi pi-users"
+					(onChange)="toggleUsersList()"
+					[style]="{
+					  'font-weight': '500', 
+					  'background-color': showArchived ? '#F57C00' : '', 
+					  'border-color': showArchived ? '#F57C00' : ''
+					}"
+								></p-toggleButton>
 		  </div>
 		</div>
 		
-		<p-table #dt [value]="users" [(selection)]="selectedUsers" [rows]="10" [rowHover]="true" styleClass="p-datatable-gridlines" [paginator]="true" [globalFilterFields]="['firstname', 'lastname', 'email', 'tel', 'role']" responsiveLayout="scroll">
+		<p-table 
+		  #dt 
+		  [value]="users" 
+		  styleClass="p-datatable-sm" 
+		  [rows]="10" 
+		  [globalFilterFields]="['firstname', 'lastname', 'email', 'tel', 'role']" 
+		  [paginator]="true" 
+		  [rowsPerPageOptions]="[10,25,50]" 
+		  [showCurrentPageReport]="true"
+		  currentPageReportTemplate="{first} à {last} sur {totalRecords} utilisateurs" 
+		  [(selection)]="selectedUsers" 
+		  selectionMode="multiple" 
+		  [rowHover]="true" 
+		  dataKey="id">
+		  
 		  <ng-template pTemplate="header">
 			<tr>
-			  <th></th>
-			  <th>Nom</th>
-			  <th>Prénom</th>
-			  <th>Email</th>
-			  <th>Téléphone</th>
-			  <th>Rôle</th>
-			  <!--<th>Actions</th>-->
+			  <th style="width: 3rem; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">
+				<p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+			  </th>
+			  <th pSortableColumn="lastname" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Nom <p-sortIcon field="lastname"></p-sortIcon></th>
+			  <th pSortableColumn="firstname" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Prénom <p-sortIcon field="firstname"></p-sortIcon></th>
+			  <th pSortableColumn="email" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Email <p-sortIcon field="email"></p-sortIcon></th>
+			  <th pSortableColumn="tel" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Téléphone <p-sortIcon field="tel"></p-sortIcon></th>
+			  <th pSortableColumn="role" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Rôle <p-sortIcon field="role"></p-sortIcon></th>
+			  <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef; width: 8rem;">Actions</th>
 			</tr>
 		  </ng-template>
 		  
 		  <ng-template pTemplate="body" let-user>
 			<tr *ngIf="!isEditingUser || user.id !== userToEdit?.id">
-			  <td><p-tableCheckbox [value]="user"></p-tableCheckbox></td>
+			  <td>
+				<p-tableCheckbox [value]="user"></p-tableCheckbox>
+			  </td>
 			  <td>{{ user.lastname }}</td>
 			  <td>{{ user.firstname }}</td>
 			  <td><a [href]="'mailto:' + user.email">{{ user.email }}</a></td>
 			  <td>{{ user.tel }}</td>
 			  <td>{{ user.role }}</td>
-			  <!--<td>
-				<button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editUser(user)"></button>
-			  </td>-->
+			  <td>
+				<div class="flex gap-2">
+				  <!-- Actions pour utilisateurs actifs -->
+				  <ng-container *ngIf="!showArchived">
+					<button 
+					  pButton 
+					  icon="pi pi-pencil" 
+					  class="p-button-rounded p-button-secondary p-button-text"
+					  style="width: 2.25rem; height: 2.25rem;"
+					  (click)="editUser(user)">
+					</button>
+					
+					<button 
+					  pButton 
+					  icon="pi pi-trash" 
+					  class="p-button-rounded p-button-danger p-button-text"
+					  style="width: 2.25rem; height: 2.25rem;"
+					  (click)="deleteUser(user)">
+					</button>
+				  </ng-container>
+				  
+				  <!-- Actions pour utilisateurs archivés -->
+				  <ng-container *ngIf="showArchived">
+					<button 
+					  pButton 
+					  icon="pi pi-replay" 
+					  class="p-button-rounded p-button-success p-button-text"
+					  style="width: 2.25rem; height: 2.25rem;"
+					  (click)="restoreUser(user)">
+					</button>
+				  </ng-container>
+				</div>
+			  </td>
 			</tr>
 			
-			<tr *ngIf="isEditingUser && user.id === userToEdit?.id">
+			<!-- Mode édition -->
+			<tr *ngIf="isEditingUser && user.id === userToEdit?.id" class="bg-gray-50">
 			  <td></td>
-			  <td><input pInputText [(ngModel)]="userToEdit.lastname" /></td>
-			  <td><input pInputText [(ngModel)]="userToEdit.firstname" /></td>
-			  <td><input pInputText [(ngModel)]="userToEdit.email" /></td>
-			  <td><input pInputText [(ngModel)]="userToEdit.tel" /></td>
 			  <td>
-				<select pInputText [(ngModel)]="userToEdit.role">
-				  <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
-				</select>
+				<input pInputText [(ngModel)]="userToEdit.lastname" class="w-full" />
 			  </td>
 			  <td>
-				<button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveUpdatedUser()"></button>
-				<button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelEditUser()"></button>
+				<input pInputText [(ngModel)]="userToEdit.firstname" class="w-full" />
+			  </td>
+			  <td>
+				<input pInputText [(ngModel)]="userToEdit.email" class="w-full" />
+			  </td>
+			  <td>
+				<input pInputText [(ngModel)]="userToEdit.tel" class="w-full" />
+			  </td>
+			  <td>
+				<p-dropdown [options]="roles" [(ngModel)]="userToEdit.role" optionLabel="value" class="w-full"></p-dropdown>
+			  </td>
+			  <td>
+				<div class="flex gap-2">
+				  <button 
+					pButton 
+					icon="pi pi-check" 
+					class="p-button-rounded p-button-success p-button-text"
+					style="width: 2.25rem; height: 2.25rem;"
+					(click)="saveUpdatedUser()">
+				  </button>
+				  <button 
+					pButton 
+					icon="pi pi-times" 
+					class="p-button-rounded p-button-danger p-button-text"
+					style="width: 2.25rem; height: 2.25rem;"
+					(click)="cancelEditUser()">
+				  </button>
+				</div>
 			  </td>
 			</tr>
 		  </ng-template>
 		  
-		  <ng-template pTemplate="footer">
-			<tr *ngIf="isAddingUser">
-			  <td></td>
-			  <td><input pInputText [(ngModel)]="newUser.lastname" /></td>
-			  <td><input pInputText [(ngModel)]="newUser.firstname" /></td>
-			  <td><input pInputText [(ngModel)]="newUser.email" /></td>
-			  <td><input pInputText [(ngModel)]="newUser.tel" /></td>
-			  <td>
-				<select pInputText [(ngModel)]="newUser.role">
+		  <!-- Ligne pour ajouter un utilisateur -->
+		  <!-- Ligne d'ajout intégrée à la section body -->
+		  <ng-template pTemplate="body" let-user let-rowIndex="rowIndex">
+			<!-- Insérer la ligne d'ajout juste après la ligne en cours d'édition -->
+			<ng-container *ngIf="isAddingUser && rowIndex === 0">
+			  <tr class="bg-gray-50" style="border: 1px solid #e9ecef; background-color: #f8f9fa;">
+				<td style="border: 1px solid #e9ecef; padding: 0.75rem;"></td>
+				<td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				  <input pInputText [(ngModel)]="newUser.lastname" class="w-full" placeholder="Nom" />
+				</td>
+				<td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				  <input pInputText [(ngModel)]="newUser.firstname" class="w-full" placeholder="Prénom" />
+				</td>
+				<td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				  <input pInputText [(ngModel)]="newUser.email" class="w-full" placeholder="Email" />
+				</td>
+				<td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				  <input pInputText [(ngModel)]="newUser.tel" class="w-full" placeholder="Téléphone" />
+				</td>
+				<td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				  <select pInputText [(ngModel)]="newUser.role" class="w-full" style="padding: 0.5rem; border-radius: 4px;">
+					<option value="" disabled selected>Sélectionner un rôle</option>
+					<option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+				  </select>
+				</td>
+				<td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				  <div class="flex gap-2">
+					<button 
+					  pButton 
+					  icon="pi pi-check" 
+					  class="p-button-rounded p-button-success p-button-text"
+					  style="width: 2.25rem; height: 2.25rem;"
+					  (click)="saveNewUser()">
+					</button>
+					<button 
+					  pButton 
+					  icon="pi pi-times" 
+					  class="p-button-rounded p-button-danger p-button-text"
+					  style="width: 2.25rem; height: 2.25rem;"
+					  (click)="cancelNewUser()">
+					</button>
+				  </div>
+				</td>
+			  </tr>
+			</ng-container>
+			
+			<!-- Ligne utilisateur normale -->
+			<tr *ngIf="!isEditingUser || user.id !== userToEdit?.id" style="border: 1px solid #e9ecef;">
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				<p-tableCheckbox [value]="user"></p-tableCheckbox>
+			  </td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ user.lastname }}</td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ user.firstname }}</td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;"><a [href]="'mailto:' + user.email">{{ user.email }}</a></td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ user.tel }}</td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ user.role }}</td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				<div class="flex gap-2">
+				  <!-- Actions pour utilisateurs actifs -->
+				  <ng-container *ngIf="!showArchived">
+					<button 
+					  pButton 
+					  icon="pi pi-pencil" 
+					  class="p-button-rounded p-button-secondary p-button-text"
+					  style="width: 2.25rem; height: 2.25rem;"
+					  (click)="editUser(user)">
+					</button>
+					
+					<button 
+					  pButton 
+					  icon="pi pi-trash" 
+					  class="p-button-rounded p-button-danger p-button-text"
+					  style="width: 2.25rem; height: 2.25rem;"
+					  (click)="deleteUser(user)">
+					</button>
+				  </ng-container>
+				  
+				  <!-- Actions pour utilisateurs archivés -->
+				  <ng-container *ngIf="showArchived">
+					<button 
+					  pButton 
+					  icon="pi pi-replay" 
+					  class="p-button-rounded p-button-success p-button-text"
+					  style="width: 2.25rem; height: 2.25rem;"
+					  (click)="restoreUser(user)">
+					</button>
+				  </ng-container>
+				</div>
+			  </td>
+			</tr>
+			
+			<!-- Ligne en mode édition -->
+			<tr *ngIf="isEditingUser && user.id === userToEdit?.id" style="border: 1px solid #e9ecef; background-color: #f8f9fa;">
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;"></td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				<input pInputText [(ngModel)]="userToEdit.lastname" class="w-full" />
+			  </td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				<input pInputText [(ngModel)]="userToEdit.firstname" class="w-full" />
+			  </td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				<input pInputText [(ngModel)]="userToEdit.email" class="w-full" />
+			  </td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				<input pInputText [(ngModel)]="userToEdit.tel" class="w-full" />
+			  </td>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				<select pInputText [(ngModel)]="userToEdit.role" class="w-full" style="padding: 0.5rem; border-radius: 4px;">
 				  <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
 				</select>
 			  </td>
-			  <td>
-				<button pButton pRipple type="button" icon="pi pi-check" class="p-button-rounded p-button-text" (click)="saveNewUser()"></button>
-				<button pButton pRipple type="button" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" (click)="cancelNewUser()"></button>
+			  <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+				<div class="flex gap-2">
+				  <button 
+					pButton 
+					icon="pi pi-check" 
+					class="p-button-rounded p-button-success p-button-text"
+					style="width: 2.25rem; height: 2.25rem;"
+					(click)="saveUpdatedUser()">
+				  </button>
+				  <button 
+					pButton 
+					icon="pi pi-times" 
+					class="p-button-rounded p-button-danger p-button-text"
+					style="width: 2.25rem; height: 2.25rem;"
+					(click)="cancelEditUser()">
+				  </button>
+				</div>
+			  </td>
+			</tr>
+		  </ng-template>
+		  
+		  <!-- Template vide pour le footer puisque nous avons déplacé la ligne d'ajout dans le body -->
+		  <ng-template pTemplate="footer">
+		  </ng-template>
+		  
+		  <!-- Message quand aucun utilisateur n'est trouvé -->
+		  <ng-template pTemplate="emptymessage">
+			<tr>
+			  <td colspan="7" class="text-center p-4">
+				<div class="flex flex-column align-items-center">
+				  <i class="pi pi-search mb-3" style="font-size: 2rem; color: #ccc;"></i>
+				  <span>Aucun utilisateur {{ showArchived ? 'archivé' : 'actif' }} trouvé.</span>
+				</div>
 			  </td>
 			</tr>
 		  </ng-template>
 		</p-table>
 	  </div>
+	  
+	  <!-- Dialogue de confirmation pour suppression individuelle -->
+	  <p-dialog [(visible)]="deleteUserDialog" [style]="{width: '400px'}" header="Archiver l'utilisateur" [modal]="true">
+		<div class="flex align-items-center gap-3 mb-3">
+		  <i class="pi pi-exclamation-triangle text-yellow-500" style="font-size: 1.5rem"></i>
+		  <span>Êtes-vous sûr de vouloir archiver cet utilisateur ?</span>
+		</div>
+		<ng-template pTemplate="footer">
+		  <button pButton type="button" label="Annuler" icon="pi pi-times" class="p-button-text" (click)="deleteUserDialog = false"></button>
+		  <button pButton type="button" label="Archiver" icon="pi pi-check" class="p-button-danger" (click)="confirmDeleteUser()"></button>
+		</ng-template>
+	  </p-dialog>
+	  
+	  <!-- Dialogue de confirmation pour suppression multiple -->
+	  <p-dialog [(visible)]="deleteUsersDialog" [style]="{width: '400px'}" header="Archiver les utilisateurs" [modal]="true">
+		<div class="flex align-items-center gap-3 mb-3">
+		  <i class="pi pi-exclamation-triangle text-yellow-500" style="font-size: 1.5rem"></i>
+		  <span>Êtes-vous sûr de vouloir archiver les utilisateurs sélectionnés ?</span>
+		</div>
+		<ng-template pTemplate="footer">
+		  <button pButton type="button" label="Annuler" icon="pi pi-times" class="p-button-text" (click)="deleteUsersDialog = false"></button>
+		  <button pButton type="button" label="Archiver" icon="pi pi-check" class="p-button-danger" (click)="confirmDeleteSelectedUsers()"></button>
+		</ng-template>
+	  </p-dialog>
+	  
+	  <!-- Dialogue de confirmation pour restauration individuelle -->
+	  <p-dialog [(visible)]="restoreUserDialog" [style]="{width: '400px'}" header="Restaurer l'utilisateur" [modal]="true">
+		<div class="flex align-items-center gap-3 mb-3">
+		  <i class="pi pi-exclamation-triangle text-yellow-500" style="font-size: 1.5rem"></i>
+		  <span>Êtes-vous sûr de vouloir restaurer cet utilisateur ?</span>
+		</div>
+		<ng-template pTemplate="footer">
+		  <button pButton type="button" label="Annuler" icon="pi pi-times" class="p-button-text" (click)="restoreUserDialog = false"></button>
+		  <button pButton type="button" label="Restaurer" icon="pi pi-check" class="p-button-success" (click)="confirmRestoreUser()"></button>
+		</ng-template>
+	  </p-dialog>
+	  
+	  <!-- Dialogue de confirmation pour restauration multiple -->
+	  <p-dialog [(visible)]="restoreUsersDialog" [style]="{width: '400px'}" header="Restaurer les utilisateurs" [modal]="true">
+		<div class="flex align-items-center gap-3 mb-3">
+		  <i class="pi pi-exclamation-triangle text-yellow-500" style="font-size: 1.5rem"></i>
+		  <span>Êtes-vous sûr de vouloir restaurer les utilisateurs sélectionnés ?</span>
+		</div>
+		<ng-template pTemplate="footer">
+		  <button pButton type="button" label="Annuler" icon="pi pi-times" class="p-button-text" (click)="restoreUsersDialog = false"></button>
+		  <button pButton type="button" label="Restaurer" icon="pi pi-check" class="p-button-success" (click)="confirmRestoreSelectedUsers()"></button>
+		</ng-template>
+	  </p-dialog>
 	</div>
   </div>
-  

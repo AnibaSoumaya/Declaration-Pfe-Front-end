@@ -1,0 +1,223 @@
+<div class="grid">
+  <div class="col-12">
+    <!-- Styles pour le dialogue personnalisé -->
+    <style>
+      /* Style pour les boutons hover */
+      :host ::ng-deep .p-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      }
+      
+      /* Style pour les lignes du tableau hover */
+      :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+        background-color: #f9f9f9;
+      }
+
+      /* Style pour arrondir le tableau */
+      :host ::ng-deep .rounded-table {
+        border-radius: 8px;
+        overflow: hidden;
+      }
+    </style>
+    
+    <!-- Carte principale avec ombre et bords arrondis -->
+    <div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
+
+    <div class="card px-6 py-6" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border-top: none;">
+      
+      <p-toast></p-toast>
+
+      <!-- Header avec un dégradé orange plus moderne -->
+      <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center" 
+           style="background: linear-gradient(135deg, #FF8C00, #F57C00); 
+                  padding: 1.5rem; 
+                  margin: -1.5rem -1.5rem 1.5rem -1.5rem; 
+                  border-radius: 12px 12px 0 0;">
+        <!-- Titre en blanc avec typographie améliorée -->
+        <h3 class="m-0" style="color: white; font-weight: 600; font-size: 1.5rem; letter-spacing: 0.5px;">Liste des Déclarations</h3>
+
+        <div class="flex flex-wrap gap-3" style="margin-right: 0.5rem;">
+          <ng-container *ngIf="!isSearching; else searchInput">
+            <button 
+              pButton pRipple 
+              type="button" 
+              icon="pi pi-search" 
+              class="p-button-rounded p-button-info p-button-outlined" 
+              style="color: white; border-color: white; width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+              (click)="toggleSearch()">
+            </button>
+          </ng-container>
+
+          <ng-template #searchInput>
+            <!-- Barre de recherche améliorée -->
+            <div style="position: relative;">
+              <i class="pi pi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+              <input 
+                type="text" 
+                pInputText 
+                [(ngModel)]="searchQuery"
+                (blur)="toggleSearch()"
+                (input)="onGlobalFilter(dt, $event)"
+                placeholder="Rechercher..." 
+                style="padding: 0.5rem 0.5rem 0.5rem 2.5rem; border-radius: 20px; width: 250px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
+                autofocus />
+            </div>
+          </ng-template>
+
+          <!-- Bouton d'assignation de gérant -->
+          <button 
+            pButton pRipple 
+            type="button" 
+            icon="pi pi-user-edit" 
+            class="p-button-rounded p-button-success p-button-outlined" 
+            style="color: white; border-color: white; width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+            (click)="openChangeManagerDialog()" 
+            [disabled]="selectedDeclarations.length === 0">
+          </button>
+        </div>
+      </div>
+
+      <!-- Tableau redessiné -->
+      <p-table 
+        #dt 
+        [value]="declarations" 
+        styleClass="p-datatable-gridlines rounded-table" 
+        [(selection)]="selectedDeclarations" 
+        [rows]="5" 
+        [rowHover]="true" 
+        [paginator]="true" 
+        [globalFilterFields]="['id', 'etatDeclaration', 'assujetti', 'numeroDeclaration']" 
+        responsiveLayout="scroll"
+        [rowsPerPageOptions]="[5,10]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+        dataKey="id">
+          
+        <ng-template pTemplate="header">
+          <tr>
+            <!-- En-têtes de colonnes redessinés -->
+            <th style="width: 3rem; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="id" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Numéro de Déclaration <p-sortIcon field="id"></p-sortIcon></th>
+            <th pSortableColumn="dateDeclaration" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Date de Création <p-sortIcon field="dateDeclaration"></p-sortIcon></th>
+            <th pSortableColumn="typeDeclaration" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Type de Déclaration <p-sortIcon field="typeDeclaration"></p-sortIcon></th>
+            <th pSortableColumn="etatDeclaration" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">État de Déclaration <p-sortIcon field="etatDeclaration"></p-sortIcon></th>
+            <th pSortableColumn="assujetti.nom" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Assujetti <p-sortIcon field="assujetti.nom"></p-sortIcon></th>
+            <th pSortableColumn="assujetti.email" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">E-mail d'Assujetti <p-sortIcon field="assujetti.email"></p-sortIcon></th>
+            <th pSortableColumn="utilisateur.lastname" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Gérant <p-sortIcon field="utilisateur.lastname"></p-sortIcon></th>
+            <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Détails</th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-declaration>
+          <tr style="transition: background-color 0.2s;">
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+              <p-tableCheckbox [value]="declaration"></p-tableCheckbox>
+            </td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ declaration.id }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ declaration.dateDeclaration }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ declaration.typeDeclaration }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ declaration.etatDeclaration }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ declaration.assujetti?.nom }} {{ declaration.assujetti?.prenom }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;"><a [href]="'mailto:' + declaration.assujetti?.email">{{ declaration.assujetti?.email }}</a></td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ declaration.utilisateur?.firstname }} {{ declaration.utilisateur?.lastname }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+              <button 
+                pButton 
+                pRipple 
+                type="button" 
+                icon="pi pi-download" 
+                class="p-button-rounded p-button-secondary p-button-text"
+                style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
+                (click)="downloadDeclarationPdf(declaration.id)">
+              </button>
+            </td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+              <button 
+                pButton 
+                pRipple 
+                type="button" 
+                icon="pi pi-eye" 
+                class="p-button-rounded p-button-secondary p-button-text"
+                style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
+                (click)="afficherDeclaration(declaration.id)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <!-- Template pour les lignes vides -->
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 2rem; color: #666;">
+              <i class="pi pi-info-circle" style="font-size: 2rem; margin-bottom: 1rem; color: #999;"></i>
+              <p>Aucune déclaration trouvée.</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <!-- Dialogue d'affectation de conseiller amélioré -->
+  <p-dialog 
+    header="Affecter un Conseiller Rapporteur" 
+    [(visible)]="displayChangeManagerDialog" 
+    [modal]="true" 
+    [style]="{width: '50vw'}"
+    [breakpoints]="{'960px': '75vw', '640px': '90vw'}"
+    [draggable]="false"
+    [resizable]="false"
+    styleClass="p-fluid"
+    [dismissableMask]="true">
+    
+    <div class="p-fluid" style="padding: 1rem;">
+      <div class="field">
+        <label for="gerant" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #495057;">Nouveau Conseiller Rapporteur</label>
+        <p-dropdown 
+          [options]="conseillers"
+          [(ngModel)]="selectedGerant"
+          [filter]="true"
+          filterBy="firstname,lastname"
+          [scrollHeight]="'200px'"
+          optionLabel="fullName"
+          placeholder="Sélectionner un conseiller"
+          [showClear]="true"
+          styleClass="w-full"
+          inputId="gerant">
+
+          <ng-template let-user pTemplate="item">
+            {{ user.firstname }} {{ user.lastname }}
+          </ng-template>
+
+          <ng-template let-user pTemplate="selectedItem">
+            {{ user ? (user.firstname + ' ' + user.lastname) : 'Sélectionner un conseiller' }}
+          </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-content-end gap-2">
+        <button 
+          pButton 
+          label="Annuler" 
+          icon="pi pi-times" 
+          (click)="displayChangeManagerDialog = false" 
+          class="p-button-outlined p-button-warning"
+          style="transition: all 0.2s;">
+        </button>
+        <button 
+          pButton 
+          label="Confirmer" 
+          icon="pi pi-check" 
+          (click)="assignGerantToSelectedDeclarations()" 
+          [disabled]="!selectedGerant" 
+          class="p-button-outlined p-button-success"
+          style="transition: all 0.2s;">
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>

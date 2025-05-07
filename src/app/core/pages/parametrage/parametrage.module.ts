@@ -15,6 +15,9 @@ import { TableModule } from 'primeng/table';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ParametreGenerauxComponent } from './parametre-generaux/parametre-generaux.component';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
 
 @NgModule({
     imports: [
@@ -30,7 +33,10 @@ import { ParametreGenerauxComponent } from './parametre-generaux/parametre-gener
         ButtonModule,
         ToggleButtonModule,
         CheckboxModule,
-        TableModule
+        TableModule,
+        InputSwitchModule,
+        ToastModule,
+        DialogModule
 
         
         

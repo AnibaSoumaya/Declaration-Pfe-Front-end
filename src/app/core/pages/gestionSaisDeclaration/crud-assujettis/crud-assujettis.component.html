@@ -1,164 +1,354 @@
 <div class="grid">
   <div class="col-12">
-    <div class="card px-6 py-6">
-      <p-toast></p-toast>
-      <!--<p-toolbar styleClass="mb-4">
-        
+    <style>
+      :host ::ng-deep .custom-dialog .p-dialog-header {
+        background: linear-gradient(135deg, #FF8C00, #F57C00);
+        color: white;
+      }
+      
+      :host ::ng-deep .p-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      }
+      
+      :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+        background-color: #f9f9f9;
+      }
 
-        <ng-template pTemplate="right">
-          <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
-          <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help" (click)="dt.exportCSV()"></button>
-        </ng-template>
-      </p-toolbar>-->
+      :host ::ng-deep .p-togglebutton.p-button {
+        transition: all 0.2s;
+      }
 
-      <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            
-        <h5 class="m-0">Liste des Assujettis</h5>
+      :host ::ng-deep .p-togglebutton.p-button.p-highlight {
+        background: #F57C00;
+        border-color: #F57C00;
+      }
+    </style>
+    
+    <div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
+      <div class="card px-6 py-6" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border-top: none;">
+        <p-toast></p-toast>
 
-        <div class="flex flex-wrap gap-2">
-            <!-- Bouton de recherche qui se transforme en input -->
+        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center" 
+             style="background: linear-gradient(135deg, #FF8C00, #F57C00); 
+                    padding: 1.5rem; 
+                    margin: -1.5rem -1.5rem 1.5rem -1.5rem; 
+                    border-radius: 12px 12px 0 0;">
+          <h3 class="m-0" style="color: white; font-weight: 600; font-size: 1.5rem; letter-spacing: 0.5px;">
+            Liste des Assujettis {{ showArchived ? 'archivés' : 'actifs' }}
+          </h3>
+
+          <div class="flex flex-wrap gap-3" style="margin-right: 0.5rem;">
+            <p-toggleButton [(ngModel)]="showArchived"
+                            onLabel="Archivés" 
+                            offLabel="Actifs"
+                            Icon="pi pi-trash" 
+                            offIcon="pi pi-users"
+                            (onChange)="toggleAssujettisList()"
+                            [style]="{'font-weight': '500', 'background-color': 'white', 'color': '#F57C00', 'border-color': 'white'}">
+            </p-toggleButton>
+
             <ng-container *ngIf="!isSearching; else searchInput">
               <button 
-                  pButton pRipple 
-                  type="button" 
-                  icon="pi pi-search" 
-                  class="p-button-rounded p-button-info p-button-outlined" 
-                  (click)="toggleSearch()">
+                pButton pRipple 
+                type="button" 
+                icon="pi pi-search" 
+                class="p-button-rounded p-button-info p-button-outlined" 
+                style="color: white; border-color: white; width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+                (click)="toggleSearch()">
               </button>
             </ng-container>
 
-            <!-- Zone de texte (remplace le bouton lors du clic) -->
             <ng-template #searchInput>
-              <input 
+              <div style="position: relative;">
+                <i class="pi pi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+                <input 
                   type="text" 
                   pInputText 
                   [(ngModel)]="searchQuery"
                   (blur)="toggleSearch()"
                   (input)="onGlobalFilter(dt, $event)"
                   placeholder="Rechercher..." 
+                  style="padding: 0.5rem 0.5rem 0.5rem 2.5rem; border-radius: 20px; width: 250px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
                   autofocus />
-            </ng-template>                
-            <button pButton pRipple type="button" icon="pi pi-user-plus" class="p-button-rounded p-button-success p-button-outlined" (click)="openNew()"></button>
-            <button pButton pRipple type="button" icon="pi pi-user-minus" class="p-button-rounded p-button-danger p-button-outlined" (click)="deleteSelectedAssujetti()" [disabled]="!selectedAssujettis || !selectedAssujettis.length"></button>
-            <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-secondary p-button-outlined" 
-            [disabled]="selectedAssujettis.length !== 1" (click)="editAssujetti(selectedAssujettis[0])">
-          </button>
-          
+              </div>
+            </ng-template>
+
+            <button pButton pRipple type="button" icon="pi pi-user-plus" 
+                    class="p-button-rounded p-button-success p-button-outlined" 
+                    style="color: white; border-color: white; width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+                    (click)="openNew()"
+                    *ngIf="!showArchived"></button>
+            
+            <button *ngIf="!showArchived" pButton pRipple type="button" icon="pi pi-user-minus" 
+                    class="p-button-rounded p-button-danger p-button-outlined" 
+                    style="color: white; border-color: white; width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+                    (click)="deleteSelectedAssujetti()" 
+                    [disabled]="!selectedAssujettis || !selectedAssujettis.length"></button>
+
+            <button *ngIf="showArchived" pButton pRipple type="button" icon="pi pi-replay" 
+                    class="p-button-rounded p-button-success p-button-outlined" 
+                    style="color: white; border-color: white; width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
+                    (click)="restoreSelectedAssujettis()" 
+                    [disabled]="!selectedAssujettis || !selectedAssujettis.length"></button>
+          </div>
         </div>
-        
+
+        <p-table #dt [value]="assujettis" 
+                 styleClass="p-datatable-gridlines" 
+                 [tableStyle]="{'border-radius': '8px', 'overflow': 'hidden'}"
+                 [columns]="cols" 
+                 responsiveLayout="scroll" 
+                 [rows]="5" 
+                 [globalFilterFields]="['nom', 'prenom', 'email', 'fonction', 'civilite', 'administration']" 
+                 [paginator]="true" 
+                 [rowsPerPageOptions]="[5,10]" 
+                 [showCurrentPageReport]="true"
+                 currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées" 
+                 [(selection)]="selectedAssujettis" 
+                 selectionMode="multiple" 
+                 [rowHover]="true" 
+                 dataKey="id">
+            
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 3rem; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              </th>
+              <th pSortableColumn="code" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Code</th>
+              <th pSortableColumn="nom" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Nom <p-sortIcon field="nom"></p-sortIcon></th>
+              <th pSortableColumn="prenom" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Prénom</th>
+              <th pSortableColumn="email" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">E-mail</th>
+              <th pSortableColumn="fonction" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Fonction</th>
+              <th pSortableColumn="civilite" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Civilité</th>
+              <th pSortableColumn="administration" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Administration</th>
+              <th pSortableColumn="datep" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Date Prise de Service</th>
+              <th pSortableColumn="contact" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Contact</th>
+              <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Actions</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-assujetti>
+            <tr style="transition: background-color 0.2s;">
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+                <p-tableCheckbox [value]="assujetti"></p-tableCheckbox>
+              </td>
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.code }}</td>
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.nom }}</td>
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.prenom }}</td>
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.email }}</td>
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.fonction.intitule }}</td>
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.civilite.intitule }}</td>
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.administration.intitule }}</td>
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.datePriseDeService }}</td>
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.contacttel }}</td>
+              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+                <div class="flex gap-2">
+                  <!-- Boutons pour les assujettis actifs -->
+                  <ng-container *ngIf="!showArchived">
+                    <button 
+                      pButton 
+                      pRipple 
+                      icon="pi pi-pencil" 
+                      class="p-button-rounded p-button-secondary p-button-text"
+                      style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
+                      (click)="editAssujetti(assujetti)">
+                    </button>
+
+                    <button 
+                      pButton 
+                      pRipple 
+                      icon="pi pi-trash" 
+                      class="p-button-rounded p-button-danger p-button-text"
+                      style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
+                      (click)="deleteAssujetti(assujetti)">
+                    </button>
+                  </ng-container>
+
+                  <!-- Bouton pour les assujettis archivés -->
+                  <ng-container *ngIf="showArchived">
+                    <button 
+                      pButton 
+                      pRipple 
+                      icon="pi pi-replay" 
+                      class="p-button-rounded p-button-success p-button-text"
+                      style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
+                      (click)="restoreAssujetti(assujetti)">
+                    </button>
+                  </ng-container>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="11" style="text-align: center; padding: 2rem; color: #666;">
+                <i class="pi pi-info-circle" style="font-size: 2rem; margin-bottom: 1rem; color: #999;"></i>
+                <p>Aucun assujetti {{ showArchived ? 'archivé' : 'actif' }} trouvé.</p>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
-      <p-table #dt [value]="assujettis" [columns]="cols" responsiveLayout="scroll" [rows]="10" [globalFilterFields]="['nom']" [paginator]="true" [rowsPerPageOptions]="[10,20,30]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedAssujettis" selectionMode="multiple" [rowHover]="true" dataKey="id">
-          
-        <ng-template pTemplate="header">
-          <tr>
-            <th style="width: 3rem">
-              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-            </th>
-            <th pSortableColumn="code">Code </th>
-            <th pSortableColumn="nom">Nom <p-sortIcon field="nom"></p-sortIcon></th>
-            <th pSortableColumn="prenom">Prénom </th>
-            <th pSortableColumn="email">E-mail </th>
-            <th pSortableColumn="fonction">Fonction </th>
-            <th pSortableColumn="civilite">Civilité </th>
-            <th pSortableColumn="administration">Administration </th>
 
-            <th pSortableColumn="datep">Date Prise de Service </th>
-            <th pSortableColumn="contact">Contact </th>
-
-            <th></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-assujetti>
-          <tr>
-            <td>
-              <p-tableCheckbox [value]="assujetti"></p-tableCheckbox>
-            </td>
-            <td>{{ assujetti.code }}</td>
-            <td>{{ assujetti.nom }}</td>
-            <td>{{ assujetti.prenom }}</td>
-            <td>{{ assujetti.email }}</td>
-            <td>{{ assujetti.fonction.intitule }}</td>
-            <td>{{ assujetti.civilite.intitule }}</td>
-            <td>{{ assujetti.administration.intitule }}</td>
-            <td>{{ assujetti.datePriseDeService }}</td>
-            <td>{{ assujetti.contacttel }}</td>
-           
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
-
-    <!-- Assujetti Details Dialog -->
-    <p-dialog [(visible)]="assujettiDialog" [style]="{width: '700px'}" header="Assujetti Details" [modal]="true" class="p-fluid">
-      <ng-template pTemplate="content">
-        <!-- Champs sur la même ligne (flexbox) -->
-        <div class="field" style="display: flex; gap: 10px;">
-          <div style="flex: 1;">
-            <label for="code">Code <span style="color: red; font-weight: bold;">*</span></label>
-            <input type="text" pInputText id="code" [(ngModel)]="assujetti.code" required />
-          </div>
-          <div style="flex: 1;">
-            <label for="nom">Nom <span style="color: red; font-weight: bold;">*</span></label>
-            <input type="text" pInputText id="nom" [(ngModel)]="assujetti.nom" required />
-          </div>
-        </div>
-    
-        <div class="field" style="display: flex; gap: 10px;">
-          <div style="flex: 1;">
-            <label for="prenom">Prénom <span style="color: red; font-weight: bold;">*</span></label>
-            <input type="text" pInputText id="prenom" [(ngModel)]="assujetti.prenom" required />
-          </div>
-          <div style="flex: 1;">
-            <label for="email">E-mail <span style="color: red; font-weight: bold;">*</span></label>
-            <input type="email" pInputText id="email" [(ngModel)]="assujetti.email" required />
-          </div>
-        </div>
-    
-        <div class="field" style="display: flex; gap: 10px;">
-          <div style="flex: 1;">
-            <label for="datep">Date Prise de Service <span style="color: red; font-weight: bold;">*</span></label>
-            <input type="date" pInputText id="datep" [(ngModel)]="assujetti.datePriseDeService" required />
-          </div>
-          <div style="flex: 1;">
-            <label for="contact">Contact <span style="color: red; font-weight: bold;">*</span></label>
-            <input type="text" pInputText id="contact" [(ngModel)]="assujetti.contacttel" required />
-          </div>
-        </div>
-    
-        <div class="field" style="display: flex; gap: 10px;">
-          <div style="flex: 1;">
-            <label for="matricule">Matricule <span style="color: red; font-weight: bold;">*</span></label>
-            <input type="text" pInputText id="matricule" [(ngModel)]="assujetti.matricule" required />
-          </div>
-        </div>
-    
-        <!-- Parcours des types de vocabulaire dynamiquement -->
-        <div *ngFor="let type of typesVocabulaire">
-          <div class="field" style="display: flex; gap: 10px;">
+      <p-dialog [(visible)]="assujettiDialog" 
+                [style]="{width: '700px'}" 
+                header="Détails de l'Assujetti" 
+                [modal]="true" 
+                styleClass="p-fluid custom-dialog"
+                [contentStyle]="{'padding': '1.5rem'}"
+                [showHeader]="true">
+        <ng-template pTemplate="content">
+          <div class="field mt-3" style="display: flex; gap: 15px;">
             <div style="flex: 1;">
-              <label>{{ type.intitule }} <span style="color: red; font-weight: bold;">*</span></label>
-              <p-dropdown 
-                [(ngModel)]="selectedVoc[type.intitule]" 
-                [options]="vocabulaireListByType[type.id]" 
-                optionLabel="intitule"
-                placeholder="Choisir à partir de la liste..." 
-                [showClear]="true" 
-                required>
-              </p-dropdown>
+              <label for="code" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;">
+                Code <span style="color: red; font-weight: bold;">*</span>
+              </label>
+              <input type="text" pInputText id="code" [(ngModel)]="assujetti.code" required 
+                     style="width: 100%; border-radius: 6px; padding: 0.75rem; border: 1px solid #ced4da;" />
+            </div>
+            <div style="flex: 1;">
+              <label for="nom" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;">
+                Nom <span style="color: red; font-weight: bold;">*</span>
+              </label>
+              <input type="text" pInputText id="nom" [(ngModel)]="assujetti.nom" required 
+                     style="width: 100%; border-radius: 6px; padding: 0.75rem; border: 1px solid #ced4da;" />
             </div>
           </div>
-        </div>
-      </ng-template>
-    
-      <p-footer>
-        <button pButton pRipple class="p-button-outlined p-button-warning" label="Annuler" icon="pi pi-times" (click)="assujettiDialog = false"></button>
-        <button pButton pRipple class="p-button-outlined p-button-success" label="Confirmer" icon="pi pi-check" (click)="saveAssujetti()"></button>
-      </p-footer>
-    </p-dialog>
-    
-    
-    
 
-    
+          <div class="field mt-3" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label for="prenom" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;">
+                Prénom <span style="color: red; font-weight: bold;">*</span>
+              </label>
+              <input type="text" pInputText id="prenom" [(ngModel)]="assujetti.prenom" required 
+                     style="width: 100%; border-radius: 6px; padding: 0.75rem; border: 1px solid #ced4da;" />
+            </div>
+            <div style="flex: 1;">
+              <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;">
+                E-mail <span style="color: red; font-weight: bold;">*</span>
+              </label>
+              <input type="email" pInputText id="email" [(ngModel)]="assujetti.email" required 
+                     style="width: 100%; border-radius: 6px; padding: 0.75rem; border: 1px solid #ced4da;" />
+            </div>
+          </div>
+
+          <div class="field mt-3" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label for="datep" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;">
+                Date Prise de Service <span style="color: red; font-weight: bold;">*</span>
+              </label>
+              <input type="date" pInputText id="datep" [(ngModel)]="assujetti.datePriseDeService" required 
+                     style="width: 100%; border-radius: 6px; padding: 0.75rem; border: 1px solid #ced4da;" />
+            </div>
+            <div style="flex: 1;">
+              <label for="contact" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;">
+                Contact <span style="color: red; font-weight: bold;">*</span>
+              </label>
+              <input type="text" pInputText id="contact" [(ngModel)]="assujetti.contacttel" required 
+                     style="width: 100%; border-radius: 6px; padding: 0.75rem; border: 1px solid #ced4da;" />
+            </div>
+          </div>
+
+          <div class="field mt-3" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label for="matricule" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;">
+                Matricule <span style="color: red; font-weight: bold;">*</span>
+              </label>
+              <input type="text" pInputText id="matricule" [(ngModel)]="assujetti.matricule" required 
+                     style="width: 100%; border-radius: 6px; padding: 0.75rem; border: 1px solid #ced4da;" />
+            </div>
+          </div>
+
+          <div *ngFor="let type of typesVocabulaire" class="field mt-3">
+            <div style="display: flex; gap: 15px;">
+              <div style="flex: 1;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #555;">
+                  {{ type.intitule }} <span style="color: red; font-weight: bold;">*</span>
+                </label>
+                <p-dropdown 
+                  [(ngModel)]="selectedVoc[type.intitule]" 
+                  [options]="vocabulaireListByType[type.id]" 
+                  optionLabel="intitule"
+                  placeholder="Choisir à partir de la liste..." 
+                  [showClear]="true" 
+                  styleClass="w-full"
+                  [panelStyle]="{'border-radius': '6px'}"
+                  [style]="{'width': '100%', 'border-radius': '6px'}"
+                  required>
+                </p-dropdown>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+
+        <p-footer>
+          <div class="flex justify-content-end gap-2 mt-4">
+            <button pButton pRipple 
+                    class="p-button-outlined" 
+                    label="Annuler" 
+                    icon="pi pi-times" 
+                    (click)="assujettiDialog = false"
+                    style="border-radius: 20px; padding: 0.75rem 1.5rem;"></button>
+            
+            <button pButton pRipple 
+                    class="p-button-success" 
+                    label="Confirmer" 
+                    icon="pi pi-check" 
+                    (click)="saveAssujetti()"
+                    style="border-radius: 20px; padding: 0.75rem 1.5rem;"></button>
+          </div>
+        </p-footer>
+      </p-dialog>
+
+      <!-- Dialogue de confirmation pour archivage individuel -->
+      <p-dialog [(visible)]="deleteAssujettiDialog" [style]="{width: '450px'}" header="Confirmation" [modal]="true">
+        <div class="confirmation-content">
+          <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+          <span>Êtes-vous sûr de vouloir archiver cet assujetti ?</span>
+        </div>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple type="button" label="Non" icon="pi pi-times" class="p-button-text" (click)="deleteAssujettiDialog = false"></button>
+          <button pButton pRipple type="button" label="Oui" icon="pi pi-check" class="p-button-danger" (click)="confirmDelete()"></button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Dialogue de confirmation pour archivage multiple -->
+      <p-dialog [(visible)]="deleteAssujettisDialog" [style]="{width: '450px'}" header="Confirmation" [modal]="true">
+        <div class="confirmation-content">
+          <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+          <span>Êtes-vous sûr de vouloir archiver les assujettis sélectionnés ?</span>
+        </div>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple type="button" label="Non" icon="pi pi-times" class="p-button-text" (click)="deleteAssujettisDialog = false"></button>
+          <button pButton pRipple type="button" label="Oui" icon="pi pi-check" class="p-button-danger" (click)="confirmDeleteSelected()"></button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Dialogue de confirmation pour restauration individuelle -->
+      <p-dialog [(visible)]="restoreAssujettiDialog" [style]="{width: '450px'}" header="Confirmation" [modal]="true">
+        <div class="confirmation-content">
+          <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+          <span>Êtes-vous sûr de vouloir restaurer cet assujetti ?</span>
+        </div>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple type="button" label="Non" icon="pi pi-times" class="p-button-text" (click)="restoreAssujettiDialog = false"></button>
+          <button pButton pRipple type="button" label="Oui" icon="pi pi-check" class="p-button-success" (click)="confirmRestore()"></button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Dialogue de confirmation pour restauration multiple -->
+      <p-dialog [(visible)]="restoreAssujettisDialog" [style]="{width: '450px'}" header="Confirmation" [modal]="true">
+        <div class="confirmation-content">
+          <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+          <span>Êtes-vous sûr de vouloir restaurer les assujettis sélectionnés ?</span>
+        </div>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple type="button" label="Non" icon="pi pi-times" class="p-button-text" (click)="restoreAssujettisDialog = false"></button>
+          <button pButton pRipple type="button" label="Oui" icon="pi pi-check" class="p-button-success" (click)="confirmRestoreSelected()"></button>
+        </ng-template>
+      </p-dialog>
+    </div>
   </div>
 </div>

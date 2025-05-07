@@ -14,18 +14,21 @@ export class AppMenuComponent implements OnInit {
 
     ngOnInit() {
         this.model = [
-            {
+            /*{
                 label: 'Home',
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }
                 ]
-            },
+            },*/
             {
                 label: 'Pfe',
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
                     { label: 'Gestion des assujettis', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti'] },
-                    { label: 'Gestion des utilisateur', icon: 'pi pi-fw pi-user', routerLink: ['/utilisateur'] },
+                    { label: 'Declarations Assujettis', icon: 'pi pi-fw pi-user', routerLink: ['Assujetti/decDetails'] },
+                    { label: 'Controle Declaration', icon: 'pi pi-fw pi-users', routerLink: ['/controleDeclaration'] },
+
+                    { label: 'Gestion des utilisateurs', icon: 'pi pi-fw pi-users', routerLink: ['/utilisateur'] },
                     {
                         label: 'Paramétrage',
                         icon: 'pi pi-wrench',
@@ -43,10 +46,11 @@ export class AppMenuComponent implements OnInit {
 
                         ]
                     },
+                    { label: 'Profil', icon: 'pi pi-fw pi-users', routerLink: ['/profil'] },
                     { label: 'Free Blocks', icon: 'pi pi-fw pi-eye', routerLink: ['/blocks'], badge: 'NEW' },                    
                 ]
             },
-            {
+            /*{
                 label: 'Homedfghj',
                 items: [
                     { label: 'Dashboardplkjhgcxw', icon: 'pi pi-fw pi-home', routerLink: ['/'] }
@@ -191,7 +195,7 @@ export class AppMenuComponent implements OnInit {
                         label: 'View Source', icon: 'pi pi-fw pi-search', url: ['https://github.com/primefaces/sakai-ng'], target: '_blank'
                     }
                 ]
-            }
+            }*/
         ];
     }
 }

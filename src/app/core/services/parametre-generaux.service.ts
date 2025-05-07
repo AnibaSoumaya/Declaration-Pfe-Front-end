@@ -1,24 +1,29 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Parametrage } from '../models/parametre.model';
 import { Observable } from 'rxjs';
+import { Parametre } from '../models/Parametre.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ParametreGenerauxService {
 
-  private apiUrl = 'http://localhost:8084/api/parametrages'; // Remplace par l'URL de ton backend si différent
+  private apiUrl = 'http://localhost:8084/api/parametrages'; 
 
   constructor(private http: HttpClient) {}
 
-  // Récupérer tous les paramètres
-  getParametrages(): Observable<Parametrage[]> {
-    return this.http.get<Parametrage[]>(this.apiUrl);
+
+  getParametrages(): Observable<Parametre[]> {
+    return this.http.get<Parametre[]>(this.apiUrl);
   }
 
-  // Mettre à jour la valeur d'un paramètre
-  updateValeur(id: number, valeur: string): Observable<Parametrage> {
-    return this.http.put<Parametrage>(`${this.apiUrl}/${id}/valeur`, { valeur });
+
+  updateValeur(id: number, valeur: string): Observable<Parametre> {
+    return this.http.put<Parametre>(`${this.apiUrl}/${id}/valeur`, { valeur });
   }
+
+  getParametrageByCode(code: string): Observable<Parametre> {
+    return this.http.get<Parametre>(`${this.apiUrl}/search?code=${code}`);
+  }
+
 }

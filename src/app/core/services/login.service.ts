@@ -1,66 +1,98 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
 import { User } from '../models/User.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-  private apiURL: string = 'http://localhost:8084/api/auth';  // L'URL de l'API backend
+  private apiURL: string = 'http://localhost:8084/api/auth';  
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) { }
 
-  // Fonction de connexion
   login(email: string, password: string): Observable<User> {
-    const body = { email, password };  // On envoie email et password au backend
-    return this.http.post<User>(`${this.apiURL}/authenticate`, body); // POST request pour l'authentification
+    const body = { email, password };  
+    return this.http.post<User>(`${this.apiURL}/authenticate`, body); 
   }
 
-  // Fonction pour stocker le token et l'ID utilisateur dans le localStorage
-  setAuthData(token: string, userId: string): void {
+  setAuthData(token: string, userId: string, firstname: string, lastname: string): void {
     localStorage.setItem('authToken', token);
-    localStorage.setItem('userId', userId);  // Stocke également l'ID de l'utilisateur
+    localStorage.setItem('userId', userId); 
+    localStorage.setItem('firstname', firstname);
+    localStorage.setItem('lastname', lastname);
   }
-
-  // Fonction pour récupérer le token depuis le localStorage
+  
   getToken(): string | null {
     return localStorage.getItem('authToken');
   }
-
-  // Fonction pour récupérer l'ID utilisateur depuis le localStorage
+  
+  getUserNom(): string | null {
+    return localStorage.getItem('lastname');
+  }
+  
+  getUserPrenom(): string | null {
+    return localStorage.getItem('firstname');
+  }
+  
   getUserId(): string | null {
     return localStorage.getItem('userId');
   }
 
-  // Fonction pour supprimer le token et l'ID utilisateur lors de la déconnexion
   logout(): void {
+    // Supprimer toutes les données d'authentification du localStorage
     localStorage.removeItem('authToken');
     localStorage.removeItem('userId');
+    localStorage.removeItem('firstname');
+    localStorage.removeItem('lastname');
+    
+    // Rediriger vers la page de login
+    this.router.navigate(['/securite']);
   }
 
-  // Fonction pour vérifier si l'utilisateur est authentifié (s'il a un token)
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
 
-  // Fonction pour obtenir le rôle de l'utilisateur à partir du token
   getRole(): string {
     const token = localStorage.getItem('authToken');
     if (!token) return '';
     
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.authorities ? payload.authorities[0] : ''; // Assuming you have a single role
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.authorities ? payload.authorities[0] : ''; 
+    } catch (e) {
+      console.error('Erreur lors du décodage du token:', e);
+      return '';
+    }
   }
-
-  // Fonction pour vérifier si l'utilisateur est un administrateur
-  isAdmin(): boolean {
-    return this.getRole() === 'administrateur';
-  }
-
-  // Fonction pour décoder le token JWT
+  
   decodeToken(token: string): any {
-    const payload = token.split('.')[1];
-    return JSON.parse(atob(payload));  // Décodage du payload du token JWT
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch (e) {
+      console.error('Erreur lors du décodage du token:', e);
+      return null;
+    }  
+  }
+
+  logoutFromServer(): Observable<any> {
+    const token = this.getToken();
+    if (!token) {
+      return new Observable(observer => {
+        observer.error('Token not found');
+      });
+    }
+  
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  
+    return this.http.post(`${this.apiURL}/logout`, {}, { headers });
   }
 }

@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Assujetti } from 'src/app/core/models/Assujetti.model';
 import { TypeVocabulaire } from 'src/app/core/models/TypeVocabulaire.model';
+import { User } from 'src/app/core/models/User.model';
 import { Vocabulaire } from 'src/app/core/models/Vocabulaire.model';
 import { gestionAssujettiService } from 'src/app/core/services/gestion-assujetti.service';
+import { LoginService } from 'src/app/core/services/login.service';
 
 @Component({
   templateUrl: './crud-assujettis.component.html',
@@ -21,30 +23,28 @@ export class CrudAssujettisComponent implements OnInit {
     submitted: boolean = false;
 
     selectedTypeVocabulaire: TypeVocabulaire | null = null;
-
-    /*vocabulaireList: any[] = []; // You can type it more specifically if needed
-  */
     sourceCities: TypeVocabulaire[] = [];
-
-    // Column definitions for the table
     cols: any[] = [];
     isSearching: boolean = false;
     searchQuery: string = '';
-  
-
-    selectedVoc: { [key: string]: any } = {}; // Stocke la sélection de chaque type
-
-    
-    vocabulaireListByType: { [key: number]: Vocabulaire[] } = {}; // Dictionnaire pour filtrer les vocabulaires
-
+    selectedVoc: { [key: string]: any } = {};
+    vocabulaireListByType: { [key: number]: Vocabulaire[] } = {};
     typesVocabulaire: TypeVocabulaire[] = [];
     vocabulaireList: Vocabulaire[] = [];
     selectedVocabulaire: Vocabulaire;
 
-    constructor(private assujettiService: gestionAssujettiService, private messageService: MessageService) { }
+    // Variables manquantes
+showArchived: boolean = false;
+restoreAssujettiDialog: boolean = false;
+restoreAssujettisDialog: boolean = false;
+
+    constructor(
+      private assujettiService: gestionAssujettiService, 
+      private messageService: MessageService,
+      private loginService: LoginService
+    ) { }
 
     ngOnInit() {
-      // Define table columns
       this.cols = [
         { field: 'code', header: 'Code' },
         { field: 'nom', header: 'Nom & Prenom' },
@@ -54,84 +54,73 @@ export class CrudAssujettisComponent implements OnInit {
         { field: 'contacttel', header: 'Contact' },
         { field: 'etat', header: 'Etat' }
       ];
-      
-
 
       this.assujettiService.getTypesVocabulaire().subscribe((types) => {
         this.typesVocabulaire = types;
         
-         // Récupération des vocabulaires et filtrage par type
-      this.typesVocabulaire.forEach(type => {
-        this.assujettiService.getVocabulaireByTypeId(type.id).subscribe((vocabulaire) => {
-          // Stockage des vocabulaires filtrés par type
-          this.vocabulaireListByType[type.id] = vocabulaire;
+        this.typesVocabulaire.forEach(type => {
+          this.assujettiService.getVocabulaireByTypeId(type.id).subscribe((vocabulaire) => {
+            this.vocabulaireListByType[type.id] = vocabulaire;
+          });
         });
       });
-    });
-        
       
-    
       this.getAllAssujettis();
+      this.loadAssujettis();
     }
 
-    
-    
-  /*
-  onTypeVocabulaireChange() {
-    if (this.selectedTypeVocabulaire) {
-      this.assujettiService.getVocabulaireByType(this.selectedTypeVocabulaire.id).subscribe(
-        (vocabulaire) => {
-          this.vocabulaireList = vocabulaire;
-          console.log('Vocabulaire sélectionné:', this.selectedTypeVocabulaire);
-
-        },
-        (error) => console.error('Erreur récupération vocabulaires:', error)
-      );
-    } else {
-      this.vocabulaireList = [];
-    }
-
-  }
-    
-  */
-  // Cette méthode est appelée lorsque le type de vocabulaire change
-  onTypeVocabulaireChange() {
-    if (this.selectedTypeVocabulaire) {
-      this.assujettiService.getVocabulaireByTypeId(this.selectedTypeVocabulaire.id).subscribe((vocabulaire) => {
-        this.vocabulaireList = vocabulaire;
-        console.log("Vocabulaire chargé:", this.vocabulaireList); // Vérification dans la console
-      }, error => {
-        console.error("Erreur de récupération des vocabulaires:", error);
+    loadAssujettis() {
+      this.assujettiService.getAllAssujettis().subscribe((data) => {
+        this.assujettis = data;
       });
     }
-  }
 
-
-
-
-
-    
-    
-
-
-  toggleSearch() {
-    this.isSearching = !this.isSearching;
-    if (!this.isSearching) {
-      this.searchQuery = ''; // Réinitialiser la recherche si on ferme
-    }
-  }
-  getAllAssujettis(): void {
-    this.assujettiService.getAllAssujettis().subscribe(
-      (data: Assujetti[]) => {
-        this.assujettis = data;
-        console.log('Liste des assujettis:', this.assujettis); // Affichage dans la console
-      },
-      (error) => {
-        console.error('Erreur lors du chargement des assujettis:', error);
+    onTypeVocabulaireChange() {
+      if (this.selectedTypeVocabulaire) {
+        this.assujettiService.getVocabulaireByTypeId(this.selectedTypeVocabulaire.id).subscribe((vocabulaire) => {
+          this.vocabulaireList = vocabulaire;
+          console.log("Vocabulaire chargé:", this.vocabulaireList);
+        }, error => {
+          console.error("Erreur de récupération des vocabulaires:", error);
+        });
       }
-    );
-  }
+    }
 
+    toggleSearch() {
+      this.isSearching = !this.isSearching;
+      if (!this.isSearching) {
+        this.searchQuery = '';
+      }
+    }
+        // Méthode pour récupérer les assujettis archivés
+        getAllStoppedAssujettis(): void {
+          this.assujettiService.getAllStopped().subscribe(
+            (data: Assujetti[]) => {
+              this.assujettis = data;
+              console.log('Liste des assujettis archivés:', this.assujettis);
+            },
+            (error) => {
+              console.error('Erreur lors du chargement des assujettis archivés:', error);
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail: 'Impossible de charger les assujettis archivés'
+              });
+            }
+          );
+        }
+
+    getAllAssujettis(): void {
+      this.assujettiService.getAllAssujettis().subscribe(
+        (data: Assujetti[]) => {
+          this.assujettis = data;
+          console.log('Liste des assujettis:', this.assujettis);
+        },
+        (error) => {
+          console.error('Erreur lors du chargement des assujettis:', error);
+        }
+      );
+    }
 
     openNew() {
       this.assujetti = new Assujetti();
@@ -140,99 +129,341 @@ export class CrudAssujettisComponent implements OnInit {
     }
 
     saveAssujetti() {
-      // Vérifie si les vocabulaires sélectionnés sont bien affectés à assujetti
+      this.submitted = true;
+      
       Object.keys(this.selectedVoc).forEach(key => {
-        this.assujetti[key] = this.selectedVoc[key]; 
+        this.assujetti[key] = this.selectedVoc[key];
       });
-
-      // Vérification que le numéro ne dépasse pas 8 chiffres
-      if (this.assujetti.contacttel && this.assujetti.contacttel.length > 8) {
-        alert("Le numéro de téléphone ne doit pas dépasser 8 chiffres !");
+    
+      const champsManquants: string[] = [];
+      
+      if (!this.assujetti.code) champsManquants.push('Code');
+      if (!this.assujetti.nom) champsManquants.push('Nom & Prénom');
+      if (!this.assujetti.email) champsManquants.push('Email');
+      if (!this.assujetti.fonction) champsManquants.push('Fonction');
+      if (!this.assujetti.datePriseDeService) champsManquants.push('Date de prise de service');
+      if (!this.assujetti.contacttel) champsManquants.push('Contact téléphonique');
+    
+      if (champsManquants.length > 0) {
+        this.messageService.add({
+          severity: 'error', 
+          summary: 'Champs obligatoires manquants', 
+          detail: 'Tous les champs sont obligatoires'
+        });
+        return;
+      }
+      
+      if (typeof this.assujetti.email === 'string' && !this.validateEmail(this.assujetti.email)) {
+        this.messageService.add({
+          severity: 'error', 
+          summary: 'Format invalide', 
+          detail: 'Format d\'email invalide'
+        });
+        return;
+      }
+      
+      if (typeof this.assujetti.contacttel === 'string' && 
+          (this.assujetti.contacttel.length !== 8 || !/^\d+$/.test(this.assujetti.contacttel))) {
+        this.messageService.add({
+          severity: 'error', 
+          summary: 'Format invalide', 
+          detail: 'Le numéro de téléphone doit comporter exactement 8 chiffres'
+        });
+        return;
+      }
+      
+      const userId = this.loginService.getUserId();
+      if (!userId) {
+        this.messageService.add({
+          severity: 'error', 
+          summary: 'Erreur', 
+          detail: 'Utilisateur non connecté. Impossible d\'ajouter l\'assujetti'
+        });
         return;
       }
     
-      console.log("Données envoyées :", this.assujetti); // Vérification
+      const userIdNumber = Number(userId); 
+      if (isNaN(userIdNumber)) {
+        this.messageService.add({
+          severity: 'error', 
+          summary: 'Erreur', 
+          detail: 'L\'ID utilisateur est invalide'
+        });
+        return;
+      }
+      
+      const administrateur: User = { id: userIdNumber } as User;
+      this.assujetti.administrateur = administrateur;
     
-      this.assujettiService.createAssujetti(this.assujetti).subscribe({
-        next: (response) => {
-          console.log("Réponse du backend :", response);
-          this.getAllAssujettis();  // Recharger la liste après la confirmation
-          this.assujettiDialog = false;  // Fermer le dialogue
-        },
-        error: (error) => {
-          console.error("Erreur lors de la création :", error);
-        }
-      });
+      console.log("Données envoyées :", this.assujetti); 
+    
+      if (this.assujetti.id) {
+        this.assujettiService.updateAssujetti(this.assujetti.id, this.assujetti).subscribe({
+          next: (response) => {
+            console.log("Réponse du backend (update) :", response);
+            this.messageService.add({
+              severity: 'success', 
+              summary: 'Succès', 
+              detail: 'Assujetti mis à jour avec succès'
+            });
+            this.getAllAssujettis();  
+            this.assujettiDialog = false;
+            this.assujetti = new Assujetti();
+            this.submitted = false;
+          },
+          error: (error) => {
+            console.error("Erreur lors de la mise à jour :", error);
+            this.messageService.add({
+              severity: 'error', 
+              summary: 'Erreur', 
+              detail: error.error?.message || 'Erreur lors de la mise à jour de l\'assujetti'
+            });
+          }
+        });
+      } else {
+        this.assujettiService.createAssujetti(this.assujetti).subscribe({
+          next: (response) => {
+            console.log("Réponse du backend (create) :", response);
+            this.messageService.add({
+              severity: 'success', 
+              summary: 'Succès', 
+              detail: 'Assujetti créé avec succès'
+            });
+            this.getAllAssujettis();  
+            this.assujettiDialog = false;
+            this.assujetti = new Assujetti();
+            this.submitted = false;
+          },
+          error: (error) => {
+            console.error("Erreur lors de la création :", error);
+            this.messageService.add({
+              severity: 'error', 
+              summary: 'Erreur', 
+              detail: error.error?.message || 'Erreur lors de la création de l\'assujetti'
+            });
+          }
+        });
+      }
     }
-
+    
+    validateEmail(email: string): boolean {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return emailRegex.test(email);
+    }
 
     editAssujetti(assujetti: Assujetti) {
       this.assujetti = { ...assujetti };
-    
-      // Pré-sélectionner les valeurs dans chaque dropdown pour l'assujetti
-      this.selectedVoc = {}; // Réinitialisation de la sélection
-    
-      // Affecter les valeurs de vocabulaire pour chaque type à la sélection correspondante
+      this.selectedVoc = {}; 
       this.typesVocabulaire.forEach(type => {
-        const key = type.intitule; // Utilisation de l'intitulé comme clé
+        const key = type.intitule; 
         this.selectedVoc[key] = assujetti[key] ? assujetti[key] : null;
       });
-    
       this.assujettiDialog = true;
     }
     
-
     deleteAssujetti(assujetti: Assujetti) {
-      this.deleteAssujettiDialog = true;
       this.assujetti = assujetti;
+      this.deleteAssujettiDialog = true;
     }
 
     confirmDelete() {
-      this.assujettiService.deleteAssujetti(this.assujetti.id).subscribe(() => {
-        this.getAllAssujettis();
-        this.deleteAssujettiDialog = false;
+      this.assujettiService.archiveAssujetti(this.assujetti.id).subscribe({
+        next: () => {
+          this.loadAssujettis();
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Archivage',
+            detail: 'Assujetti archivé avec succès'
+          });
+          this.deleteAssujettiDialog = false;
+          this.assujetti = new Assujetti();
+        },
+        error: (err) => {
+          console.error('Erreur lors de l\'archivage:', err);
+          
+          if (err.status === 400) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: err.error?.message || 'Impossible d\'archiver cet assujetti'
+            });
+          }
+          this.deleteAssujettiDialog = false;
+        }
       });
     }
 
     deleteSelectedAssujetti(): void {
       if (!this.selectedAssujettis || this.selectedAssujettis.length === 0) {
-        console.log('Aucun assujetti sélectionné.');
+        this.messageService.add({
+          severity: 'warn', 
+          summary: 'Aucune sélection', 
+          detail: 'Aucun assujetti sélectionné'
+        });
         return;
       }
-    
+      
+      this.deleteAssujettisDialog = true;
+    }
+
+    confirmDeleteSelected() {
+      let successCount = 0;
+      let errorCount = 0;
+      const totalCount = this.selectedAssujettis.length;
+      
       this.selectedAssujettis.forEach(assujetti => {
         if (assujetti && assujetti.id) {
-          this.assujettiService.deleteAssujetti(assujetti.id).subscribe({
+          this.assujettiService.archiveAssujetti(assujetti.id).subscribe({
             next: () => {
-              console.log(`Assujetti ${assujetti.id} supprimé.`);
-              // Retirer l'assujetti supprimé de la liste
+              console.log(`Assujetti ${assujetti.id} archivé.`);
               this.assujettis = this.assujettis.filter(a => a.id !== assujetti.id);
+              successCount++;
+              
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Archivage',
+                detail: `Assujetti ${assujetti.code} archivé avec succès`
+              });
+              
+              if (successCount + errorCount === totalCount) {
+                this.loadAssujettis();
+                this.deleteAssujettisDialog = false;
+                this.selectedAssujettis = [];
+              }
             },
             error: (err) => {
-              console.error(`Erreur lors de la suppression de l’assujetti ${assujetti.id}`, err);
+              console.error(`Erreur lors de l'archivage de l'assujetti ${assujetti.id}`, err);
+              errorCount++;
+              
+              if (err.status === 400) {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Erreur',
+                  detail: err.error?.message || `Impossible d'archiver l'assujetti ${assujetti.code}`
+                });
+              } else {
+                this.messageService.add({
+                  severity: 'error',
+                  summary: 'Erreur',
+                  detail: `Erreur lors de l'archivage de l'assujetti ${assujetti.code}`
+                });
+              }
+              
+              if (successCount + errorCount === totalCount) {
+                this.deleteAssujettisDialog = false;
+                this.selectedAssujettis = [];
+              }
             }
           });
         }
       });
-    
-      // Réinitialiser la sélection après la suppression
-      this.selectedAssujettis = [];
     }
-    
 
 
-
-    /*deleteSelectedAssujettis() {
-      const ids = this.selectedAssujettis.map(a => a.id);
-      this.assujettiService.deleteSelectedAssujettis(ids).subscribe(() => {
-        this.getAllAssujettis();
-        this.deleteAssujettisDialog = false;
-      });
-    }*/
-
-    // Function for global filter
     onGlobalFilter(dt: any, event: any) {
       const query = event.target.value;
       dt.filterGlobal(query, 'contains');
     }
+    // Méthode pour basculer entre les listes d'assujettis actifs et archivés
+toggleAssujettisList() {
+  if (this.showArchived) {
+    this.getAllStoppedAssujettis();
+  } else {
+    this.getAllAssujettis();
+  }
+  this.selectedAssujettis = [];
+}
+
+// Méthode pour restaurer un assujetti archivé
+restoreAssujetti(assujetti: Assujetti) {
+  this.assujetti = assujetti;
+  this.restoreAssujettiDialog = true;
+}
+
+// Méthode pour confirmer la restauration d'un assujetti
+confirmRestore() {
+  this.assujettiService.restoreAssujetti(this.assujetti.id).subscribe({
+    next: () => {
+      this.getAllStoppedAssujettis(); // Recharger la liste des assujettis archivés
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Restauration',
+        detail: 'Assujetti restauré avec succès'
+      });
+      this.restoreAssujettiDialog = false;
+      this.assujetti = new Assujetti();
+    },
+    error: (err) => {
+      console.error('Erreur lors de la restauration:', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: err.error?.message || 'Impossible de restaurer cet assujetti'
+      });
+      this.restoreAssujettiDialog = false;
+    }
+  });
+}
+
+// Méthode pour restaurer les assujettis sélectionnés
+restoreSelectedAssujettis() {
+  if (!this.selectedAssujettis || this.selectedAssujettis.length === 0) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Aucune sélection',
+      detail: 'Aucun assujetti sélectionné'
+    });
+    return;
+  }
+  
+  this.restoreAssujettisDialog = true;
+}
+
+// Méthode pour confirmer la restauration des assujettis sélectionnés
+confirmRestoreSelected() {
+  let successCount = 0;
+  let errorCount = 0;
+  const totalCount = this.selectedAssujettis.length;
+  
+  this.selectedAssujettis.forEach(assujetti => {
+    if (assujetti && assujetti.id) {
+      this.assujettiService.restoreAssujetti(assujetti.id).subscribe({
+        next: () => {
+          console.log(`Assujetti ${assujetti.id} restauré.`);
+          this.assujettis = this.assujettis.filter(a => a.id !== assujetti.id);
+          successCount++;
+          
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Restauration',
+            detail: `Assujetti ${assujetti.code} restauré avec succès`
+          });
+          
+          if (successCount + errorCount === totalCount) {
+            this.getAllStoppedAssujettis(); // Mettre à jour la liste des assujettis archivés
+            this.restoreAssujettisDialog = false;
+            this.selectedAssujettis = [];
+          }
+        },
+        error: (err) => {
+          console.error(`Erreur lors de la restauration de l'assujetti ${assujetti.id}`, err);
+          errorCount++;
+          
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: err.error?.message || `Impossible de restaurer l'assujetti ${assujetti.code}`
+          });
+          
+          if (successCount + errorCount === totalCount) {
+            this.restoreAssujettisDialog = false;
+            this.selectedAssujettis = [];
+          }
+        }
+      });
+    }
+  });
+}
+
+    
 }
