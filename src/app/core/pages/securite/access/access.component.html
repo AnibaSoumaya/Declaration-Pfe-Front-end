@@ -1,24 +1,345 @@
-<div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
-    <div class="flex flex-column align-items-center justify-content-center">
-        <!--<img src="assets/demo/images/access/logo-orange.svg" alt="Sakai logo" class="mb-5 w-6rem flex-shrink-0">-->
-        <img src="/assets/demo/images/logos/niger01.png" alt="Niger Logo" style="width: 90px; height: auto; object-fit: contain; image-rendering: crisp-edges;">
-        <div style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, rgba(247, 149, 48, 0.4) 10%, rgba(247, 149, 48, 0) 30%);">
-            <div class="w-full surface-card py-8 px-5 sm:px-8 flex flex-column align-items-center" style="border-radius:53px">
-                <div class="grid flex flex-column align-items-center">
-                    <div class="flex justify-content-center align-items-center bg-orange-500 border-circle" style="width:3.2rem; height:3.2rem;">
-                        <i class="text-50 pi pi-fw pi-lock text-2xl"></i>
-                    </div>
-                    <h1 class="text-900 font-bold text-4xl lg:text-5xl mb-2">Trouvez votre compte</h1>
-                    <!--<span class="text-600 mb-5">Veuillez entrer votre e-mail ou votre numéro de mobile pour rechercher votre compte</span>-->
-                    <span class="text-600 mb-5">Veuillez entrer votre nouveau mot de passe de mobile pour passer.</span>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail National du Niger - Accès</title>
+    <style>
+        /* Styles d'animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulseGlow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(228, 119, 36, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(228, 119, 36, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(228, 119, 36, 0);
+            }
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Ajout d'animations au design original */
+        .surface-ground {
+            background: linear-gradient(-45deg, #f5f5f5, #e9e9e9, #f0f0f0, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+        
+        .logo-animate {
+            animation: fadeInUp 1.2s ease-out;
+        }
+        
+        .gradient-border {
+            position: relative;
+            animation: fadeInUp 1.5s ease-out, pulseGlow 3s infinite;
+            transition: all 0.3s ease;
+        }
+        
+        .gradient-border:hover {
+            transform: translateY(-5px);
+        }
+        
+        .access-card {
+            animation: fadeInUp 1.8s ease-out;
+            transition: all 0.3s ease;
+        }
+        
+        .input-animate {
+            transition: all 0.3s ease;
+        }
+        
+        .input-animate:focus {
+            transform: scale(1.02);
+            border-color: #E47724;
+        }
+        
+        .btn-animate {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-animate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(228, 119, 36, 0.25);
+        }
+        
+        .btn-animate:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.2), rgba(255,255,255,0));
+            transition: all 0.6s ease;
+        }
+        
+        .btn-animate:hover:before {
+            left: 100%;
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Petites particules décoratives */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(228, 119, 36, 0.2);
+            pointer-events: none;
+        }
+        
+        .p1 { width: 8px; height: 8px; left: 10%; top: 20%; animation: floating 4s ease-in-out infinite; }
+        .p2 { width: 12px; height: 12px; left: 25%; top: 60%; animation: floating 6s ease-in-out infinite; background-color: rgba(13, 176, 43, 0.2); }
+        .p3 { width: 7px; height: 7px; left: 60%; top: 25%; animation: floating 5s ease-in-out infinite; }
+        .p4 { width: 10px; height: 10px; left: 90%; top: 70%; animation: floating 7s ease-in-out infinite; background-color: rgba(13, 176, 43, 0.2); }
+        .p5 { width: 15px; height: 15px; left: 75%; top: 10%; animation: floating 8s ease-in-out infinite; }
+        .p6 { width: 6px; height: 6px; left: 40%; top: 80%; animation: floating 6s ease-in-out infinite; background-color: rgba(13, 176, 43, 0.2); }
+        
+                @keyframes flagWave {
+            0% { transform: perspective(500px) rotateY(-5deg); }
+            50% { transform: perspective(500px) rotateY(5deg); }
+            100% { transform: perspective(500px) rotateY(-5deg); }
+        }
+        
+        @media (max-width: 640px) {
+            .password-flex {
+                flex-direction: column !important;
+            }
+        }
+        
+        .flag-stripe {
+            width: 100%;
+            height: 33.33%;
+        }
+        
+        .flag-orange {
+            background-color: #E47724;
+        }
+        
+        .flag-white {
+            background-color: #FFFFFF;
+        }
+        
+        .flag-green {
+            background-color: #0DB02B;
+        }
+        
+        /* Style spécifique pour l'icône de cadenas dans un cercle */
+        .lock-circle {
+            background-color: #E47724;
+            animation: pulseGlow 3s infinite;
+            transition: all 0.3s ease;
+        }
+        
+        .lock-circle:hover {
+            transform: rotate(10deg);
+        }
+        
+        .text-title {
+            animation: fadeInUp 2s ease-out;
+        }
+        
+        /* Texture subtile */
+        .texture-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23e47724' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 20L20 0h10L0 30v-10zm20 10L0 40v-10l10-10h10zm10-10L40 0v10L20 30h-10z'/%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Particules animées en arrière-plan -->
+    <div class="particles">
+        <div class="particle p1"></div>
+        <div class="particle p2"></div>
+        <div class="particle p3"></div>
+        <div class="particle p4"></div>
+        <div class="particle p5"></div>
+        <div class="particle p6"></div>
+    </div>
 
-                    <div class="field">
-                        <p-password [(ngModel)]="newPassword" class="ng-invalid ng-dirty" [toggleMask]="true" placeholder="Nouveau mot de passe.."></p-password>
-                    </div>                    <img src="assets/demo/images/access/asset-access.svg" alt="Access denied" class="mb-5" width="80%">
-                    <button pButton pRipple icon="pi pi-arrow-left" label="Retour" class="p-button-text" [routerLink]="['/securite']"></button>
-                    <button pButton pRipple icon="pi pi-arrow-right" label="Continue" class="p-button-text" (click)="changePassword()"></button>
+    <!-- Texture subtile -->
+    <div class="texture-overlay"></div>
+
+    <!-- Design adapté avec animations -->
+    <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
+        <div class="flex flex-column align-items-center justify-content-center">
+            <img src="/assets/demo/images/logos/niger01.png" alt="Niger Logo" class="logo-animate" style="width: 90px; height: auto; object-fit: contain; image-rendering: crisp-edges;">
+            
+            <div class="gradient-border" style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, #E47724 10%, rgba(228, 119, 36, 0) 30%);">
+                <div class="w-full surface-card py-8 px-5 sm:px-8 flex flex-column align-items-center access-card" style="border-radius:53px; min-width: 500px;">
+                    <div class="grid flex flex-column align-items-center">
+                        <div class="flex justify-content-center align-items-center lock-circle border-circle floating" style="width:3.2rem; height:3.2rem;">
+                            <i class="text-50 pi pi-fw pi-lock text-2xl"></i>
+                        </div>
+                        <h1 class="text-900 font-bold text-4xl lg:text-5xl mb-2 text-title">Trouvez votre compte</h1>
+                        <span class="text-600 mb-5 text-title">Veuillez entrer votre adresse email et créer un nouveau mot de passe.</span>
+                        
+                        <div class="field w-full mb-3">
+                            <label for="email" class="block text-900 font-medium mb-2">E-mail</label>
+                            <input id="email" type="email" [(ngModel)]="email" placeholder="Adresse email" pInputText class="w-full input-animate" style="padding:1rem" required email>
+                            <small *ngIf="emailError" class="p-error block mt-1">{{emailError}}</small>
+                        </div>
+                        
+                        <div class="flex flex-row gap-3 mb-4 password-flex">
+                            <div class="field flex-1">
+                                <label for="password1" class="block text-900 font-medium mb-2">Nouveau mot de passe</label>
+                                <p-password id="password1" [(ngModel)]="newPassword" class="ng-invalid ng-dirty input-animate" [toggleMask]="true" placeholder="Nouveau mot de passe.." styleClass="w-full" inputStyleClass="w-full"></p-password>
+                                <small *ngIf="passwordError" class="p-error block mt-1">{{passwordError}}</small>
+                            </div>
+                            
+                            <div class="field flex-1">
+                                <label for="confirmPassword" class="block text-900 font-medium mb-2">Confirmer mot de passe</label>
+                                <p-password id="confirmPassword" [(ngModel)]="confirmPassword" class="ng-invalid ng-dirty input-animate" [toggleMask]="true" placeholder="Confirmer mot de passe.." styleClass="w-full" inputStyleClass="w-full"></p-password>
+                                <small *ngIf="confirmPasswordError" class="p-error block mt-1">{{confirmPasswordError}}</small>
+                            </div>
+                        </div>
+                        
+                        <img src="assets/demo/images/access/asset-access.svg" alt="Access denied" class="mb-5 floating" width="80%">
+                        
+                        <div class="flex justify-content-between w-full">
+                            <button pButton pRipple icon="pi pi-arrow-left" label="Retour" class="p-button-text btn-animate" [routerLink]="['/securite']"></button>
+                            <button pButton pRipple icon="pi pi-arrow-right" label="Continuer" class="btn-animate" style="background-color: #E47724; border-color: #E47724;" (click)="validateAndChangePassword()" [disabled]="isFormInvalid()"></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Script pour ajouter des particules animées dynamiquement -->
+    <script>
+        // Fonction pour créer des particules en mouvement
+        function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Taille et position aléatoires
+                const size = Math.random() * 8 + 3;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+                
+                // Couleur aléatoire (orange ou vert)
+                if (Math.random() > 0.5) {
+                    particle.style.backgroundColor = 'rgba(228, 119, 36, 0.2)';
+                } else {
+                    particle.style.backgroundColor = 'rgba(13, 176, 43, 0.2)';
+                }
+                
+                // Animation avec durée aléatoire
+                const duration = Math.random() * 8 + 4;
+                particle.style.animation = `floating ${duration}s ease-in-out infinite`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Créer des particules au chargement de la page
+        window.addEventListener('load', createParticles);
+        
+        // Effet de focus amélioré pour les champs de saisie
+        const inputs = document.querySelectorAll('.input-animate');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.style.boxShadow = '0 0 0 3px rgba(228, 119, 36, 0.25)';
+            });
+            
+            input.addEventListener('blur', () => {
+                input.style.boxShadow = 'none';
+            });
+        });
+
+        // Animation pour le contenu principal au chargement
+        window.addEventListener('load', () => {
+            const accessCard = document.querySelector('.access-card');
+            const logo = document.querySelector('.logo-animate');
+            
+            if (accessCard) {
+                accessCard.style.opacity = '0';
+                accessCard.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    accessCard.style.transition = 'all 0.8s ease-out';
+                    accessCard.style.opacity = '1';
+                    accessCard.style.transform = 'translateY(0)';
+                }, 300);
+            }
+            
+            if (logo) {
+                logo.style.opacity = '0';
+                logo.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    logo.style.transition = 'all 0.6s ease-out';
+                    logo.style.opacity = '1';
+                    logo.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>

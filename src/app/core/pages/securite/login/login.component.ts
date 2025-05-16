@@ -53,7 +53,7 @@ export class LoginComponent implements OnInit {
           response.token,
           response.id.toString(),
           response.firstname,
-          response.lastname
+          response.lastname,
         );
  
         // Récupérer l'ID de l'utilisateur depuis le localStorage

@@ -32,6 +32,7 @@ import { ConfirmationComponent } from '../demo/components/uikit/menus/confirmati
 import { SeatComponent } from '../demo/components/uikit/menus/seat.component';
 import { PaymentComponent } from '../demo/components/uikit/menus/payment.component';
 import { DialogModule } from 'primeng/dialog';
+import { NotificationPanelComponent } from '../core/pages/gestionSaisDeclaration/notification-panel/notification-panel.component';
 
 @NgModule({
     declarations: [
@@ -41,6 +42,7 @@ import { DialogModule } from 'primeng/dialog';
         AppMenuComponent,
         AppSidebarComponent,
         AppLayoutComponent,
+        NotificationPanelComponent
     ],
     imports: [
         BrowserModule,

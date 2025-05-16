@@ -36,7 +36,7 @@ import { DialogModule } from 'primeng/dialog';
         TableModule,
         InputSwitchModule,
         ToastModule,
-        DialogModule
+        DialogModule,
 
         
         

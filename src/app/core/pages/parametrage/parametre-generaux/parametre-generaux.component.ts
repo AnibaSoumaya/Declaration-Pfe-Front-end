@@ -18,12 +18,28 @@ export class ParametreGenerauxComponent {
 
   searchQuery: string = '';
   isSearching: boolean = false;
+  confirmDialog: boolean = false;
 
   constructor(private parametrageService: ParametreGenerauxService, private messageService: MessageService) {}
 
   ngOnInit() {
     this.loadParametres();
   }
+
+  showConfirmationDialog() {
+    this.confirmDialog = true;
+  }
+  
+  onConfirm() {
+    // Action à effectuer après confirmation
+    this.confirmDialog = false;
+    this.saveUpdatedParam();
+  }
+  
+  onCancel() {
+    this.confirmDialog = false;
+  }
+  
 
   loadParametres() {
     this.parametrageService.getParametrages().subscribe(data => {
@@ -39,23 +55,9 @@ export class ParametreGenerauxComponent {
     }
   }
 
-  onGlobalFilter(event: Event) {
-    const query = (event.target as HTMLInputElement).value;
-  
-    if (query) {
-      // Appel API avec le code recherché
-      this.parametrageService.getParametrageByCode(query).subscribe((filteredParam) => {
-        if (filteredParam) {
-          // Si filteredParam est un tableau ou un objet, le traiter comme un tableau
-          this.parametres = Array.isArray(filteredParam) ? filteredParam : [filteredParam];
-        } else {
-          // Sinon, afficher un tableau vide
-          this.parametres = [];
-        }
-      });
-    } else {
-      this.loadParametres(); // Recharge tous les paramètres si l'input est vide
-    }
+  onGlobalFilter(dt: any, event: any) {
+    const query = event.target.value;
+    dt.filterGlobal(query, 'contains');
   }
   
 

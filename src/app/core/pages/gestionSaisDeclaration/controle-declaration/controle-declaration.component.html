@@ -3,10 +3,13 @@
       <h1>Détails de la Déclaration de Biens</h1>
       <div class="action-buttons">
         <button class="btn btn-secondary" (click)="goBack()">
-          <i class="fas fa-arrow-left"></i> Retour
+          <i class="pi pi-arrow-left"></i> Retour
         </button>
-        <button class="btn btn-primary" (click)="printDeclaration()">
-          <i class="fas fa-print"></i> Imprimer
+        <button 
+        class="btn btn-primary" 
+        (click)="printDeclaration()"
+        icon="pi pi-print">
+          <i class="pi pi-print" style="color: white;" ></i> Imprimer
         </button>
       </div>
     </div>
@@ -777,3 +780,193 @@
        </app-section-comments>
     </div>
   </div>
+  <!-- Section Réservée à l'Avocat Général -->
+<div *ngIf="isAvocatGeneral" class="section-card avocat-general-section">
+  <div class="section-header">
+    <h2>Avocat Général : <span class="value">{{declaration.utilisateur?.lastname || 'N/A'}} {{declaration.utilisateur?.firstname || 'N/A'}}</span></h2>
+  </div>
+  
+  <div class="section-content">
+    <!-- Formulaire pour générer un Délibéré Officiel -->
+    <div class="delibere-block">
+      <h4><i class="pi pi-file-edit"></i>Délibéré Officiel</h4>
+      <div class="form-group">
+        <label for="lettreContent">Contenu de la lettre</label>
+        <textarea id="lettreContent" class="form-control" rows="8" 
+                  placeholder="Rédigez votre délibéré officiel ici..."
+                  [(ngModel)]="newLettreContent"></textarea>
+      </div>
+      <button class="btn btn-primary" (click)="genererLettre()"
+              [disabled]="!newLettreContent">
+        <i class="pi pi-file-pdf"></i> Générer PDF
+      </button>
+    </div>
+    
+    <!-- Liste des conclusions existantes -->
+    <div *ngIf="conclusions.length > 0">
+      <div class="conclusions-header">
+        <h4><i class="pi pi-folder-open"></i>Conclusions Existantes</h4>
+        <span class="conclusions-count">{{conclusions.length}}</span>
+      </div>
+      
+      <div class="table-responsive">
+        <!-- Tableau stylisé pour les conclusions avec le même design que la page assujettis -->
+<div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0" style="font-weight: 500; color: #333; border-left: 3px solid #F57C00; padding-left: 10px;">
+      Liste des Conclusions
+    </h3>
+  </div>
+
+  <style>
+    /* Style similaire à celui utilisé dans la page assujettis */
+    :host ::ng-deep .p-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .table-container {
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .conclusions-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .conclusions-table thead tr {
+      background: #f5f5f5;
+    }
+    
+    .conclusions-table th {
+      color: #555;
+      font-weight: 600;
+      border: 1px solid #e9ecef;
+      padding: 0.75rem;
+      text-align: left;
+    }
+    
+    .conclusions-table tbody tr {
+      border: 1px solid #e9ecef;
+      transition: background-color 0.2s;
+    }
+    
+    .conclusions-table tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .conclusions-table td {
+      border: 1px solid #e9ecef;
+      padding: 0.75rem;
+    }
+    
+    .file-cell {
+      display: flex;
+      align-items: center;
+    }
+    
+    .file-icon {
+      color: #F57C00;
+      margin-right: 8px;
+    }
+    
+    .actions-cell {
+      white-space: nowrap;
+    }
+    
+    .empty-message {
+      text-align: center;
+      padding: 2rem;
+      color: #6c757d;
+    }
+    
+    .empty-message i {
+      font-size: 2rem;
+      color: #ccc;
+      margin-bottom: 1rem;
+    }
+  </style>
+
+  <div class="table-container">
+    <table class="conclusions-table">
+      <thead>
+        <tr>
+          <th>Nom du Fichier</th>
+          <th>Date</th>
+          <th>Avocat</th>
+          <th class="actions-col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="conclusions && conclusions.length > 0; else emptyMessage">
+          <tr *ngFor="let c of conclusions; let i = index">
+            <td>
+              <div class="file-cell">
+                <i class="pi pi-file-pdf file-icon"></i>
+                {{ c.nomFichier }}
+              </div>
+            </td>
+            <td>{{ formatDate(c.dateCreation) }}</td>
+            <td>{{ c.utilisateur?.firstname }}</td>
+            <td class="actions-cell">
+              <div class="flex gap-2">
+                <!-- Bouton télécharger -->
+                <button 
+                  pButton 
+                  (click)="downloadConclusion(c.id, c.nomFichier)"
+                  icon="pi pi-download" 
+                  class="p-button-rounded p-button-secondary p-button-text"
+                  style="width: 2.25rem; height: 2.25rem;"
+                  pTooltip="Télécharger PDF"
+                  tooltipPosition="top">
+                </button>
+                
+                <!-- Bouton supprimer (conditionnellement affiché) -->
+                <button 
+                  *ngIf="currentUser.id === c.utilisateur?.id"
+                  pButton 
+                  type="button" 
+                  icon="pi pi-trash" 
+                  class="p-button-rounded p-button-danger p-button-text"
+                  style="width: 2.25rem; height: 2.25rem;"
+                  pTooltip="Supprimer"
+                  tooltipPosition="top"
+                  (click)="deleteConclusion(c.id, i)">
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+        
+        <ng-template #emptyMessage>
+          <tr>
+            <td colspan="4">
+              <div class="flex flex-column align-items-center empty-message">
+                <i class="pi pi-file-pdf mb-3"></i>
+                <span>Aucune conclusion disponible.</span>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </tbody>
+    </table>
+  </div>
+</div>
+      </div>
+    </div>
+    
+    <!-- État vide si aucune conclusion -->
+    <div *ngIf="conclusions.length === 0" class="empty-state">
+      <i class="pi pi-folder"></i>
+      <p>Aucune conclusion n'a été enregistrée</p>
+    </div>
+  </div>
+</div>
+  
+  
+  
+  
+  
+  

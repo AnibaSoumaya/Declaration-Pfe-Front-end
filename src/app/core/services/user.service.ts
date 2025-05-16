@@ -49,9 +49,9 @@ getAllArchivedUsers(): Observable<User[]> {
   getRoles(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/roles`, { headers: this.getAuthHeaders() }); 
   }
-  getUserRole(id: number): Observable<Map<string, string>> {
+/*   getUserRole(id: number): Observable<Map<string, string>> {
     return this.http.get<Map<string, string>>(`${this.apiUrl}/${id}/role`);
-  }
+  } */
 
   addUser(user: User): Observable<User> {
     return this.http.post<User>(this.apiUrl, user, { headers: this.getAuthHeaders() })

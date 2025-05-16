@@ -29,9 +29,11 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { ControleDeclarationComponent } from './controle-declaration/controle-declaration.component';
 import { SectionCommentsComponent } from './section-comments/section-comments.component';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { TooltipModule } from 'primeng/tooltip';
+import { JugementComponent } from './jugement/jugement.component';
 
 @NgModule({
-  declarations: [CrudAssujettisComponent,DeclarationDetailsComponent,ControleDeclarationComponent,SectionCommentsComponent],  // ✅ Déplacer ici
+  declarations: [CrudAssujettisComponent,DeclarationDetailsComponent,ControleDeclarationComponent,SectionCommentsComponent,JugementComponent],  // ✅ Déplacer ici
   imports: [
     CommonModule,
     GestionSaisDeclarationRoutingModule,
@@ -64,8 +66,9 @@ import { SelectButtonModule } from 'primeng/selectbutton';
         MultiSelectModule,
         ProgressBarModule,
         SelectButtonModule,
-
+        TooltipModule,
         ReactiveFormsModule,
+        
         
   ],
 })

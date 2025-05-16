@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { User } from '../models/User.model';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,9 +11,12 @@ import { User } from '../models/User.model';
 export class LoginService {
   private apiURL: string = 'http://localhost:8084/api/auth';  
 
+
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private userService: UserService
+
   ) { }
 
   login(email: string, password: string): Observable<User> {
@@ -26,6 +30,26 @@ export class LoginService {
     localStorage.setItem('firstname', firstname);
     localStorage.setItem('lastname', lastname);
   }
+
+  private role: string | null = null;
+
+  getRole(): string | null {
+    return this.role;
+  }
+  
+  fetchAndStoreRole(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: user => {
+        this.role = user.role;
+      },
+      error: err => {
+        console.error('Erreur lors de la récupération du rôle:', err);
+        this.role = null;
+      }
+    });
+  }
+  
+
   
   getToken(): string | null {
     return localStorage.getItem('authToken');
@@ -38,6 +62,7 @@ export class LoginService {
   getUserPrenom(): string | null {
     return localStorage.getItem('firstname');
   }
+  
   
   getUserId(): string | null {
     return localStorage.getItem('userId');
@@ -57,7 +82,7 @@ export class LoginService {
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
-
+/*
   getRole(): string {
     const token = localStorage.getItem('authToken');
     if (!token) return '';
@@ -70,6 +95,7 @@ export class LoginService {
       return '';
     }
   }
+*/
   
   decodeToken(token: string): any {
     try {

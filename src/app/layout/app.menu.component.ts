@@ -26,9 +26,10 @@ export class AppMenuComponent implements OnInit {
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
                     { label: 'Gestion des assujettis', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti'] },
                     { label: 'Declarations Assujettis', icon: 'pi pi-fw pi-user', routerLink: ['Assujetti/decDetails'] },
-                    { label: 'Controle Declaration', icon: 'pi pi-fw pi-users', routerLink: ['/controleDeclaration'] },
+                    //{ label: 'Controle Declaration', icon: 'pi pi-fw pi-users', routerLink: ['/controleDeclaration'] },
 
                     { label: 'Gestion des utilisateurs', icon: 'pi pi-fw pi-users', routerLink: ['/utilisateur'] },
+                    { label: 'juge', icon: 'pi pi-fw pi-users', routerLink: ['/juge'] },
                     {
                         label: 'Paramétrage',
                         icon: 'pi pi-wrench',

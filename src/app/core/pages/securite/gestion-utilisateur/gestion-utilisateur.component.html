@@ -18,9 +18,14 @@
 		  background: #F57C00;
 		  border-color: #F57C00;
 		}
+		.p-button {
+		border-radius: 8px;
+		padding: 0.75rem 1.5rem;
+		transition: all 0.3s;
+		}
 	  </style>
 	  
-	  <div class="card" style="border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+	  <div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
 		<p-toast></p-toast>
 		
 		<div class="flex justify-content-between align-items-center mb-4">
@@ -52,7 +57,9 @@
 			  icon="pi pi-search" 
 			  class="p-button-rounded p-button-success p-button-outlined"
 			  style="width: 2.5rem; height: 2.5rem;"
-			  (click)="toggleSearch()">
+			  (click)="toggleSearch()"
+			  pTooltip="Rechercher"
+  			  tooltipPosition="top">
 			</button>
 			
 			
@@ -62,9 +69,11 @@
 			  pButton 
 			  type="button" 
 			  icon="pi pi-user-plus" 
-			  class="p-button-rounded p-button-success p-button-outlined"
+			  class="p-button-rounded p-button-success p-button-outlined"			  
 			  style="width: 2.5rem; height: 2.5rem;"
 			  (click)="isAddingUser = true"
+			  pTooltip="Ajouter"
+  			  tooltipPosition="top"
 			></button>
 			
 			<!-- Actions sur la sélection -->
@@ -76,6 +85,8 @@
 			  class="p-button-rounded p-button-danger p-button-outlined" 
 			  style="width: 2.5rem; height: 2.5rem;"
 			  (click)="archiveSelectedUser()"
+			  pTooltip="Archiver"
+  			  tooltipPosition="top"
 			></button>
 			
 			<button 
@@ -83,10 +94,13 @@
 			  pButton 
 			  type="button" 
 			  icon="pi pi-replay" 
-			  class="p-button-rounded p-button-success p-button-outlined" 
+			  class="p-button-rounded p-button-success p-button-outlined"
 			  style="width: 2.5rem; height: 2.5rem;"
 			  (click)="restoreSelectedUsers()"
+			  pTooltip="Restaurer"
+  			  tooltipPosition="top"
 			></button>
+			
 					<!-- Toggle archivés/actifs -->
 					<p-toggleButton 
 					[(ngModel)]="showArchived"
@@ -100,7 +114,8 @@
 					  'background-color': showArchived ? '#F57C00' : '', 
 					  'border-color': showArchived ? '#F57C00' : ''
 					}"
-								></p-toggleButton>
+					pTooltip="Actifs/Archivés"
+					tooltipPosition="top"></p-toggleButton>
 		  </div>
 		</div>
 		
@@ -152,7 +167,9 @@
 					  icon="pi pi-pencil" 
 					  class="p-button-rounded p-button-secondary p-button-text"
 					  style="width: 2.25rem; height: 2.25rem;"
-					  (click)="editUser(user)">
+					  (click)="editUser(user)"
+					  pTooltip="Modifier"
+  					  tooltipPosition="top">
 					</button>
 					
 					<button 
@@ -160,7 +177,9 @@
 					  icon="pi pi-trash" 
 					  class="p-button-rounded p-button-danger p-button-text"
 					  style="width: 2.25rem; height: 2.25rem;"
-					  (click)="deleteUser(user)">
+					  (click)="deleteUser(user)"
+					  pTooltip="Archiver"
+  					  tooltipPosition="top">
 					</button>
 				  </ng-container>
 				  
@@ -171,7 +190,9 @@
 					  icon="pi pi-replay" 
 					  class="p-button-rounded p-button-success p-button-text"
 					  style="width: 2.25rem; height: 2.25rem;"
-					  (click)="restoreUser(user)">
+					  (click)="restoreUser(user)"
+					  pTooltip="Restaurer"
+  					  tooltipPosition="top">
 					</button>
 				  </ng-container>
 				</div>
@@ -203,14 +224,18 @@
 					icon="pi pi-check" 
 					class="p-button-rounded p-button-success p-button-text"
 					style="width: 2.25rem; height: 2.25rem;"
-					(click)="saveUpdatedUser()">
+					(click)="saveUpdatedUser()"
+					pTooltip="Valider"
+  					tooltipPosition="top">
 				  </button>
 				  <button 
 					pButton 
 					icon="pi pi-times" 
 					class="p-button-rounded p-button-danger p-button-text"
 					style="width: 2.25rem; height: 2.25rem;"
-					(click)="cancelEditUser()">
+					(click)="cancelEditUser()"
+					pTooltip="Annuler"
+  					tooltipPosition="top">
 				  </button>
 				</div>
 			  </td>
@@ -249,14 +274,18 @@
 					  icon="pi pi-check" 
 					  class="p-button-rounded p-button-success p-button-text"
 					  style="width: 2.25rem; height: 2.25rem;"
-					  (click)="saveNewUser()">
+					  (click)="saveNewUser()"
+					  pTooltip="Valider"
+  					  tooltipPosition="top">
 					</button>
 					<button 
 					  pButton 
 					  icon="pi pi-times" 
 					  class="p-button-rounded p-button-danger p-button-text"
 					  style="width: 2.25rem; height: 2.25rem;"
-					  (click)="cancelNewUser()">
+					  (click)="cancelNewUser()"
+					  pTooltip="Annuler"
+  					  tooltipPosition="top">
 					</button>
 				  </div>
 				</td>
@@ -282,7 +311,9 @@
 					  icon="pi pi-pencil" 
 					  class="p-button-rounded p-button-secondary p-button-text"
 					  style="width: 2.25rem; height: 2.25rem;"
-					  (click)="editUser(user)">
+					  (click)="editUser(user)"
+					  pTooltip="modifier"
+  					  tooltipPosition="top">
 					</button>
 					
 					<button 
@@ -290,7 +321,9 @@
 					  icon="pi pi-trash" 
 					  class="p-button-rounded p-button-danger p-button-text"
 					  style="width: 2.25rem; height: 2.25rem;"
-					  (click)="deleteUser(user)">
+					  (click)="deleteUser(user)"
+					  pTooltip="Archiver"
+  					  tooltipPosition="top">
 					</button>
 				  </ng-container>
 				  
@@ -301,7 +334,9 @@
 					  icon="pi pi-replay" 
 					  class="p-button-rounded p-button-success p-button-text"
 					  style="width: 2.25rem; height: 2.25rem;"
-					  (click)="restoreUser(user)">
+					  (click)="restoreUser(user)"
+					  pTooltip="Restaurer"
+  					  tooltipPosition="top">
 					</button>
 				  </ng-container>
 				</div>

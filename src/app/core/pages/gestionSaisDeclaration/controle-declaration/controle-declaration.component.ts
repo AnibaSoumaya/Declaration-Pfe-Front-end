@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Declaration } from 'src/app/core/models/declaration';
 import { User } from 'src/app/core/models/User.model';
 import { UserService } from 'src/app/core/services/user.service';
+import { ConclusionService } from 'src/app/core/services/conclusion.service';
 
 @Component({
   selector: 'app-controle-declaration',
@@ -18,6 +19,11 @@ export class ControleDeclarationComponent implements OnInit {
   declaration: Declaration;
   loading = true;
   error = false;
+
+  isAvocatGeneral = false;
+  conclusions: any[] = [];
+  newLettreContent = '';
+  selectedFile: File | null = null;
 
   commentaires: { [key: string]: CommentaireGenerique[] } = {};
   showComments: { [key: string]: boolean } = {};
@@ -45,6 +51,7 @@ export class ControleDeclarationComponent implements OnInit {
   constructor(
     private declarationService: DeclarationService,
     private commentaireService: CommentaireGeneriqueService,
+    private conclusionService: ConclusionService,
     private userService: UserService,
     private router: Router,
     private route: ActivatedRoute,
@@ -54,24 +61,43 @@ export class ControleDeclarationComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userService.getCurrentUser().subscribe(
-      user => {
+    this.loadCurrentUserAndData();
+  }
+
+  loadCurrentUserAndData(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
         this.currentUser = user;
-        if (!this.declarationId) {
-          this.route.params.subscribe(params => {
-            if (params['id']) {
-              this.declarationId = +params['id'];
-              this.loadDeclaration();
-            }
-          });
-        } else {
+        this.isAvocatGeneral = this.currentUser.role.includes('avocat_general');
+        
+        this.resolveDeclarationId().then(() => {
           this.loadDeclaration();
-        }
+          if (this.isAvocatGeneral) {
+            this.loadConclusions(); // Charger les conclusions dès le début
+          }
+        });
       },
-      error => {
+      error: (error) => {
         console.error("Erreur lors de la récupération de l'utilisateur connecté", error);
+        this.error = true;
+        this.loading = false;
       }
-    );
+    });
+  }
+
+  resolveDeclarationId(): Promise<void> {
+    return new Promise((resolve) => {
+      if (this.declarationId) {
+        resolve();
+      } else {
+        this.route.params.subscribe(params => {
+          if (params['id']) {
+            this.declarationId = +params['id'];
+            resolve();
+          }
+        });
+      }
+    });
   }
 
   createCommentForm(): void {
@@ -81,19 +107,36 @@ export class ControleDeclarationComponent implements OnInit {
   }
 
   loadDeclaration(): void {
+    if (!this.declarationId) return;
+
     this.loading = true;
     this.declarationService.getDeclarationDetails(this.declarationId)
-      .subscribe(
-        data => {
+      .subscribe({
+        next: (data) => {
           this.declaration = data;
           this.loading = false;
         },
-        error => {
+        error: (error) => {
           console.error('Erreur lors du chargement de la déclaration', error);
           this.error = true;
           this.loading = false;
         }
-      );
+      });
+  }
+
+  loadConclusions(): void {
+    if (!this.declarationId) return;
+
+    this.conclusionService.getByDeclaration(this.declarationId)
+      .subscribe({
+        next: (conclusions) => {
+          this.conclusions = conclusions || [];
+          console.log('Conclusions chargées:', this.conclusions); // Debug
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement des conclusions', err);
+        }
+      });
   }
 
   toggleSection(section: string): void {
@@ -124,16 +167,16 @@ export class ControleDeclarationComponent implements OnInit {
 
   printDeclaration(): void {
     this.declarationService.generatePdf(this.declarationId)
-      .subscribe(
-        (response: any) => {
+      .subscribe({
+        next: (response: any) => {
           const file = new Blob([response], { type: 'application/pdf' });
           const fileURL = URL.createObjectURL(file);
           window.open(fileURL);
         },
-        error => {
+        error: (error) => {
           console.error('Erreur lors de la génération du PDF', error);
         }
-      );
+      });
   }
 
   goBack(): void {
@@ -149,4 +192,58 @@ export class ControleDeclarationComponent implements OnInit {
     if (value === undefined || value === null) return 'N/A';
     return new Intl.NumberFormat('fr-FR').format(value);
   }
+
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0];
+  }
+
+  deleteConclusion(conclusionId: number, index: number): void {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette conclusion ?')) {
+      this.conclusionService.deleteConclusion(conclusionId).subscribe({
+        next: () => {
+          this.conclusions.splice(index, 1);
+        },
+        error: (err) => {
+          console.error('Erreur lors de la suppression', err);
+        }
+      });
+    }
+  }
+
+  genererLettre(): void {
+    if (this.newLettreContent && this.declarationId && this.currentUser?.id) {
+      this.conclusionService.genererLettreOfficielle(
+        this.currentUser.id,
+        this.declarationId,
+        this.newLettreContent
+      ).subscribe({
+        next: () => {
+          this.loadConclusions(); // Recharger les conclusions après génération
+          this.newLettreContent = '';
+        },
+        error: (err) => {
+          console.error('Erreur génération lettre', err);
+        }
+      });
+    }
+  }
+
+  downloadConclusion(conclusionId: number, fileName: string): void {
+  this.conclusionService.telechargerConclusion(conclusionId)
+    .subscribe({
+      next: (response: Blob) => {
+        const blob = new Blob([response], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        
+        // Ouvrir le PDF dans une nouvelle fenêtre
+        const newWindow = window.open(url, '_blank');
+        if (newWindow) {
+          newWindow.focus();
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors du téléchargement', err);
+      }
+    });
+}
 }

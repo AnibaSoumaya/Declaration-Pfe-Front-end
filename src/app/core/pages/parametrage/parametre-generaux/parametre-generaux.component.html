@@ -1,166 +1,175 @@
 <div class="grid">
   <div class="col-12">
-    <!-- Styles pour le dialogue personnalisé -->
     <style>
-      /* Style pour l'en-tête du dialogue */
-      :host ::ng-deep .custom-dialog .p-dialog-header {
-        background: linear-gradient(135deg, #FF8C00, #F57C00);
-        color: white;
-      }
-      
-      /* Style pour les boutons hover */
       :host ::ng-deep .p-button:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       }
       
-      /* Style pour les lignes du tableau hover */
-      :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
-        background-color: #f9f9f9;
+      :host ::ng-deep .p-datatable {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       }
       
-      /* Style pour les tables avec des coins arrondis */
-      :host ::ng-deep .rounded-table {
+      :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+        background-color: #f8f9fa;
+      }
+      
+      :host ::ng-deep .p-togglebutton.p-button.p-highlight {
+        background: #F57C00;
+        border-color: #F57C00;
+      }
+      .p-button {
         border-radius: 8px;
-        overflow: hidden;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s;
       }
     </style>
     
-    <!-- Carte principale avec ombre et bords arrondis -->
     <div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
-      <div class="card px-6 py-6" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); border-top: none;">
+      <p-toast></p-toast>
+      
+      <div class="flex justify-content-between align-items-center mb-4">
+        <h3 class="m-0" style="font-weight: 500; color: #333; border-left: 3px solid #F57C00; padding-left: 10px;">
+          Paramètres Généraux
+        </h3>
         
-        <p-toast></p-toast>
-
-        <!-- Header avec un dégradé orange plus moderne -->
-        <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center" 
-             style="background: linear-gradient(135deg, #FF8C00, #F57C00); 
-                    padding: 1.5rem; 
-                    margin: -1.5rem -1.5rem 1.5rem -1.5rem; 
-                    border-radius: 12px 12px 0 0;">
-          <!-- Titre en blanc avec typographie améliorée -->
-          <h3 class="m-0" style="color: white; font-weight: 600; font-size: 1.5rem; letter-spacing: 0.5px;">Paramètres Généraux</h3>
-
-          <div class="flex flex-wrap gap-3" style="margin-right: 0.5rem;">
-            <ng-container *ngIf="!isSearching; else searchInput">
-              <button 
-                pButton pRipple 
-                type="button" 
-                icon="pi pi-search" 
-                class="p-button-rounded p-button-info p-button-outlined" 
-                style="color: white; border-color: white; width: 2.5rem; height: 2.5rem; transition: all 0.2s;"
-                (click)="toggleSearch()">
-              </button>
-            </ng-container>
-            
-            <ng-template #searchInput>
-              <!-- Barre de recherche améliorée -->
-              <div style="position: relative;">
-                <i class="pi pi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888;"></i>
-                <input 
-                  type="text" 
-                  pInputText 
-                  [(ngModel)]="searchQuery" 
-                  (blur)="toggleSearch()" 
-                  (input)="onGlobalFilter($event)" 
-                  placeholder="Rechercher..." 
-                  style="padding: 0.5rem 0.5rem 0.5rem 2.5rem; border-radius: 20px; width: 250px; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
-                  autofocus />
-              </div>
-            </ng-template>
+        <div class="flex gap-2 align-items-center">
+          <!-- Barre de recherche -->
+          <div class="p-input-icon-left" *ngIf="isSearching">
+            <i class="pi pi-search"></i>
+            <input 
+              type="text" 
+              pInputText 
+              [(ngModel)]="searchQuery"
+              (blur)="toggleSearch()"
+              (input)="onGlobalFilter(dt, $event)"
+              placeholder="Rechercher..." 
+              style="border-radius: 20px; width: 250px;"
+              autofocus
+            />
           </div>
+          
+          <!-- Bouton recherche -->
+          <button 
+            *ngIf="!isSearching"
+            pButton 
+            type="button" 
+            icon="pi pi-search" 
+            class="p-button-rounded p-button-success p-button-outlined"
+            style="width: 2.5rem; height: 2.5rem;"
+            (click)="toggleSearch()"
+            pTooltip="Rechercher"
+            tooltipPosition="top">
+          </button>
         </div>
-        
-        <!-- Le tableau avec style amélioré -->
-        <p-table 
-          #dt 
-          [value]="parametres"
-          [rows]="5" 
-          [rowsPerPageOptions]="[5,10]"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-          [rowHover]="true" 
-          styleClass="p-datatable-gridlines" 
-          [tableStyle]="{'border-radius': '8px', 'overflow': 'hidden'}"
-          [paginator]="true" 
-          responsiveLayout="scroll">
-          
-          <ng-template pTemplate="header">
-            <tr>
-              <!-- En-têtes de colonnes redessinés -->
-              <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef; width: 80px;">ID</th>
-              <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef; width: 150px;">Code</th>
-              <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Description</th>
-              <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef; width: 25%;">Valeur</th>
-              <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef; width: 120px;">Actions</th>
-            </tr>
-          </ng-template>
-          
-          <ng-template pTemplate="body" let-param>
-            <!-- Mode lecture -->
-            <tr *ngIf="!isEditingParam || param.id !== paramToEdit?.id" style="transition: background-color 0.2s;">
-              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.id }}</td>
-              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.code }}</td>
-              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.description }}</td>
-              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.valeur }}</td>
-              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
-                <button 
-                  pButton pRipple 
-                  type="button" 
-                  icon="pi pi-pencil"
-                  class="p-button-rounded p-button-secondary p-button-text"
-                  style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
-                  (click)="editParam(param)">
-                </button>
-              </td>
-            </tr>
-            
-            <!-- Mode édition -->
-            <tr *ngIf="isEditingParam && param.id === paramToEdit?.id" style="background-color: #f8f9fa; transition: background-color 0.2s;">
-              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.id }}</td>
-              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.code }}</td>
-              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.description }}</td>
-              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
-                <input 
-                  pInputText 
-                  [(ngModel)]="paramToEdit.valeur" 
-                  class="w-full"
-                  style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ced4da;" />
-              </td>
-              <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
-                <div class="flex gap-2">
-                  <button 
-                    pButton pRipple 
-                    type="button" 
-                    icon="pi pi-check"
-                    class="p-button-rounded p-button-success p-button-text"
-                    style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
-                    (click)="saveUpdatedParam()">
-                  </button>
-                  <button 
-                    pButton pRipple 
-                    type="button" 
-                    icon="pi pi-times"
-                    class="p-button-rounded p-button-danger p-button-text"
-                    style="width: 2.25rem; height: 2.25rem; transition: background-color 0.2s;"
-                    (click)="cancelEditParam()">
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-          
-          <!-- Template pour les lignes vides -->
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="5" style="text-align: center; padding: 2rem; color: #666;">
-                <i class="pi pi-info-circle" style="font-size: 2rem; margin-bottom: 1rem; color: #999;"></i>
-                <p>Aucun paramètre trouvé.</p>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
       </div>
+      
+      <p-table 
+        #dt 
+        [value]="parametres" 
+        styleClass="p-datatable-sm" 
+        [rows]="10" 
+        [globalFilterFields]="['id', 'code', 'description', 'valeur']" 
+        [paginator]="true" 
+        [rowsPerPageOptions]="[5,10,25]" 
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="{first} à {last} sur {totalRecords} paramètres" 
+        [rowHover]="true" 
+        dataKey="id">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">ID</th>
+            <th style="width: 8rem; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Code</th>
+            <th style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Description</th>
+            <th style="width: 25%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Valeur</th>
+            <th style="width: 8rem; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Actions</th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-param>
+          <!-- Mode lecture -->
+          <tr *ngIf="!isEditingParam || param.id !== paramToEdit?.id" style="border: 1px solid #e9ecef;">
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.id }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.code }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.description }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.valeur }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+              <div class="flex gap-2">
+                <button 
+                  pButton 
+                  icon="pi pi-pencil" 
+                  class="p-button-rounded p-button-secondary p-button-text"
+                  style="width: 2.25rem; height: 2.25rem;"
+                  (click)="editParam(param)"
+                  pTooltip="Modifier"
+                  tooltipPosition="top">
+                </button>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Mode édition -->
+          <tr *ngIf="isEditingParam && param.id === paramToEdit?.id" style="border: 1px solid #e9ecef; background-color: #f8f9fa;">
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.id }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.code }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ param.description }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+              <input 
+                pInputText 
+                [(ngModel)]="paramToEdit.valeur" 
+                class="w-full"
+                style="padding: 0.5rem; border-radius: 6px;" />
+            </td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+              <div class="flex gap-2">
+                <button 
+                  pButton 
+                  icon="pi pi-check" 
+                  class="p-button-rounded p-button-success p-button-text"
+                  style="width: 2.25rem; height: 2.25rem;"
+                  (click)="saveUpdatedParam()"
+                  pTooltip="Valider" 
+                  tooltipPosition="top">
+                </button>
+                <button 
+                  pButton 
+                  icon="pi pi-times" 
+                  class="p-button-rounded p-button-danger p-button-text"
+                  style="width: 2.25rem; height: 2.25rem;"
+                  (click)="cancelEditParam()"
+                  pTooltip="Annuler"
+                  tooltipPosition="top">
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <!-- Message quand aucun paramètre n'est trouvé -->
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center p-4">
+              <div class="flex flex-column align-items-center">
+                <i class="pi pi-search mb-3" style="font-size: 2rem; color: #ccc;"></i>
+                <span>Aucun paramètre trouvé.</span>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      
+      <!-- Dialogue de confirmation pour l'enregistrement des modifications -->
+      <p-dialog [(visible)]="confirmDialog" [style]="{width: '400px'}" header="Confirmation" [modal]="true" styleClass="custom-dialog">
+        <div class="flex align-items-center gap-3 mb-3">
+          <i class="pi pi-exclamation-triangle text-yellow-500" style="font-size: 1.5rem"></i>
+          <span>Voulez-vous vraiment enregistrer les modifications ?</span>
+        </div>
+        <ng-template pTemplate="footer">
+          <button pButton type="button" label="Annuler" icon="pi pi-times" class="p-button-text" (click)="onCancel()"></button>
+          <button pButton type="button" label="Enregistrer" icon="pi pi-check" class="p-button-success" (click)="onConfirm()"></button>
+        </ng-template>
+      </p-dialog>
     </div>
   </div>
 </div>

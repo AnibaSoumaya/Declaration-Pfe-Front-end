@@ -1,0 +1,496 @@
+/* styles.scss ou jugement.component.scss */
+
+/* Styles généraux */
+.section-content {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* PDF Viewer */
+.pdf-viewer-container {
+  margin-bottom: 2rem;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: white;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.pdf-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.pdf-counter {
+  margin: 0 1rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.pdf-display {
+  height: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+}
+
+.loading-pdf, .no-pdf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #6c757d;
+}
+
+.loading-pdf p, .no-pdf p {
+  margin-top: 1rem;
+}
+
+/* Formulaire Rapport */
+.delibere-block {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border-top: 6px solid #4CAF50;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.delibere-block h4 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delibere-block h4 i {
+  color: #4CAF50;
+}
+
+/* Tableau des rapports */
+.conclusions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.conclusions-count {
+  background-color: #F57C00;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+}
+
+.table-container {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.conclusions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.conclusions-table thead tr {
+  background: #f5f5f5;
+}
+
+.conclusions-table th {
+  color: #555;
+  font-weight: 600;
+  border: 1px solid #e9ecef;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.conclusions-table tbody tr {
+  border: 1px solid #e9ecef;
+  transition: background-color 0.2s;
+}
+
+.conclusions-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.conclusions-table td {
+  border: 1px solid #e9ecef;
+  padding: 0.75rem;
+}
+
+/* Badges pour les décisions */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.badge-success {
+  background-color: #C8E6C9;
+  color: #256029;
+}
+
+.badge-danger {
+  background-color: #FFCDD2;
+  color: #C63737;
+}
+
+/* État vide */
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state i {
+  font-size: 2rem;
+  color: #ccc;
+  margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pdf-display {
+    height: 400px;
+  }
+  
+  .conclusions-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.delibere-block, .table-container, .empty-state {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Styles pour les boutons radio */
+.p-radiobutton .p-radiobutton-box {
+  border-color: #F57C00;
+}
+
+.p-radiobutton .p-radiobutton-box.p-highlight {
+  border-color: #F57C00;
+  background-color: #F57C00;
+}
+
+.p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled):hover {
+  border-color: #E65100;
+  background-color: #E65100;
+}
+
+/* Styles pour le textarea */
+.p-inputtextarea {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  transition: border-color 0.2s;
+}
+
+.p-inputtextarea:focus {
+  border-color: #F57C00;
+  box-shadow: 0 0 0 0.2rem rgba(245, 124, 0, 0.2);
+}
+/* Rapport Block */
+.rapport-block {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-top: 4px solid #4CAF50;
+}
+
+.rapport-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  
+  h4 {
+    margin: 0;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    i {
+      color: #F57C00;
+    }
+  }
+}
+
+.rapport-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.decision-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  
+  label {
+    font-weight: 500;
+    color: #495057;
+  }
+  
+  .radio-group {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+    
+    ::ng-deep .p-radiobutton {
+      margin-right: 0.5rem;
+    }
+    
+    .reject-radio {
+      ::ng-deep .p-radiobutton .p-radiobutton-box.p-highlight {
+        border-color: #f44336;
+        background: #f44336;
+      }
+    }
+  }
+}
+
+.content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  
+  label {
+    font-weight: 500;
+    color: #495057;
+  }
+}
+
+.rapport-textarea {
+  width: 100%;
+  min-height: 200px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.3s;
+  
+  &:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  }
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  
+  .cancel-btn {
+    color: #6c757d;
+    
+    &:hover {
+      background: #f8f9fa !important;
+    }
+  }
+  
+  .validate-btn {
+    background: #4CAF50;
+    border: 1px solid #4CAF50;
+    
+    &:hover {
+      background: #3d8b40 !important;
+      border-color: #3d8b40 !important;
+    }
+    
+    &:disabled {
+      background: #a5d6a7 !important;
+      border-color: #a5d6a7 !important;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .rapport-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .radio-group {
+    flex-direction: column;
+    gap: 0.5rem !important;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+  
+}
+ /* Styles pour la section des rapports */
+.rapports-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.rapports-header h4 {
+  color: #333;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rapports-header h4 i {
+  color: #F57C00;
+}
+
+.rapports-count {
+  background-color: #F57C00;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+}
+
+.rapports-card {
+  border-top: 6px solid #4CAF50;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.rapports-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rapports-table thead tr {
+  background: #f5f5f5;
+}
+
+.rapports-table th {
+  color: #555;
+  font-weight: 600;
+  border: 1px solid #e9ecef;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.rapports-table tbody tr {
+  border: 1px solid #e9ecef;
+  transition: background-color 0.2s;
+}
+
+.rapports-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.rapports-table td {
+  border: 1px solid #e9ecef;
+  padding: 0.75rem;
+}
+
+.actions-col {
+  width: 120px;
+  text-align: center;
+}
+
+.file-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.file-icon {
+  color: #F57C00;
+  font-size: 1.2rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.badge-accepte {
+  background-color: #C8E6C9;
+  color: #256029;
+}
+
+.badge-refuse {
+  background-color: #FFCDD2;
+  color: #C63737;
+}
+
+.actions-cell {
+  text-align: center;
+}
+
+.empty-message {
+  padding: 2rem;
+  color: #6c757d;
+}
+
+.empty-message i {
+  font-size: 2rem;
+  color: #ccc;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Animation pour l'apparition du tableau */
+@keyframes tableAppear {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rapports-card {
+  animation: tableAppear 0.3s ease-out;
+}

@@ -1,0 +1,47 @@
+<div class="notification-panel" *ngIf="visible">
+    <div class="notification-header">
+      <h3>Notifications</h3>
+      <div class="notification-actions">
+        <button class="p-link" (click)="markAllAsRead()" *ngIf="unreadCount > 0">
+          Tout marquer comme lu
+        </button>
+        <button class="p-link close-button" (click)="close()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+    </div>
+  
+    <div class="notification-content">
+      <ng-container *ngIf="notifications.length > 0; else noNotifications">
+        <div
+          *ngFor="let notification of notifications"
+          class="notification-item"
+          [ngClass]="{'unread': !notification.isRead, 'read': notification.isRead}"
+          (click)="navigateToItem(notification)"
+        >
+        
+          <div class="notification-body">
+            <div class="notification-message">{{ notification.message }}</div>
+            <div class="notification-time">{{ formatTimeAgo(notification.createdAt) }}</div>
+          </div>
+          <button
+            *ngIf="!notification.isRead"
+            class="p-link mark-read-button"
+            (click)="markAsRead(notification, $event)"
+            title="Marquer comme lu"
+          >
+            <i class="pi pi-circle-fill"></i>
+          </button>
+          <div *ngIf="notification.isRead" class="read-indicator">
+            <i class="pi pi-check"></i>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #noNotifications>
+        <div class="empty-state">
+          <i class="pi pi-bell-slash"></i>
+          <p>Aucune notification pour le moment</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>

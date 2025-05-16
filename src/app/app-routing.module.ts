@@ -9,6 +9,7 @@ import { DeclarationDetailsComponent } from './core/pages/gestionSaisDeclaration
 import { ProfilComponent } from './core/pages/securite/profil/profil.component';
 import { AuthGuard } from './core/guards/auth.guard';
 import { ControleDeclarationComponent } from './core/pages/gestionSaisDeclaration/controle-declaration/controle-declaration.component';
+import { JugementComponent } from './core/pages/gestionSaisDeclaration/jugement/jugement.component';
 
 @NgModule({
     imports: [
@@ -34,6 +35,8 @@ import { ControleDeclarationComponent } from './core/pages/gestionSaisDeclaratio
                     { path: 'parametres', component: ParametreGenerauxComponent },
                     { path: 'profil', component: ProfilComponent },
                     { path: 'controleDeclaration/:id', component: ControleDeclarationComponent },
+                    { path: 'juge/:id', component: JugementComponent },
+
                     
                 ]
             },
