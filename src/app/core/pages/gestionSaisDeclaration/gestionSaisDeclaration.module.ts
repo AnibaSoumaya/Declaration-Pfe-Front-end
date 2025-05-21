@@ -31,6 +31,8 @@ import { SectionCommentsComponent } from './section-comments/section-comments.co
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { JugementComponent } from './jugement/jugement.component';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { StepsModule } from 'primeng/steps';
 
 @NgModule({
   declarations: [CrudAssujettisComponent,DeclarationDetailsComponent,ControleDeclarationComponent,SectionCommentsComponent,JugementComponent],  // ✅ Déplacer ici
@@ -68,6 +70,8 @@ import { JugementComponent } from './jugement/jugement.component';
         SelectButtonModule,
         TooltipModule,
         ReactiveFormsModule,
+        TabMenuModule,
+        StepsModule,
         
         
   ],

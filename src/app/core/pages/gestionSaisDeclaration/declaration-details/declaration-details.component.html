@@ -283,7 +283,7 @@
 
                 <!-- Actions conditionnelles selon l'état -->
                 <button 
-                  *ngIf=" hasProcureurGeneralRole && declaration.etatDeclaration === 'en_cours'"
+                  *ngIf=" hasProcureurGeneralRole() && declaration.etatDeclaration === 'en_cours'"
                   pButton 
                   icon="pi pi-send" 
                   class="p-button-rounded p-button-info p-button-text"

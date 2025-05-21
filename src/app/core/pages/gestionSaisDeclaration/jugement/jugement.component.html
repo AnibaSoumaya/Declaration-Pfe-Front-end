@@ -1,9 +1,9 @@
 <div class="section-content">
-  <!-- PDF Viewer -->
-  <div class="pdf-viewer-container">
+  <!-- PDF Viewer (commun aux deux rôles) -->
+  <div class="pdf-viewer-container"  *ngIf="currentUser?.role === 'procureur_general'">
     <!-- En-tête -->
     <div class="header">
-      <h2>Conclusion pour la déclaration #{{declarationId}}</h2>
+      <h2>{{ currentUser?.role === 'procureur_general' ? 'Conclusion pour la déclaration' : 'Déclaration' }} #{{declarationId}}</h2>
       <button 
         pButton 
         icon="pi pi-times" 
@@ -58,10 +58,12 @@
     </div>
   </div>
 
-   <!-- Formulaire pour générer un Rapport -->
-  <div class="rapport-block" *ngIf="currentUser?.role === 'procureur_general'">
+  <!-- Formulaire pour générer un Rapport (adapté au rôle) -->
+  <div class="rapport-block" *ngIf="currentUser?.role === 'procureur_general' || currentUser?.role === 'conseiller_rapporteur'">
     <div class="rapport-header">
-      <h4><i class="pi pi-file-edit"></i> Rapport Définitif</h4>
+      <h4><i class="pi pi-file-edit"></i> 
+        {{ currentUser?.role === 'procureur_general' ? 'Rapport Définitif' : 'Rapport Provisoire' }}
+      </h4>
       <button 
         pButton 
         label="{{ showRapportForm ? 'Masquer' : 'Nouveau Rapport' }}" 
@@ -72,7 +74,8 @@
     </div>
 
     <div class="rapport-form-container" *ngIf="showRapportForm">
-      <div class="decision-section">
+      <!-- Section Décision (uniquement pour PG) -->
+      <div class="decision-section" *ngIf="currentUser?.role === 'procureur_general'">
         <label>Décision :</label>
         <div class="radio-group">
           <p-radioButton 
@@ -100,7 +103,7 @@
           rows="8" 
           pInputTextarea 
           [(ngModel)]="newRapportContent"
-          placeholder="Rédigez votre rapport définitif ici..."
+          [placeholder]="currentUser?.role === 'procureur_general' ? 'Rédigez votre rapport définitif ici...' : 'Rédigez votre rapport provisoire ici...'"
           class="rapport-textarea">
         </textarea>
       </div>
@@ -118,95 +121,97 @@
           label="Valider le Rapport" 
           icon="pi pi-check" 
           class="validate-btn"
-          (click)="genererRapportDefinitif()"
-          [disabled]="!newRapportContent || decision === null">
+          (click)="currentUser?.role === 'procureur_general' ? genererRapportDefinitif() : genererRapportProvisoire()"
+          [disabled]="!newRapportContent || (currentUser?.role === 'procureur_general' && decision === null)">
         </button>
       </div>
     </div>
   </div>
   
-<!-- Section Rapports -->
-<div *ngIf="currentUser?.role === 'procureur_general'">
-  <div class="rapports-header">
-    <h4><i class="pi pi-file-pdf"></i> Rapports PDF</h4>
-    <span class="rapports-count">{{rapports.length}}</span>
-  </div>
+  <!-- Section Rapports (adaptée au rôle) -->
+  <div *ngIf="currentUser?.role === 'procureur_general' || currentUser?.role === 'conseiller_rapporteur'">
+    <div class="rapports-header">
+      <h4><i class="pi pi-file-pdf"></i> 
+        {{ currentUser?.role === 'procureur_general' ? 'Rapports PDF' : 'Rapports Provisoires' }}
+      </h4>
+      <span class="rapports-count">{{rapports.length}}</span>
+    </div>
 
-  <div class="table-responsive">
-    <div class="card rapports-card">
-      <div class="table-container">
-        <table class="rapports-table">
-          <thead>
-            <tr>
-              <th>Nom du Fichier</th>
-              <th>Type</th>
-              <th>Date</th>
-              <th>Décision</th>
-              <th class="actions-col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <ng-container *ngIf="rapports && rapports.length > 0; else emptyRapports">
-              <tr *ngFor="let r of rapports">
-                <td>
-                  <div class="file-cell">
-                    <i class="pi pi-file-pdf file-icon"></i>
-                    {{ r.nomFichier }}
-                  </div>
-                </td>
-                <td>{{ r.type }}</td>
-                <td>{{ formatDate(r.dateCreation) }}</td>
-                <td>
-                  <span *ngIf="r.decision !== undefined" 
-                        [class]="r.decision ? 'badge badge-accepte' : 'badge badge-refuse'">
-                    {{ r.decision ? 'Accepté' : 'Refusé' }}
-                  </span>
-                  <span *ngIf="r.decision === undefined">-</span>
-                </td>
-                <td class="actions-cell">
-                  <div class="flex gap-2">
-                    <!-- Bouton télécharger -->
-                    <button 
-                      pButton 
-                      (click)="downloadRapport(r.id, r.nomFichier)"
-                      icon="pi pi-download" 
-                      class="p-button-rounded p-button-secondary p-button-text"
-                      style="width: 2.25rem; height: 2.25rem;"
-                      pTooltip="Télécharger PDF"
-                      tooltipPosition="top">
-                    </button>
-                    
-                    <!-- Bouton supprimer -->
-                    <button 
-                      *ngIf="currentUser.id === r.utilisateur?.id"
-                      pButton 
-                      type="button" 
-                      icon="pi pi-trash" 
-                      class="p-button-rounded p-button-danger p-button-text"
-                      style="width: 2.25rem; height: 2.25rem;"
-                      pTooltip="Supprimer"
-                      tooltipPosition="top"
-                      (click)="deleteRapport(r.id)">
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </ng-container>
-            
-            <ng-template #emptyRapports>
+    <div class="table-responsive">
+      <div class="card rapports-card">
+        <div class="table-container">
+          <table class="rapports-table">
+            <thead>
               <tr>
-                <td colspan="5">
-                  <div class="flex flex-column align-items-center empty-message">
-                    <i class="pi pi-file-pdf mb-3"></i>
-                    <span>Aucun rapport disponible.</span>
-                  </div>
-                </td>
+                <th>Nom du Fichier</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th *ngIf="currentUser?.role === 'procureur_general'">Décision</th>
+                <th class="actions-col">Actions</th>
               </tr>
-            </ng-template>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <ng-container *ngIf="rapports && rapports.length > 0; else emptyRapports">
+                <tr *ngFor="let r of rapports">
+                  <td>
+                    <div class="file-cell">
+                      <i class="pi pi-file-pdf file-icon"></i>
+                      {{ r.nomFichier }}
+                    </div>
+                  </td>
+                  <td>{{ r.type }}</td>
+                  <td>{{ formatDate(r.dateCreation) }}</td>
+                  <td *ngIf="currentUser?.role === 'procureur_general'">
+                    <span *ngIf="r.decision !== undefined" 
+                          [class]="r.decision ? 'badge badge-accepte' : 'badge badge-refuse'">
+                      {{ r.decision ? 'Accepté' : 'Refusé' }}
+                    </span>
+                    <span *ngIf="r.decision === undefined">-</span>
+                  </td>
+                  <td class="actions-cell">
+                    <div class="flex gap-2">
+                      <!-- Bouton télécharger -->
+                      <button 
+                        pButton 
+                        (click)="downloadRapport(r.id, r.nomFichier)"
+                        icon="pi pi-download" 
+                        class="p-button-rounded p-button-secondary p-button-text"
+                        style="width: 2.25rem; height: 2.25rem;"
+                        pTooltip="Télécharger PDF"
+                        tooltipPosition="top">
+                      </button>
+                      
+                      <!-- Bouton supprimer -->
+                      <button 
+                        *ngIf="currentUser.id === r.utilisateur?.id"
+                        pButton 
+                        type="button" 
+                        icon="pi pi-trash" 
+                        class="p-button-rounded p-button-danger p-button-text"
+                        style="width: 2.25rem; height: 2.25rem;"
+                        pTooltip="Supprimer"
+                        tooltipPosition="top"
+                        (click)="deleteRapport(r.id)">
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+              
+              <ng-template #emptyRapports>
+                <tr>
+                  <td [attr.colspan]="currentUser?.role === 'procureur_general' ? 5 : 4">
+                    <div class="flex flex-column align-items-center empty-message">
+                      <i class="pi pi-file-pdf mb-3"></i>
+                      <span>Aucun rapport disponible.</span>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </div>

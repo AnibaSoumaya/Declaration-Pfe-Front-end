@@ -11,17 +11,19 @@ import { MenuItem } from 'primeng/api';
     templateUrl: './app.layout.component.html'
 })
 export class AppLayoutComponent implements OnDestroy {
-
     overlayMenuOpenSubscription: Subscription;
-
     menuOutsideClickListener: any;
-
     profileMenuOutsideClickListener: any;
-    breadcrumbItems: MenuItem[] = [];
-
+    
+    // Variables pour les Steps
+    routeItems: MenuItem[] = [
+        { label: 'Contrôle', routerLink: '/controleDeclaration' },
+        { label: 'Jugement', routerLink: '/juge' }
+    ];
+    activeStepIndex: number = 0;
+    showStepsFlag: boolean = false;
 
     @ViewChild(AppSidebarComponent) appSidebar!: AppSidebarComponent;
-
     @ViewChild(AppTopBarComponent) appTopbar!: AppTopBarComponent;
 
     constructor(public layoutService: LayoutService, public renderer: Renderer2, public router: Router) {
@@ -54,12 +56,41 @@ export class AppLayoutComponent implements OnDestroy {
         });
 
         this.router.events.pipe(filter(event => event instanceof NavigationEnd))
-            .subscribe(() => {
+            .subscribe((event: NavigationEnd) => {
                 this.hideMenu();
                 this.hideProfileMenu();
+                this.updateStepsVisibility(event.url);
             });
     }
 
+    // Met à jour la visibilité et l'index actif des Steps
+    updateStepsVisibility(url: string): void {
+        this.showStepsFlag = url.includes('/controleDeclaration/') || url.includes('/juge/');
+        
+        if (this.showStepsFlag) {
+            const id = this.extractIdFromUrl(url);
+            if (id) {
+                this.routeItems = [
+                    { label: 'Déclaration details', routerLink: `/controleDeclaration/${id}` },
+                    { label: 'Générer Rapport', routerLink: `/juge/${id}` }
+                ];
+            }
+            
+            // Détermine l'étape active
+            this.activeStepIndex = url.includes('/controleDeclaration/') ? 0 : 1;
+        }
+    }
+
+    // Méthode pour vérifier si on doit afficher les Steps
+    showSteps(): boolean {
+        return this.showStepsFlag;
+    }
+
+    // Méthode pour extraire l'ID de l'URL
+    private extractIdFromUrl(url: string): string | null {
+        const match = url.match(/\/(controleDeclaration|juge)\/(\d+)/);
+        return match ? match[2] : null;
+    }
     
 
     hideMenu() {

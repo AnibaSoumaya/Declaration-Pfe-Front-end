@@ -15,10 +15,16 @@ import { ConclusionService } from 'src/app/core/services/conclusion.service';
   styleUrls: ['./controle-declaration.component.scss']
 })
 export class ControleDeclarationComponent implements OnInit {
+  
   @Input() declarationId: number;
   declaration: Declaration;
   loading = true;
   error = false;
+
+  // Dans votre composant.ts
+showPredictionDialog = false;
+predictionRemark = '';
+pendingPdfBlob: Blob | null = null;
 
   isAvocatGeneral = false;
   conclusions: any[] = [];
@@ -47,6 +53,8 @@ export class ControleDeclarationComponent implements OnInit {
   commentForm: FormGroup;
   currentSection: string = '';
   currentUser: User;
+  isGeneratingReport = false;
+
 
   constructor(
     private declarationService: DeclarationService,
@@ -245,5 +253,86 @@ export class ControleDeclarationComponent implements OnInit {
         console.error('Erreur lors du téléchargement', err);
       }
     });
+}
+
+// Méthode pour générer le rapport de prédiction pour les fonciers bâtis
+generatePredictionReportFB(): void {
+  if (!this.declarationId) return;
+
+  this.isGeneratingReport = true;
+  
+  this.declarationService.generatePredictionReportFB(this.declarationId).subscribe({
+    next: (pdfBlob: Blob) => {
+      this.handlePdfDownload(pdfBlob);
+      this.isGeneratingReport = false;
+    },
+    error: (error) => {
+      console.error('Erreur lors de la génération du rapport', error);
+      this.isGeneratingReport = false;
+      // Ajoutez ici une notification à l'utilisateur si nécessaire
+    }
+  });
+}
+
+generatePredictionReportVH(): void {
+  if (!this.declarationId) return;
+
+  this.isGeneratingReport = true;
+  
+  this.declarationService.generatePredictionReportVH(this.declarationId).subscribe({
+    next: (pdfBlob: Blob) => {
+      this.handlePdfDownload(pdfBlob);
+      this.isGeneratingReport = false;
+    },
+    error: (error) => {
+      console.error('Erreur lors de la génération du rapport', error);
+      this.isGeneratingReport = false;
+      // Ajoutez ici une notification à l'utilisateur si nécessaire
+    }
+  });
+}
+
+
+// Ajoutez cette méthode à votre classe
+generatePredictionReport(): void {
+  if (!this.declarationId) return;
+
+  this.isGeneratingReport = true;
+  
+  this.declarationService.generatePredictionReport(this.declarationId).subscribe({
+    next: (pdfBlob: Blob) => {
+      this.handlePdfDownload(pdfBlob);
+      this.isGeneratingReport = false;
+    },
+    error: (error) => {
+      console.error('Erreur lors de la génération du rapport', error);
+      this.isGeneratingReport = false;
+      // Vous pouvez ajouter une notification à l'utilisateur ici
+    }
+  });
+}
+
+private handlePdfDownload(blob: Blob): void {
+  // Solution compatible avec tous les navigateurs
+  const nav = window.navigator as any; // Assertion de type
+  
+  if (nav.msSaveOrOpenBlob) {
+    // Pour IE
+    nav.msSaveOrOpenBlob(blob, `rapport_prediction_${this.declarationId}.pdf`);
+  } else {
+    // Pour les autres navigateurs
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rapport_prediction_${this.declarationId}_${new Date().toISOString().slice(0,10)}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    
+    // Nettoyage
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      link.remove();
+    }, 100);
+  }
 }
 }

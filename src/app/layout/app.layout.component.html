@@ -1,11 +1,17 @@
-<div class="layout-wrapper" [ngClass]="containerClass" >
+<div class="layout-wrapper" [ngClass]="containerClass">
     <app-topbar></app-topbar>
     <div class="layout-sidebar">
         <app-sidebar></app-sidebar>
     </div> 
     <div class="layout-main-container">
         <div class="layout-main">
-    
+            <!-- Ajout des Steps uniquement pour les routes spécifiques -->
+            <div *ngIf="showSteps()" class="steps-container">
+                <p-steps [model]="routeItems" [activeIndex]="activeStepIndex" 
+                        [readonly]="false" styleClass="custom-steps"></p-steps>
+            </div>
+
+            <!-- Contenu normal -->
             <router-outlet></router-outlet>
         </div>
         <app-footer></app-footer>
@@ -13,3 +19,49 @@
     <app-config></app-config>
     <div class="layout-mask"></div>
 </div>
+
+<style>
+/* Container des étapes */
+.steps-container {
+    padding: 1rem;
+    background-color: var(--surface-card);
+    border-bottom: 1px solid var(--surface-border);
+    margin-bottom: 1rem;
+}
+
+/* Styles spécifiques avec ::ng-deep pour pénétrer dans le composant PrimeNG */
+::ng-deep .custom-steps {
+    /* Style de base pour tous les cercles */
+    .p-steps-item .p-steps-number {
+        background: orange !important;
+        color: white !important;
+        border: 2px solid orange !important;
+    }
+
+    /* Style pour l'étape active */
+    .p-steps-item.p-highlight .p-steps-number {
+        background: darkorange !important;
+        border-color: darkorange !important;
+    }
+
+    /* Style pour les étapes complétées */
+    .p-steps-item.p-steps-complete .p-steps-number {
+        background: orange !important;
+        border-color: orange !important;
+        color: white !important;
+    }
+
+    /* Ligne entre les étapes */
+    .p-steps-item:before {
+        border-top: 2px solid var(--surface-border);
+        top: 50%;
+        margin-top: -1px;
+    }
+
+    /* Style du texte */
+    .p-steps-title {
+        color: var(--text-color);
+        font-weight: 500;
+    }
+}
+</style>

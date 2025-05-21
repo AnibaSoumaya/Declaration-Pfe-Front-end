@@ -11,7 +11,7 @@ export class Emprunt{
     montantEmprunt?: number;
     typeCompte?:Vocabulaire;
     datePremiereEcheance?:Date;
-    montantEnCours?:number;
+    montantRestant?:number;
     dateDernierEcheance?:Date;
     dateCreation?: Date;
     declaration?: Declaration;

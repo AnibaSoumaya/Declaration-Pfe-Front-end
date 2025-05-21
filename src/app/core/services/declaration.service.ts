@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
 import { Declaration } from '../models/declaration';
 import { HistoriqueDeclarationUser } from '../models/HistoriqueDeclarationUser';
@@ -12,6 +12,11 @@ export class DeclarationService {
 
   private apiUrl = 'http://localhost:8084/api/declarations'; 
   private apiUrl2 = 'http://localhost:8084/api/historique-declaration'; 
+  private apiUrlpredFNB = 'http://localhost:8084/api/foncier-non-bati'; // Adaptez selon votre configuration
+  private apiUrlpredFB = 'http://localhost:8084/api/foncier-bati'; // Adaptez selon votre configuration
+  private apiUrlpredVH = 'http://localhost:8084/api/vehicules'; // Adaptez selon votre configuration
+
+
 
 
   constructor(private http: HttpClient) { }
@@ -72,6 +77,48 @@ export class DeclarationService {
   searchDeclarations(keyword: string): Observable<Declaration[]> {
     return this.http.get<Declaration[]>(`${this.apiUrl}/search?keyword=${keyword}`);
   }
+
+
+  generatePredictionReport(declarationId: number): Observable<Blob> {
+    const url = `${this.apiUrlpredFNB}/rapport-prediction/${declarationId}`;
+    
+    // Configure les headers pour attendre un PDF
+    const headers = new HttpHeaders({
+      'Accept': 'application/pdf'
+    });
+
+    return this.http.get(url, {
+      headers: headers,
+      responseType: 'blob' // Important pour les fichiers binaires
+    });
+  }
+
+  generatePredictionReportFB(declarationId: number): Observable<Blob> {
+    const url = `${this.apiUrlpredFB}/rapport-prediction/${declarationId}`;
+    
+    const headers = new HttpHeaders({
+      'Accept': 'application/pdf'
+    });
+
+    return this.http.get(url, {
+      headers: headers,
+      responseType: 'blob' // Important pour les fichiers binaires
+    });
+  }
+
+  generatePredictionReportVH(declarationId: number): Observable<Blob> {
+    const url = `${this.apiUrlpredVH}/rapport-prediction/${declarationId}`;
+    
+    const headers = new HttpHeaders({
+      'Accept': 'application/pdf'
+    });
+
+    return this.http.get(url, {
+      headers: headers,
+      responseType: 'blob' // Important pour les fichiers binaires
+    });
+  }
+  
   
   
 }

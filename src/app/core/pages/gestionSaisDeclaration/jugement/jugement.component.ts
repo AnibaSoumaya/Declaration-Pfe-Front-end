@@ -11,7 +11,7 @@ import { Rapport } from 'src/app/core/models/rapport';
 @Component({
   selector: 'app-jugement',
   templateUrl: './jugement.component.html',
-  styleUrl: './jugement.component.scss',
+  styleUrls: ['./jugement.component.scss'],
   providers: [MessageService]
 })
 export class JugementComponent implements OnInit {
@@ -45,6 +45,8 @@ export class JugementComponent implements OnInit {
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
         this.currentUser = user;
+        // Charger seulement les rapports pertinents pour le rôle
+        this.loadRapports();
       },
       error: (err) => {
         console.error('Erreur lors du chargement de l\'utilisateur', err);
@@ -100,9 +102,14 @@ export class JugementComponent implements OnInit {
   }
 
   loadRapports(): void {
+    if (!this.currentUser) return;
+
+    // Filtrer par type selon le rôle
+    const type = this.currentUser.role === 'procureur_general' ? 'DEFINITIF' : 'PROVISOIRE';
+    
     this.rapportService.getByDeclaration(this.declarationId).subscribe({
       next: (rapports) => {
-        this.rapports = rapports;
+        this.rapports = rapports.filter(r => r.type === type);
       },
       error: (err) => {
         console.error('Erreur lors du chargement des rapports', err);
@@ -139,7 +146,7 @@ export class JugementComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Succès',
-          detail: 'Rapport généré avec succès'
+          detail: 'Rapport définitif généré avec succès'
         });
       },
       error: (err) => {
@@ -147,7 +154,43 @@ export class JugementComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Impossible de générer le rapport'
+          detail: 'Impossible de générer le rapport définitif'
+        });
+      }
+    });
+  }
+
+  genererRapportProvisoire(): void {
+    if (!this.newRapportContent) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Attention',
+        detail: 'Veuillez rédiger le rapport'
+      });
+      return;
+    }
+
+    this.rapportService.genererProvisoire(
+      this.currentUser.id,
+      this.declarationId,
+      this.newRapportContent
+    ).subscribe({
+      next: (rapport) => {
+        this.rapports.unshift(rapport);
+        this.showRapportForm = false;
+        this.newRapportContent = '';
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Succès',
+          detail: 'Rapport provisoire généré avec succès'
+        });
+      },
+      error: (err) => {
+        console.error('Erreur lors de la génération du rapport', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Impossible de générer le rapport provisoire'
         });
       }
     });
@@ -164,38 +207,12 @@ export class JugementComponent implements OnInit {
       this.currentPdfIndex--;
     }
   }
-  /*
-  downloadRapport(rapportId: number, fileName: string): void {
-    this.rapportService.telechargerRapport(rapportId).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      },
-      error: (err) => {
-        console.error('Erreur lors du téléchargement du rapport', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Impossible de télécharger le rapport'
-        });
-      }
-    });
-  }*/
 
-    downloadRapport(rapportId: number, fileName: string): void {
-  this.rapportService.telecharger(rapportId)
-    .subscribe({
+  downloadRapport(rapportId: number, fileName: string): void {
+    this.rapportService.telecharger(rapportId).subscribe({
       next: (response: Blob) => {
         const blob = new Blob([response], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
-        
-        // Ouvrir le PDF dans une nouvelle fenêtre
         const newWindow = window.open(url, '_blank');
         if (newWindow) {
           newWindow.focus();
@@ -205,7 +222,7 @@ export class JugementComponent implements OnInit {
         console.error('Erreur lors du téléchargement', err);
       }
     });
-}
+  }
 
   deleteRapport(rapportId: number): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce rapport ?')) {
