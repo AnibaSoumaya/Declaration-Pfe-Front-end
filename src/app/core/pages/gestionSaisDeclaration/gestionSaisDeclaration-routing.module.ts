@@ -6,6 +6,7 @@ import { ControleDeclarationComponent } from './controle-declaration/controle-de
 import { SectionCommentsComponent } from './section-comments/section-comments.component';
 import { NotificationPanelComponent } from './notification-panel/notification-panel.component';
 import { JugementComponent } from './jugement/jugement.component';
+import { BIComponent } from './bi/bi.component';
 
 const routes: Routes = [
     { path: '**', redirectTo: '/notfound' }
@@ -19,6 +20,7 @@ const routes: Routes = [
         { path: 'notifications',  component: NotificationPanelComponent},
         { path: 'controleDeclaration/:id', component: ControleDeclarationComponent },
         { path: 'juge/:id', component: JugementComponent},
+        { path: 'BI',  component: BIComponent},
 
         { path: '**', redirectTo: '/notfound' }
     ])],

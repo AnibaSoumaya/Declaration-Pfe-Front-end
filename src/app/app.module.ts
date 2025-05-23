@@ -16,6 +16,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { DialogModule } from 'primeng/dialog';
 //import { ParametrageModule } from './core/pages/parametrage/parametrage.module';
+import { NgChartsModule } from 'ng2-charts';
 
 @NgModule({
     declarations: [
@@ -27,9 +28,9 @@ import { DialogModule } from 'primeng/dialog';
         GestionSaisDeclarationModule,
         //ParametrageModule,
         HttpClientModule,
-        DialogModule
+        DialogModule,
+            NgChartsModule, 
 
-        
         
 
     ],

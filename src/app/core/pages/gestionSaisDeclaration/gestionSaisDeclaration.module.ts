@@ -33,9 +33,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { JugementComponent } from './jugement/jugement.component';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { StepsModule } from 'primeng/steps';
+import { BIComponent } from './bi/bi.component';
+import { ChartModule } from 'primeng/chart';
+import { NgChartsModule } from 'ng2-charts';
 
 @NgModule({
-  declarations: [CrudAssujettisComponent,DeclarationDetailsComponent,ControleDeclarationComponent,SectionCommentsComponent,JugementComponent],  // ✅ Déplacer ici
+  declarations: [CrudAssujettisComponent,DeclarationDetailsComponent,ControleDeclarationComponent,SectionCommentsComponent,JugementComponent,BIComponent],  // ✅ Déplacer ici
   imports: [
     CommonModule,
     GestionSaisDeclarationRoutingModule,
@@ -73,7 +76,10 @@ import { StepsModule } from 'primeng/steps';
         TabMenuModule,
         StepsModule,
         
-        
+        NgChartsModule
   ],
+  exports :[
+    ChartModule
+  ]
 })
 export class GestionSaisDeclarationModule { }

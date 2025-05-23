@@ -48,6 +48,8 @@ export class AppMenuComponent implements OnInit {
                         ]
                     },
                     { label: 'Profil', icon: 'pi pi-fw pi-users', routerLink: ['/profil'] },
+                    { label: 'BI', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/BI'] },
+
                     { label: 'Free Blocks', icon: 'pi pi-fw pi-eye', routerLink: ['/blocks'], badge: 'NEW' },                    
                 ]
             },
