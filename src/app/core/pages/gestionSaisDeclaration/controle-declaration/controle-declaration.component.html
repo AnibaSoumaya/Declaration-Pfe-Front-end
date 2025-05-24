@@ -1,4 +1,5 @@
 <div class="declaration-details-container">
+    <p-toast></p-toast>
     <div class="header-actions">
       <h1>Détails de la Déclaration de Biens</h1>
       <div class="action-buttons">
@@ -819,17 +820,61 @@
     <!-- Formulaire pour générer un Délibéré Officiel -->
     <div class="delibere-block">
       <h4><i class="pi pi-file-edit"></i>Délibéré Officiel</h4>
-      <div class="form-group">
-        <label for="lettreContent">Contenu de la lettre</label>
+      <div class="form-group mb-4">
+        <div class="radio-group d-flex gap-3">
+<!-- Boutons radio -->
+      <div class="radio-container">
+        <label>Type de réquisitoire <span class="required">*</span></label>
+        <div class="radio-options">
+          <div class="radio-option" [class.selected]="requisitoireType === 'acceptation'">
+            <input type="radio" id="acceptation" 
+                   [(ngModel)]="requisitoireType" value="acceptation">
+            <label for="acceptation">
+              <i class="pi pi-check-circle"></i>
+              <div>
+                <h5>Acceptation</h5>
+              </div>
+            </label>
+          </div>
+          
+          <div class="radio-option" [class.selected]="requisitoireType === 'refus'">
+            <input type="radio" id="refus" 
+                   [(ngModel)]="requisitoireType" value="refus">
+            <label for="refus">
+              <i class="pi pi-times-circle"></i>
+              <div>
+                <h5>Refus</h5>
+              </div>
+            </label>
+          </div>
+        </div>
+        <small class="error" *ngIf="!requisitoireType && formSubmitted">
+          Sélection obligatoire
+        </small>
+      </div>
+
+
+      <div class="form-group mb-4">
+        <label for="lettreContent" class="form-label fw-bold">Contenu de la conclusion <span class="required">*</span></label>
         <textarea id="lettreContent" class="form-control" rows="8" 
                   placeholder="Rédigez votre délibéré officiel ici..."
                   [(ngModel)]="newLettreContent"></textarea>
       </div>
-      <button class="btn btn-primary" (click)="genererLettre()"
-              [disabled]="!newLettreContent">
-        <i class="pi pi-file-pdf"></i> Générer PDF
-      </button>
+      
+      <div class="d-flex justify-content-end gap-2">
+         <button class="btn cancel" 
+                (click)="resetForm()"
+                *ngIf="newLettreContent || requisitoireType">
+          <i class="pi pi-times"></i> Annuler
+        </button>
+        <button class="btn btn-primary" (click)="genererLettre()"
+                [disabled]="!newLettreContent || !requisitoireType">
+          <i class="pi pi-file-pdf"></i> Générer PDF
+        </button>
+      </div>
     </div>
+    <br>
+    <br>
     
     <!-- Liste des conclusions existantes -->
     <div *ngIf="conclusions.length > 0">
@@ -848,6 +893,88 @@
   </div>
 
   <style>
+    /* Styles généraux */
+.avocat-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Boutons radio */
+.radio-container {
+  margin: 15px 0;
+}
+
+.radio-options {
+  display: flex;
+  gap: 15px;
+  margin-top: 8px;
+}
+
+.radio-option {
+  flex: 1;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.radio-option:hover {
+  border-color: #aaa;
+}
+
+.radio-option.selected {
+  border-color: #F57C00;
+  background-color: rgba(245, 124, 0, 0.05);
+}
+
+.radio-option input {
+  display: none;
+}
+
+.radio-option label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.radio-option i {
+  font-size: 1.5rem;
+  color: #777;
+}
+
+.radio-option.selected i {
+  color: #F57C00;
+}
+
+/* Bouton orange */
+.btn.generate {
+  background-color: #F57C00;
+  color: white;
+  border: none;
+}
+
+.btn.generate:hover {
+  background-color: #e67100;
+}
+
+.btn.generate:disabled {
+  background-color: #f8b77e;
+  cursor: not-allowed;
+}
+
+/* Validation */
+.required {
+  color: #f00;
+}
+
+.error {
+  color: #f00;
+  font-size: 0.9rem;
+}
     /* Style similaire à celui utilisé dans la page assujettis */
     :host ::ng-deep .p-button:hover {
       transform: translateY(-2px);
@@ -916,6 +1043,69 @@
       color: #ccc;
       margin-bottom: 1rem;
     }
+    .action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn.cancel {
+  background: transparent;
+  color: #F57C00;
+  border: 1px solid #F57C00;
+}
+
+.btn.cancel:hover {
+  background: rgba(245, 124, 0, 0.1);
+}
+
+/* Déplacez le bouton Annuler à gauche */
+@media (min-width: 768px) {
+  .action-buttons {
+    justify-content: space-between;
+  }
+}
+.type-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+.type-badge.acceptation {
+  background: #d4edda;
+  color: #155724;
+}
+
+.type-badge.refus {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.conclusion-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 0;
+  border-top: 1px solid #eee;
+  margin-top: 1rem;
+}
+
+/* Style optionnel pour le bouton */
+.p-button-success {
+  background-color: #4CAF50 !important;
+  border-color: #4CAF50 !important;
+
+  &:hover {
+    background-color: #3e8e41 !important;
+    border-color: #3e8e41 !important;
+  }
+
+  &:disabled {
+    background-color: #a5d6a7 !important;
+    border-color: #a5d6a7 !important;
+    cursor: not-allowed;
+  }
+}
+    
   </style>
 
   <div class="table-container">
@@ -924,6 +1114,7 @@
         <tr>
           <th>Nom du Fichier</th>
           <th>Date</th>
+          <th>Type</th>
           <th>Avocat</th>
           <th class="actions-col">Actions</th>
         </tr>
@@ -938,6 +1129,11 @@
               </div>
             </td>
             <td>{{ formatDate(c.dateCreation) }}</td>
+            <td>
+                <span class="type-badge" [class.acceptation]="c.estAcceptation" [class.refus]="!c.estAcceptation">
+                  {{ c.estAcceptation ? 'Acceptation' : 'Refus' }}
+                </span>
+              </td>
             <td>{{ c.utilisateur?.firstname }}</td>
             <td class="actions-cell">
               <div class="flex gap-2">
@@ -983,8 +1179,20 @@
     </table>
   </div>
 </div>
-      </div>
-    </div>
+</div>
+</div>
+<!-- Dans la section des conclusions existantes -->
+<div *ngIf="conclusions.length > 0" class="conclusion-actions">
+  <button pButton 
+          label="Envoyer" 
+          icon="pi pi-send" 
+          class="p-button-success"
+          (click)="envoyerDeclaration()"
+          [disabled]="!conclusions.length"
+          pTooltip="Transférer la déclaration au procureur General pour examen"
+          style="margin-top: 1rem;">
+  </button>
+</div>
     
     <!-- État vide si aucune conclusion -->
     <div *ngIf="conclusions.length === 0" class="empty-state">

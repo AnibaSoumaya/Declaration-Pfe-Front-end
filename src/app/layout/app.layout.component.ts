@@ -1,19 +1,21 @@
-import { Component, OnDestroy, Renderer2, ViewChild } from '@angular/core';
+import { Component, OnDestroy, Renderer2, ViewChild, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { LayoutService } from "./service/app.layout.service";
 import { AppSidebarComponent } from "./app.sidebar.component";
 import { AppTopBarComponent } from './app.topbar.component';
 import { MenuItem } from 'primeng/api';
+import { UserService } from '../core/services/user.service';
 
 @Component({
     selector: 'app-layout',
     templateUrl: './app.layout.component.html'
 })
-export class AppLayoutComponent implements OnDestroy {
+export class AppLayoutComponent implements OnInit, OnDestroy {
     overlayMenuOpenSubscription: Subscription;
     menuOutsideClickListener: any;
     profileMenuOutsideClickListener: any;
+    userSubscription: Subscription; // Add this for user subscription
     
     // Variables pour les Steps
     routeItems: MenuItem[] = [
@@ -22,11 +24,17 @@ export class AppLayoutComponent implements OnDestroy {
     ];
     activeStepIndex: number = 0;
     showStepsFlag: boolean = false;
+    currentUserRole: string = ''; // Add this to track user role
 
     @ViewChild(AppSidebarComponent) appSidebar!: AppSidebarComponent;
     @ViewChild(AppTopBarComponent) appTopbar!: AppTopBarComponent;
 
-    constructor(public layoutService: LayoutService, public renderer: Renderer2, public router: Router) {
+    constructor(
+        public layoutService: LayoutService, 
+        public renderer: Renderer2, 
+        public router: Router,
+        private userService: UserService // Add UserService injection
+    ) {
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (!this.menuOutsideClickListener) {
                 this.menuOutsideClickListener = this.renderer.listen('document', 'click', event => {
@@ -63,8 +71,29 @@ export class AppLayoutComponent implements OnDestroy {
             });
     }
 
+    ngOnInit(): void {
+        // Get current user and their role
+        this.userSubscription = this.userService.getCurrentUser().subscribe({
+            next: (user) => {
+                this.currentUserRole = user.role || '';
+                // Update steps visibility based on current route after getting user role
+                this.updateStepsVisibility(this.router.url);
+            },
+            error: (error) => {
+                console.error('Error fetching current user:', error);
+                this.currentUserRole = '';
+            }
+        });
+    }
+
     // Met à jour la visibilité et l'index actif des Steps
     updateStepsVisibility(url: string): void {
+        // Check if user has avocat_general role - if yes, don't show steps
+        if (this.currentUserRole === 'avocat_general') {
+            this.showStepsFlag = false;
+            return;
+        }
+
         this.showStepsFlag = url.includes('/controleDeclaration/') || url.includes('/juge/');
         
         if (this.showStepsFlag) {
@@ -83,6 +112,10 @@ export class AppLayoutComponent implements OnDestroy {
 
     // Méthode pour vérifier si on doit afficher les Steps
     showSteps(): boolean {
+        // Double check: don't show steps if user is avocat_general
+        if (this.currentUserRole === 'avocat_general') {
+            return false;
+        }
         return this.showStepsFlag;
     }
 
@@ -148,6 +181,10 @@ export class AppLayoutComponent implements OnDestroy {
     ngOnDestroy() {
         if (this.overlayMenuOpenSubscription) {
             this.overlayMenuOpenSubscription.unsubscribe();
+        }
+
+        if (this.userSubscription) {
+            this.userSubscription.unsubscribe();
         }
 
         if (this.menuOutsideClickListener) {

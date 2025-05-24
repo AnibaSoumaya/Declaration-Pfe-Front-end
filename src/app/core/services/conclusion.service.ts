@@ -12,20 +12,22 @@ export class ConclusionService {
   constructor(private http: HttpClient) { }
 
   // Générer une conclusion avec fichier uploadé
-  genererConclusion(declarationId: number, file: File): Observable<any> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post(`${this.apiUrl}/generer/${declarationId}`, formData);
-  }
+  genererConclusion(declarationId: number, file: File, estAcceptation: boolean): Observable<any> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('estAcceptation', estAcceptation.toString());
+  return this.http.post(`${this.apiUrl}/generer/${declarationId}`, formData);
+}
 
   // Générer une lettre officielle
-  genererLettreOfficielle(utilisateurId: number, declarationId: number, contenu: string): Observable<any> {
-    const formData = new FormData();
-    formData.append('utilisateurId', utilisateurId.toString());
-    formData.append('declarationId', declarationId.toString());
-    formData.append('contenuUtilisateur', contenu);
-    return this.http.post(`${this.apiUrl}/lettre/generer`, formData);
-  }
+  genererLettreOfficielle(utilisateurId: number, declarationId: number, contenu: string, estAcceptation: boolean): Observable<any> {
+  const formData = new FormData();
+  formData.append('utilisateurId', utilisateurId.toString());
+  formData.append('declarationId', declarationId.toString());
+  formData.append('contenuUtilisateur', contenu);
+  formData.append('estAcceptation', estAcceptation.toString());
+  return this.http.post(`${this.apiUrl}/lettre/generer`, formData);
+}
 
   deleteConclusion(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);

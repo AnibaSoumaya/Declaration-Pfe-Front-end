@@ -75,26 +75,27 @@
 
     <div class="rapport-form-container" *ngIf="showRapportForm">
       <!-- Section Décision (uniquement pour PG) -->
-      <div class="decision-section" *ngIf="currentUser?.role === 'procureur_general'">
-        <label>Décision :</label>
-        <div class="radio-group">
-          <p-radioButton 
-            name="decision" 
-            [value]="true" 
-            [(ngModel)]="decision" 
-            label="Accepter"
-            inputId="accept">
-          </p-radioButton>
-          <p-radioButton 
-            name="decision" 
-            [value]="false" 
-            [(ngModel)]="decision" 
-            label="Refuser"
-            inputId="reject"
-            class="reject-radio">
-          </p-radioButton>
-        </div>
-      </div>
+<!-- Section Décision -->
+<div class="decision-section" *ngIf="currentUser?.role === 'procureur_general'">
+  <label>Décision :</label>
+  <div class="radio-options">
+    <!-- Option Accepter -->
+    <div class="radio-card" [class.selected]="decision === true" (click)="setDecision(true)">
+      <span class="radio-icon">
+        <i class="pi pi-check-circle"></i>
+      </span>
+      <span class="radio-label">Accepter</span>
+    </div>
+    
+    <!-- Option Refuser -->
+    <div class="radio-card reject-option" [class.selected]="decision === false" (click)="setDecision(false)">
+      <span class="radio-icon">
+        <i class="pi pi-times-circle"></i>
+      </span>
+      <span class="radio-label">Refuser</span>
+    </div>
+  </div>
+</div>
 
       <div class="content-section">
         <label for="rapportContent">Contenu du rapport :</label>

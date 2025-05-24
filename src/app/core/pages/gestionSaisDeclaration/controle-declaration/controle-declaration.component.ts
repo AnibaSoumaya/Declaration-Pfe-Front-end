@@ -8,11 +8,14 @@ import { Declaration } from 'src/app/core/models/declaration';
 import { User } from 'src/app/core/models/User.model';
 import { UserService } from 'src/app/core/services/user.service';
 import { ConclusionService } from 'src/app/core/services/conclusion.service';
+import { MessageService } from 'primeng/api';
+import { of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-controle-declaration',
   templateUrl: './controle-declaration.component.html',
-  styleUrls: ['./controle-declaration.component.scss']
+  styleUrls: ['./controle-declaration.component.scss'],
+  providers: [MessageService]
 })
 export class ControleDeclarationComponent implements OnInit {
   
@@ -21,10 +24,9 @@ export class ControleDeclarationComponent implements OnInit {
   loading = true;
   error = false;
 
-  // Dans votre composant.ts
-showPredictionDialog = false;
-predictionRemark = '';
-pendingPdfBlob: Blob | null = null;
+  showPredictionDialog = false;
+  predictionRemark = '';
+  pendingPdfBlob: Blob | null = null;
 
   isAvocatGeneral = false;
   conclusions: any[] = [];
@@ -54,6 +56,10 @@ pendingPdfBlob: Blob | null = null;
   currentSection: string = '';
   currentUser: User;
   isGeneratingReport = false;
+  requisitoireType: 'acceptation' | 'refus' | null = null;
+  formSubmitted: boolean = false;
+  showGenerationForm: boolean = false;
+  
 
 
   constructor(
@@ -63,7 +69,9 @@ pendingPdfBlob: Blob | null = null;
     private userService: UserService,
     private router: Router,
     private route: ActivatedRoute,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private messageService: MessageService,
+
   ) {
     this.createCommentForm();
   }
@@ -71,6 +79,8 @@ pendingPdfBlob: Blob | null = null;
   ngOnInit(): void {
     this.loadCurrentUserAndData();
   }
+
+  
 
   loadCurrentUserAndData(): void {
     this.userService.getCurrentUser().subscribe({
@@ -107,6 +117,65 @@ pendingPdfBlob: Blob | null = null;
       }
     });
   }
+
+
+  envoyerDeclaration(): void {
+  // Vérification de l'ID
+  if (typeof this.declarationId !== 'number') {
+    console.error('ID de déclaration invalide :', this.declarationId);
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Identifiant de déclaration invalide.'
+    });
+    return;
+  }
+
+  console.log('Début de l\'envoi pour la déclaration ID:', this.declarationId);
+
+  // 1. Récupérer le conseiller rapporteur pour cette déclaration
+  this.declarationService.getFirstUtilisateurByRoleAndDeclaration(this.declarationId, 'procureur_general')
+    .pipe(
+      switchMap(procureurGeneral => {
+        console.log('procureur general récupéré :', procureurGeneral);
+
+        if (!procureurGeneral) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Aucun procureur general trouvé pour cette déclaration.'
+          });
+          return of(null);
+        }
+
+        // 2. Assigner le procureur General comme gérant
+        return this.declarationService.assignGerantToDeclaration(this.declarationId, procureurGeneral.id);
+      })
+    )
+    .subscribe({
+      next: (res) => {
+        if (res !== null) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Déclaration envoyée au procureur General avec succès.',
+            life: 2000
+          });
+          setTimeout(() => {
+            this.router.navigate(['/Assujetti/decDetails']);
+          }, 2000);
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors de l\'assignation :', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Échec lors de l\'envoi de la déclaration.'
+        });
+      }
+    });
+}
 
   createCommentForm(): void {
     this.commentForm = this.fb.group({
@@ -218,23 +287,76 @@ pendingPdfBlob: Blob | null = null;
     }
   }
 
-  genererLettre(): void {
-    if (this.newLettreContent && this.declarationId && this.currentUser?.id) {
-      this.conclusionService.genererLettreOfficielle(
-        this.currentUser.id,
-        this.declarationId,
-        this.newLettreContent
-      ).subscribe({
-        next: () => {
-          this.loadConclusions(); // Recharger les conclusions après génération
-          this.newLettreContent = '';
-        },
-        error: (err) => {
-          console.error('Erreur génération lettre', err);
-        }
+  resetForm(): void {
+  this.requisitoireType = null;
+  this.newLettreContent = '';
+  this.formSubmitted = false;
+  this.showGenerationForm = false;
+}
+genererLettre(): void {
+  this.formSubmitted = true;
+
+  // Validation minimale
+  if (!this.requisitoireType) {
+    this.messageService.add({
+      severity: 'warn', 
+      summary: 'Action requise',
+      detail: 'Veuillez sélectionner le type de réquisitoire',
+      life: 5000
+    });
+    return;
+  }
+
+  if (!this.newLettreContent) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Contenu vide',
+      detail: 'Veuillez rédiger le contenu de la lettre',
+      life: 5000
+    });
+    return;
+  }
+
+  if (!this.declarationId || !this.currentUser?.id) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur système',
+      detail: 'Données manquantes',
+      life: 5000
+    });
+    return;
+  }
+
+  const estAcceptation = this.requisitoireType === 'acceptation';
+
+  this.conclusionService.genererLettreOfficielle(
+    this.currentUser.id,
+    this.declarationId,
+    this.newLettreContent,
+    estAcceptation
+  ).subscribe({
+    next: () => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Opération réussie',
+        detail: `Lettre officielle générée (${this.requisitoireType})`,
+        life: 3000
+      });
+
+      this.resetForm();
+      this.loadConclusions();
+    },
+    error: (err) => {
+      console.error('Erreur', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Échec de génération',
+        detail: err.error?.message || 'Erreur inattendue',
+        life: 5000
       });
     }
-  }
+  });
+}
 
   downloadConclusion(conclusionId: number, fileName: string): void {
   this.conclusionService.telechargerConclusion(conclusionId)

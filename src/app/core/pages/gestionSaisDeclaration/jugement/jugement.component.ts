@@ -41,6 +41,9 @@ export class JugementComponent implements OnInit {
     this.loadRapports();
   }
 
+  setDecision(value: boolean): void {
+  this.decision = value;
+}
   loadCurrentUser(): void {
     this.userService.getCurrentUser().subscribe({
       next: (user) => {
