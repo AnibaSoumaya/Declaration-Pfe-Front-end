@@ -1,4 +1,5 @@
 <div class="section-content">
+      <p-toast></p-toast>
   <!-- PDF Viewer (commun aux deux rôles) -->
   <div class="pdf-viewer-container"  *ngIf="currentUser?.role === 'procureur_general'">
     <!-- En-tête -->
@@ -59,18 +60,20 @@
   </div>
 
   <!-- Formulaire pour générer un Rapport (adapté au rôle) -->
-  <div class="rapport-block" *ngIf="currentUser?.role === 'procureur_general' || currentUser?.role === 'conseiller_rapporteur'">
+  <div class="rapport-block" *ngIf="(currentUser?.role === 'procureur_general' || currentUser?.role === 'conseiller_rapporteur') && !hasExistingRapport()">
     <div class="rapport-header">
       <h4><i class="pi pi-file-edit"></i> 
         {{ currentUser?.role === 'procureur_general' ? 'Rapport Définitif' : 'Rapport Provisoire' }}
       </h4>
-      <button 
-        pButton 
-        label="{{ showRapportForm ? 'Masquer' : 'Nouveau Rapport' }}" 
-        icon="pi {{ showRapportForm ? 'pi-eye-slash' : 'pi-plus' }}" 
-        class="p-button-rounded p-button-outlined"
-        (click)="showRapportForm = !showRapportForm">
-      </button>
+     <button 
+      pButton 
+      label="{{ showRapportForm ? 'Masquer' : 'Nouveau Rapport' }}" 
+      icon="pi {{ showRapportForm ? 'pi-eye-slash' : 'pi-plus' }}" 
+      class="p-button-rounded p-button-outlined orange-button"
+      (click)="showRapportForm = !showRapportForm"
+      [disabled]="hasExistingRapport()"
+      pTooltip="{{ hasExistingRapport() ? 'Un rapport existe déjà' : '' }}">
+    </button>
     </div>
 
     <div class="rapport-form-container" *ngIf="showRapportForm">
@@ -211,6 +214,17 @@
               </ng-template>
             </tbody>
           </table>
+          <div *ngIf="currentUser?.role === 'conseiller_rapporteur' && rapports.length > 0" class="rapport-actions">
+          <button pButton 
+                  label="Envoyer au Procureur Général" 
+                  icon="pi pi-send" 
+                  class="p-button-success"
+                  (click)="envoyerAuProcureurGeneral()"
+                  [disabled]="!hasRapportsProvisoires()"
+                  pTooltip="Transférer au Procureur Général"
+                  style="margin-top: 1rem;">
+          </button>
+</div>
         </div>
       </div>
     </div>

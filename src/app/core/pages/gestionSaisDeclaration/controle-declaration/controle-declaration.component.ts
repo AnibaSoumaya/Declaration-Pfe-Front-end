@@ -80,6 +80,10 @@ export class ControleDeclarationComponent implements OnInit {
     this.loadCurrentUserAndData();
   }
 
+  get hasExistingConclusion(): boolean {
+  return this.conclusions && this.conclusions.length > 0;
+}
+
   
 
   loadCurrentUserAndData(): void {

@@ -143,10 +143,22 @@
         <div class="flex gap-2 align-items-center">
           <!-- Filtre par état -->
           <p-dropdown 
+            *ngIf="hasProcureurGeneralRole()"
             [options]="etatOptions" 
             [(ngModel)]="selectedEtat" 
             placeholder="Filtrer par état"
             (onChange)="filterByEtat()"
+            [showClear]="true"
+            styleClass="p-column-filter"
+            appendTo="body">
+          </p-dropdown>
+
+          <p-dropdown 
+            *ngIf="hasAdminRole()"
+            [options]="etatOptions1" 
+            [(ngModel)]="selectedEtat" 
+            placeholder="Filtrer par état"
+            (onChange)="filterForAdmin()"
             [showClear]="true"
             styleClass="p-column-filter"
             appendTo="body">
@@ -216,22 +228,22 @@
       </div>
       
       <p-table 
-        #dt 
-        [value]="filteredDeclarations" 
-        styleClass="p-datatable-sm" 
-        [rows]="10" 
-        [paginator]="true" 
-        [rowsPerPageOptions]="[10,25,50]" 
-        [showCurrentPageReport]="true"
-        currentPageReportTemplate="{first} à {last} sur {totalRecords} déclarations" 
-        [(selection)]="selectedDeclarations" 
-        selectionMode="multiple" 
-        [rowHover]="true" 
-        dataKey="id">
+       #dt 
+  [value]="filteredDeclarations" 
+  styleClass="p-datatable-sm" 
+  [rows]="10" 
+  [paginator]="true" 
+  [rowsPerPageOptions]="[10,25,50]"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="{first} à {last} sur {totalRecords} déclarations"
+  [(selection)]="selectedDeclarations" 
+  [selectionMode]="hasProcureurGeneralRole() ? 'multiple' : null"
+  [rowHover]="true"
+  dataKey="id">
         
         <ng-template pTemplate="header">
           <tr>
-            <th style="width: 3rem; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">
+            <th style="width: 3rem; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;" *ngIf="hasProcureurGeneralRole()">
               <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
             <th pSortableColumn="id" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Numéro de Déclaration <p-sortIcon field="id"></p-sortIcon></th>
@@ -247,7 +259,7 @@
         
         <ng-template pTemplate="body" let-declaration>
           <tr style="border: 1px solid #e9ecef;">
-            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;" *ngIf="hasProcureurGeneralRole()">
               <p-tableCheckbox [value]="declaration"></p-tableCheckbox>
             </td>
             <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ declaration.id }}</td>
@@ -292,7 +304,7 @@
                   pTooltip="Envoyer en traitement">
                 </button>
 
-                <button 
+                <!-- <button 
                   *ngIf="hasAvocatGeneralRole() && declaration.etatDeclaration === 'traitement'"
                   pButton 
                   icon="pi pi-check" 
@@ -300,7 +312,7 @@
                   style="width: 2.25rem; height: 2.25rem;"
                   (click)="validerDeclaration(declaration.id)"
                   pTooltip="Valider">
-                </button>
+                </button> -->
 
                 <button 
                 *ngIf="declaration.etatDeclaration === 'jugement'"
@@ -320,7 +332,7 @@
         <!-- Message quand aucune déclaration n'est trouvée -->
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="9" class="text-center p-4">
+            <td [attr.colspan]="hasProcureurGeneralRole() ? 9 : 7" class="text-center p-4">
               <div class="flex flex-column align-items-center">
                 <i class="pi pi-search mb-3" style="font-size: 2rem; color: #ccc;"></i>
                 <span>Aucune déclaration trouvée.</span>

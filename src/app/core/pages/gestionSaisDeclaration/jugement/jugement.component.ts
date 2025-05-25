@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ConclusionService } from 'src/app/core/services/conclusion.service';
 import { MessageService } from 'primeng/api';
@@ -7,6 +7,9 @@ import { RapportService } from 'src/app/core/services/rapport.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { User } from 'src/app/core/models/User.model';
 import { Rapport } from 'src/app/core/models/rapport';
+import { DeclarationService } from 'src/app/core/services/declaration.service';
+import { switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
   selector: 'app-jugement',
@@ -31,6 +34,8 @@ export class JugementComponent implements OnInit {
     private rapportService: RapportService,
     private userService: UserService,
     private sanitizer: DomSanitizer,
+    private declarationService: DeclarationService, // Ajoutez ce service
+    private router: Router,
     private messageService: MessageService
   ) {}
 
@@ -57,15 +62,11 @@ export class JugementComponent implements OnInit {
     });
   }
 
-  loadPdfs(): void {
+ loadPdfs(): void {
     this.conclusionService.getByDeclaration(this.declarationId).subscribe({
       next: (conclusions) => {
         if (conclusions.length === 0) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'Aucune conclusion',
-            detail: 'Aucune conclusion disponible pour cette déclaration'
-          });
+          // On ne montre plus le message d'avertissement
           this.isLoading = false;
           return;
         }
@@ -123,6 +124,13 @@ export class JugementComponent implements OnInit {
         });
       }
     });
+  }
+
+  hasExistingRapport(): boolean {
+    if (!this.currentUser) return false;
+    
+    const expectedType = this.currentUser.role === 'procureur_general' ? 'DEFINITIF' : 'PROVISOIRE';
+    return this.rapports.some(r => r.type === expectedType);
   }
 
   genererRapportDefinitif(): void {
@@ -261,4 +269,67 @@ export class JugementComponent implements OnInit {
       minute: '2-digit'
     });
   }
+
+  // Ajoutez cette méthode pour vérifier s'il y a des rapports provisoires
+hasRapportsProvisoires(): boolean {
+  return this.rapports.some(r => r.type === 'PROVISOIRE');
+}
+
+// Méthode pour envoyer au Procureur Général
+envoyerAuProcureurGeneral(): void {
+  if (typeof this.declarationId !== 'number') {
+    console.error('ID de déclaration invalide :', this.declarationId);
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: 'Identifiant de déclaration invalide.'
+    });
+    return;
+  }
+
+  console.log('Début de l\'envoi pour la déclaration ID:', this.declarationId);
+
+  // 1. Récupérer le procureur général pour cette déclaration
+  this.declarationService.getFirstUtilisateurByRoleAndDeclaration(this.declarationId, 'procureur_general')
+    .pipe(
+      switchMap(procureurGeneral => {
+        console.log('Procureur général récupéré :', procureurGeneral);
+
+        if (!procureurGeneral) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Aucun procureur général trouvé pour cette déclaration.'
+          });
+          return of(null);
+        }
+
+        // 2. Assigner le procureur général comme gérant
+        return this.declarationService.assignGerantToDeclaration(this.declarationId, procureurGeneral.id);
+      })
+    )
+    .subscribe({
+      next: (res) => {
+        if (res !== null) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Rapports provisoires envoyés au procureur général avec succès.',
+            life: 2000
+          });
+          setTimeout(() => {
+            this.router.navigate(['/Assujetti/decDetails']); // Adaptez la route selon vos besoins
+          }, 2000);
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors de l\'assignation :', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Échec lors de l\'envoi des rapports provisoires.'
+        });
+      }
+    });
+}
 }

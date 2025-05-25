@@ -811,400 +811,177 @@
     </div>
   </div>
   <!-- Section Réservée à l'Avocat Général -->
+<!-- Section Réservée à l'Avocat Général -->
 <div *ngIf="isAvocatGeneral" class="section-card avocat-general-section">
   <div class="section-header">
     <h2>Avocat Général : <span class="value">{{declaration.utilisateur?.lastname || 'N/A'}} {{declaration.utilisateur?.firstname || 'N/A'}}</span></h2>
   </div>
   
   <div class="section-content">
-    <!-- Formulaire pour générer un Délibéré Officiel -->
-    <div class="delibere-block">
-      <h4><i class="pi pi-file-edit"></i>Délibéré Officiel</h4>
+    <!-- Formulaire pour générer un Délibéré Officiel - Masqué s'il y a des conclusions -->
+    <div class="delibere-block" *ngIf="conclusions.length === 0">
+      <h4><i class="pi pi-file-edit"></i>Conclusion Officiel</h4>
       <div class="form-group mb-4">
         <div class="radio-group d-flex gap-3">
-<!-- Boutons radio -->
-      <div class="radio-container">
-        <label>Type de réquisitoire <span class="required">*</span></label>
-        <div class="radio-options">
-          <div class="radio-option" [class.selected]="requisitoireType === 'acceptation'">
-            <input type="radio" id="acceptation" 
-                   [(ngModel)]="requisitoireType" value="acceptation">
-            <label for="acceptation">
-              <i class="pi pi-check-circle"></i>
-              <div>
-                <h5>Acceptation</h5>
+          <!-- Boutons radio -->
+          <div class="radio-container">
+            <label>Type de réquisitoire <span class="required">*</span></label>
+            <div class="radio-options">
+              <div class="radio-option" [class.selected]="requisitoireType === 'acceptation'">
+                <input type="radio" id="acceptation" 
+                       [(ngModel)]="requisitoireType" value="acceptation">
+                <label for="acceptation">
+                  <i class="pi pi-check-circle"></i>
+                  <div>
+                    <h5>Acceptation</h5>
+                  </div>
+                </label>
               </div>
-            </label>
+              
+              <div class="radio-option" [class.selected]="requisitoireType === 'refus'">
+                <input type="radio" id="refus" 
+                       [(ngModel)]="requisitoireType" value="refus">
+                <label for="refus">
+                  <i class="pi pi-times-circle"></i>
+                  <div>
+                    <h5>Refus</h5>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <small class="error" *ngIf="!requisitoireType && formSubmitted">
+              Sélection obligatoire
+            </small>
+          </div>
+
+          <div class="form-group mb-4">
+            <label for="lettreContent" class="form-label fw-bold">Contenu de la conclusion <span class="required">*</span></label>
+            <textarea id="lettreContent" class="form-control" rows="8" 
+                      placeholder="Rédigez votre délibéré officiel ici..."
+                      [(ngModel)]="newLettreContent"></textarea>
           </div>
           
-          <div class="radio-option" [class.selected]="requisitoireType === 'refus'">
-            <input type="radio" id="refus" 
-                   [(ngModel)]="requisitoireType" value="refus">
-            <label for="refus">
-              <i class="pi pi-times-circle"></i>
-              <div>
-                <h5>Refus</h5>
-              </div>
-            </label>
+          <div class="d-flex justify-content-end gap-2">
+            <button class="btn cancel" 
+                    (click)="resetForm()"
+                    *ngIf="newLettreContent || requisitoireType">
+              <i class="pi pi-times"></i> Annuler
+            </button>
+            <button class="btn btn-primary" (click)="genererLettre()"
+                    [disabled]="!newLettreContent || !requisitoireType">
+              <i class="pi pi-file-pdf"></i> Générer PDF
+            </button>
           </div>
         </div>
-        <small class="error" *ngIf="!requisitoireType && formSubmitted">
-          Sélection obligatoire
-        </small>
-      </div>
-
-
-      <div class="form-group mb-4">
-        <label for="lettreContent" class="form-label fw-bold">Contenu de la conclusion <span class="required">*</span></label>
-        <textarea id="lettreContent" class="form-control" rows="8" 
-                  placeholder="Rédigez votre délibéré officiel ici..."
-                  [(ngModel)]="newLettreContent"></textarea>
-      </div>
-      
-      <div class="d-flex justify-content-end gap-2">
-         <button class="btn cancel" 
-                (click)="resetForm()"
-                *ngIf="newLettreContent || requisitoireType">
-          <i class="pi pi-times"></i> Annuler
-        </button>
-        <button class="btn btn-primary" (click)="genererLettre()"
-                [disabled]="!newLettreContent || !requisitoireType">
-          <i class="pi pi-file-pdf"></i> Générer PDF
-        </button>
       </div>
     </div>
-    <br>
-    <br>
-    
-    <!-- Liste des conclusions existantes -->
-    <div *ngIf="conclusions.length > 0">
+
+    <!-- Liste des conclusions existantes - TOUJOURS visible -->
+    <div>
       <div class="conclusions-header">
         <h4><i class="pi pi-folder-open"></i>Conclusions Existantes</h4>
         <span class="conclusions-count">{{conclusions.length}}</span>
       </div>
       
       <div class="table-responsive">
-        <!-- Tableau stylisé pour les conclusions avec le même design que la page assujettis -->
-<div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
-  <div class="flex justify-content-between align-items-center mb-4">
-    <h3 class="m-0" style="font-weight: 500; color: #333; border-left: 3px solid #F57C00; padding-left: 10px;">
-      Liste des Conclusions
-    </h3>
-  </div>
+        <div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
+          <div class="flex justify-content-between align-items-center mb-4">
+            <h3 class="m-0" style="font-weight: 500; color: #333; border-left: 3px solid #F57C00; padding-left: 10px;">
+              Liste des Conclusions
+            </h3>
+          </div>
 
-  <style>
-    /* Styles généraux */
-.avocat-section {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Boutons radio */
-.radio-container {
-  margin: 15px 0;
-}
-
-.radio-options {
-  display: flex;
-  gap: 15px;
-  margin-top: 8px;
-}
-
-.radio-option {
-  flex: 1;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.radio-option:hover {
-  border-color: #aaa;
-}
-
-.radio-option.selected {
-  border-color: #F57C00;
-  background-color: rgba(245, 124, 0, 0.05);
-}
-
-.radio-option input {
-  display: none;
-}
-
-.radio-option label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.radio-option i {
-  font-size: 1.5rem;
-  color: #777;
-}
-
-.radio-option.selected i {
-  color: #F57C00;
-}
-
-/* Bouton orange */
-.btn.generate {
-  background-color: #F57C00;
-  color: white;
-  border: none;
-}
-
-.btn.generate:hover {
-  background-color: #e67100;
-}
-
-.btn.generate:disabled {
-  background-color: #f8b77e;
-  cursor: not-allowed;
-}
-
-/* Validation */
-.required {
-  color: #f00;
-}
-
-.error {
-  color: #f00;
-  font-size: 0.9rem;
-}
-    /* Style similaire à celui utilisé dans la page assujettis */
-    :host ::ng-deep .p-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .table-container {
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    
-    .conclusions-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    .conclusions-table thead tr {
-      background: #f5f5f5;
-    }
-    
-    .conclusions-table th {
-      color: #555;
-      font-weight: 600;
-      border: 1px solid #e9ecef;
-      padding: 0.75rem;
-      text-align: left;
-    }
-    
-    .conclusions-table tbody tr {
-      border: 1px solid #e9ecef;
-      transition: background-color 0.2s;
-    }
-    
-    .conclusions-table tbody tr:hover {
-      background-color: #f8f9fa;
-    }
-    
-    .conclusions-table td {
-      border: 1px solid #e9ecef;
-      padding: 0.75rem;
-    }
-    
-    .file-cell {
-      display: flex;
-      align-items: center;
-    }
-    
-    .file-icon {
-      color: #F57C00;
-      margin-right: 8px;
-    }
-    
-    .actions-cell {
-      white-space: nowrap;
-    }
-    
-    .empty-message {
-      text-align: center;
-      padding: 2rem;
-      color: #6c757d;
-    }
-    
-    .empty-message i {
-      font-size: 2rem;
-      color: #ccc;
-      margin-bottom: 1rem;
-    }
-    .action-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.btn.cancel {
-  background: transparent;
-  color: #F57C00;
-  border: 1px solid #F57C00;
-}
-
-.btn.cancel:hover {
-  background: rgba(245, 124, 0, 0.1);
-}
-
-/* Déplacez le bouton Annuler à gauche */
-@media (min-width: 768px) {
-  .action-buttons {
-    justify-content: space-between;
-  }
-}
-.type-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-.type-badge.acceptation {
-  background: #d4edda;
-  color: #155724;
-}
-
-.type-badge.refus {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.conclusion-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding: 1rem 0;
-  border-top: 1px solid #eee;
-  margin-top: 1rem;
-}
-
-/* Style optionnel pour le bouton */
-.p-button-success {
-  background-color: #4CAF50 !important;
-  border-color: #4CAF50 !important;
-
-  &:hover {
-    background-color: #3e8e41 !important;
-    border-color: #3e8e41 !important;
-  }
-
-  &:disabled {
-    background-color: #a5d6a7 !important;
-    border-color: #a5d6a7 !important;
-    cursor: not-allowed;
-  }
-}
-    
-  </style>
-
-  <div class="table-container">
-    <table class="conclusions-table">
-      <thead>
-        <tr>
-          <th>Nom du Fichier</th>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Avocat</th>
-          <th class="actions-col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <ng-container *ngIf="conclusions && conclusions.length > 0; else emptyMessage">
-          <tr *ngFor="let c of conclusions; let i = index">
-            <td>
-              <div class="file-cell">
-                <i class="pi pi-file-pdf file-icon"></i>
-                {{ c.nomFichier }}
-              </div>
-            </td>
-            <td>{{ formatDate(c.dateCreation) }}</td>
-            <td>
-                <span class="type-badge" [class.acceptation]="c.estAcceptation" [class.refus]="!c.estAcceptation">
-                  {{ c.estAcceptation ? 'Acceptation' : 'Refus' }}
-                </span>
-              </td>
-            <td>{{ c.utilisateur?.firstname }}</td>
-            <td class="actions-cell">
-              <div class="flex gap-2">
-                <!-- Bouton télécharger -->
-                <button 
-                  pButton 
-                  (click)="downloadConclusion(c.id, c.nomFichier)"
-                  icon="pi pi-download" 
-                  class="p-button-rounded p-button-secondary p-button-text"
-                  style="width: 2.25rem; height: 2.25rem;"
-                  pTooltip="Télécharger PDF"
-                  tooltipPosition="top">
-                </button>
+          <div class="table-container">
+            <table class="conclusions-table">
+              <thead>
+                <tr>
+                  <th>Nom du Fichier</th>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Avocat</th>
+                  <th class="actions-col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngIf="conclusions && conclusions.length > 0; else emptyMessage">
+                  <tr *ngFor="let c of conclusions; let i = index">
+                    <td>
+                      <div class="file-cell">
+                        <i class="pi pi-file-pdf file-icon"></i>
+                        {{ c.nomFichier }}
+                      </div>
+                    </td>
+                    <td>{{ formatDate(c.dateCreation) }}</td>
+                    <td>
+                      <span class="type-badge" [class.acceptation]="c.estAcceptation" [class.refus]="!c.estAcceptation">
+                        {{ c.estAcceptation ? 'Acceptation' : 'Refus' }}
+                      </span>
+                    </td>
+                    <td>{{ c.utilisateur?.firstname }}</td>
+                    <td class="actions-cell">
+                      <div class="flex gap-2">
+                        <!-- Bouton télécharger -->
+                        <button 
+                          pButton 
+                          (click)="downloadConclusion(c.id, c.nomFichier)"
+                          icon="pi pi-download" 
+                          class="p-button-rounded p-button-secondary p-button-text"
+                          style="width: 2.25rem; height: 2.25rem;"
+                          pTooltip="Télécharger PDF"
+                          tooltipPosition="top">
+                        </button>
+                        
+                        <!-- Bouton supprimer -->
+                        <button 
+                          *ngIf="currentUser.id === c.utilisateur?.id"
+                          pButton 
+                          type="button" 
+                          icon="pi pi-trash" 
+                          class="p-button-rounded p-button-danger p-button-text"
+                          style="width: 2.25rem; height: 2.25rem;"
+                          pTooltip="Supprimer"
+                          tooltipPosition="top"
+                          (click)="deleteConclusion(c.id, i)">
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
                 
-                <!-- Bouton supprimer (conditionnellement affiché) -->
-                <button 
-                  *ngIf="currentUser.id === c.utilisateur?.id"
-                  pButton 
-                  type="button" 
-                  icon="pi pi-trash" 
-                  class="p-button-rounded p-button-danger p-button-text"
-                  style="width: 2.25rem; height: 2.25rem;"
-                  pTooltip="Supprimer"
-                  tooltipPosition="top"
-                  (click)="deleteConclusion(c.id, i)">
-                </button>
-              </div>
-            </td>
-          </tr>
-        </ng-container>
-        
-        <ng-template #emptyMessage>
-          <tr>
-            <td colspan="4">
-              <div class="flex flex-column align-items-center empty-message">
-                <i class="pi pi-file-pdf mb-3"></i>
-                <span>Aucune conclusion disponible.</span>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </tbody>
-    </table>
-  </div>
-</div>
-</div>
-</div>
-<!-- Dans la section des conclusions existantes -->
-<div *ngIf="conclusions.length > 0" class="conclusion-actions">
-  <button pButton 
-          label="Envoyer" 
-          icon="pi pi-send" 
-          class="p-button-success"
-          (click)="envoyerDeclaration()"
-          [disabled]="!conclusions.length"
-          pTooltip="Transférer la déclaration au procureur General pour examen"
-          style="margin-top: 1rem;">
-  </button>
-</div>
-    
-    <!-- État vide si aucune conclusion -->
+                <ng-template #emptyMessage>
+                  <tr>
+                    <td colspan="5">
+                      <div class="flex flex-column align-items-center empty-message">
+                        <i class="pi pi-file-pdf mb-3"></i>
+                        <span>Aucune conclusion disponible.</span>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bouton Envoyer - Visible seulement avec des conclusions -->
+    <div *ngIf="conclusions.length > 0" class="conclusion-actions">
+      <button pButton 
+              label="Envoyer" 
+              icon="pi pi-send" 
+              class="orange-button"
+              (click)="envoyerDeclaration()"
+              [disabled]="!conclusions.length"
+              pTooltip="Transférer au procureur General"
+              style="padding: 0.75rem 1.5rem; font-size: 1rem;">
+      </button>
+    </div>
+
+    <!-- Message vide seulement quand aucune conclusion -->
     <div *ngIf="conclusions.length === 0" class="empty-state">
       <i class="pi pi-folder"></i>
       <p>Aucune conclusion n'a été enregistrée</p>
     </div>
   </div>
 </div>
-
-  
-  
-  
-  
-  
-  

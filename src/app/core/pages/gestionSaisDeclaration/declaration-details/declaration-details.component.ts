@@ -26,6 +26,8 @@ export class DeclarationDetailsComponent implements OnInit {
   searchQuery: string = '';
   isSearching: boolean = false;
   currentUser: User | null = null;
+  currentSortField: string = 'dateDeclaration';
+currentSortOrder: number = -1; // -1 pour décroissant, 1 pour croissant
 
   // Options pour le filtre par état
   etatOptions = [
@@ -36,7 +38,14 @@ export class DeclarationDetailsComponent implements OnInit {
     { label: 'Validées', value: 'valider' },
     { label: 'Refusées', value: 'refuser' }
   ];
+
+  etatOptions1 = [
+    { label: 'Toutes', value: 'valider_refuser' },
+    { label: 'Validées', value: 'valider' },
+    { label: 'Refusées', value: 'refuser' }
+  ];
   selectedEtat: string | null = null;
+
 
   // Options pour le type de recherche
   searchType: string = 'nom';
@@ -96,7 +105,7 @@ export class DeclarationDetailsComponent implements OnInit {
     this.router.navigate(['/controleDeclaration', id]);
   }
 
-  filterByEtat() {
+  /* filterByEtat() {
     if (!this.selectedEtat) {
       this.filteredDeclarations = [...this.declarations];
     } else {
@@ -104,7 +113,86 @@ export class DeclarationDetailsComponent implements OnInit {
         d => d.etatDeclaration?.toLowerCase() === this.selectedEtat?.toLowerCase()
       );
     }
+  } */
+
+   filterByEtat() {
+  // 1. Filtrer les déclarations
+  this.filteredDeclarations = !this.selectedEtat 
+    ? [...this.declarations] 
+    : this.declarations.filter(d => d.etatDeclaration?.toLowerCase() === this.selectedEtat?.toLowerCase());
+
+  // 2. Appliquer le tri approprié
+  if (this.hasProcureurGeneralRole() && !this.selectedEtat) {
+    // Cas spécial: procureur général + "Toutes" => tri par ID décroissant
+    this.filteredDeclarations.sort((a, b) => b.id - a.id);
+  } else if (this.selectedEtat === 'jugement') {
+    // Cas "En jugement": tri par date croissante (du plus ancien au plus récent)
+    this.filteredDeclarations.sort((a, b) => 
+      new Date(a.dateDeclaration).getTime() - new Date(b.dateDeclaration).getTime()
+    );
+  } else {
+    // Par défaut: tri par date décroissante (du plus récent au plus ancien)
+    this.filteredDeclarations.sort((a, b) => 
+      new Date(b.dateDeclaration).getTime() - new Date(a.dateDeclaration).getTime()
+    );
   }
+}
+
+hasAdminRole(): boolean {
+  return this.currentUser?.role === 'administrateur';
+}
+filterForAdmin() {
+  if (!this.declarations || this.declarations.length === 0) {
+    this.filteredDeclarations = [];
+    return;
+  }
+
+  // Filtrage spécifique admin
+  switch (this.selectedEtat) {
+    case null:
+    case 'valider_refuser':
+      this.filteredDeclarations = this.declarations.filter(d => 
+        d.etatDeclaration === 'valider' || d.etatDeclaration === 'refuser'
+      );
+      break;
+    case 'valider':
+    case 'refuser':
+      this.filteredDeclarations = this.declarations.filter(d => 
+        d.etatDeclaration === this.selectedEtat
+      );
+      break;
+    default:
+      this.filteredDeclarations = [];
+  }
+
+  // Tri par défaut pour l'admin (date décroissante)
+  this.filteredDeclarations.sort((a, b) => 
+    new Date(b.dateDeclaration).getTime() - new Date(a.dateDeclaration).getTime()
+  );
+}
+
+onSort(event: any) {
+    // Si procureur général avec "Toutes" sélectionné, on bloque le tri manuel
+    if (this.hasProcureurGeneralRole() && !this.selectedEtat) {
+        // On réapplique le tri par ID décroissant
+        this.currentSortField = 'id';
+        this.currentSortOrder = -1;
+        this.filteredDeclarations.sort((a, b) => b.id - a.id);
+        return;
+    }
+    
+    // Tri normal pour les autres cas
+    this.currentSortField = event.field;
+    this.currentSortOrder = event.order;
+    
+    this.filteredDeclarations.sort((a, b) => {
+        if (event.field === 'dateDeclaration') {
+            return (new Date(b.dateDeclaration).getTime() - new Date(a.dateDeclaration).getTime()) * event.order;
+        } else {
+            return (a[event.field] > b[event.field] ? 1 : -1) * event.order;
+        }
+    });
+}
 
   getEtatLabel(etat: string | undefined): string {
     if (!etat) return 'Inconnu';

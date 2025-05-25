@@ -554,3 +554,19 @@
 [pRadioButton] {
   display: none !important;
 }
+/* Dans jugement.component.scss */
+.orange-button {
+  background-color: #ffffff !important;  /* Orange standard */
+  border-color: #FFA500 !important;
+  color: #FFA500  !important;
+
+  &:hover {
+    background-color: #ffffff !important; /* Orange plus foncé au survol */
+    border-color: #FF8C00 !important;
+  }
+
+  &:disabled {
+    background-color: #ffffff !important; /* Orange clair quand désactivé */
+    border-color: #FFD699 !important;
+  }
+}
