@@ -1,4 +1,6 @@
 <div class="grid">
+        <p-toast></p-toast>
+
   <div class="col-12">
     <!-- Styles pour le dialogue personnalisé -->
     <style>
@@ -141,6 +143,8 @@
         </h3>
         
         <div class="flex gap-2 align-items-center">
+          <!-- Bouton dans la barre d'outils -->
+
           <!-- Filtre par état -->
           <p-dropdown 
             *ngIf="hasProcureurGeneralRole()"
@@ -200,6 +204,7 @@
             </button>
           </div>
           
+          
           <!-- Bouton recherche -->
           <button 
             *ngIf="!isSearching"
@@ -224,8 +229,87 @@
               (click)="openChangeManagerDialog()" 
               [disabled]="selectedDeclarations.length === 0">
           </button>
+          <button *ngIf="hasProcureurGeneralRole()"
+        pButton 
+        icon="pi pi-share-alt" 
+        class="p-button-rounded p-button-help"
+        [disabled]="!canTransferDeclarations()"
+        (click)="openTransferDialog()"
+        pTooltip="Transférer à un autre procureur général"
+        tooltipPosition="top">
+</button>
+
+<!-- Dialogue de transfert -->
+<p-dialog header="Transfert à un autre Procureur Général" 
+          [(visible)]="displayTransferDialog" 
+          [style]="{width: '500px'}"
+          [modal]="true">
+  
+  <div class="p-fluid">
+    <p-message severity="info" 
+               text="Vous allez transférer {{selectedDeclarations.length}} déclaration(s)">
+    </p-message>
+
+    <div class="field mt-4">
+      <label>Procureur Général Destinataire</label>
+      <p-dropdown [options]="procureursGeneraux" 
+                 [(ngModel)]="selectedProcureurGeneral"
+                 optionLabel="fullName" 
+                 placeholder="Sélectionnez un procureur général"
+                 [filter]="true" 
+                 filterBy="firstname,lastname,email"
+                 [showClear]="true"
+                 appendTo="body"
+                 required>
+        <ng-template let-pg pTemplate="item">
+          <div>
+            <strong>{{pg.firstname}} {{pg.lastname}}</strong>
+            <div class="text-sm">{{pg.email}}</div>
+          </div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+
+    <p class="mt-3 text-sm text-500">
+      <i class="pi pi-info-circle mr-1"></i>
+      Seules les déclarations non finalisées peuvent être transférées
+    </p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Annuler" icon="pi pi-times" 
+            class="p-button-text"
+            (click)="resetTransferDialog()"></button>
+    <button pButton label="Confirmer" icon="pi pi-check" 
+            class="p-button-primary"
+            [disabled]="!selectedProcureurGeneral"
+            (click)="confirmTransfer()"></button>
+  </ng-template>
+</p-dialog>
+<!-- Dialogue de confirmation -->
+<p-dialog header="Confirmation finale" 
+          [(visible)]="displayConfirmDialog" 
+          [style]="{width: '450px'}"
+          [modal]="true">
+  
+  <div class="confirmation-content">
+    <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem"></i>
+    <span>{{transferConfirmationMessage}}</span>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton label="Non" icon="pi pi-times" 
+            class="p-button-text"
+            (click)="displayConfirmDialog = false"></button>
+    <button pButton label="Oui" icon="pi pi-check" 
+            class="p-button-danger"
+            (click)="executeTransfer()"></button>
+  </ng-template>
+</p-dialog>
         </div>
+        
       </div>
+      
       
       <p-table 
        #dt 
@@ -275,6 +359,7 @@
             <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ declaration.utilisateur?.firstname }} {{ declaration.utilisateur?.lastname }}</td>
             <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
               <div class="flex gap-2">
+                
                 <button 
                   pButton 
                   icon="pi pi-download" 
@@ -285,6 +370,7 @@
                 </button>
                 
                 <button 
+                  *ngIf="!hasAdminRole()"
                   pButton 
                   icon="pi pi-eye" 
                   class="p-button-rounded p-button-secondary p-button-text"
@@ -303,6 +389,15 @@
                   (click)="envoyerEnTraitement(declaration.id)"
                   pTooltip="Envoyer en traitement">
                 </button>
+               <button 
+                  *ngIf="hasAdminRole()"
+                  pButton 
+                  icon="pi pi-file-pdf" 
+                  class="p-button-rounded p-button-warning p-button-text"
+                  style="width: 2.25rem; height: 2.25rem;"
+                  (click)="downloadRapport(declaration.id)"
+                  pTooltip="Rapport Définitif">
+                </button>
 
                 <!-- <button 
                   *ngIf="hasAvocatGeneralRole() && declaration.etatDeclaration === 'traitement'"
@@ -314,15 +409,15 @@
                   pTooltip="Valider">
                 </button> -->
 
-                <button 
+               <!--  <button 
                 *ngIf="declaration.etatDeclaration === 'jugement'"
                 pButton 
                 icon="pi pi-align-justify"
                 class="p-button-rounded p-button-danger p-button-text custom-hammer-button"
                 style="width: 2.25rem; height: 2.25rem;"
                 (click)="afficherConclusion(declaration.id)"
-                pTooltip="Jujer">
-              </button>
+                pTooltip="Juger">
+              </button> -->
 
               </div>
             </td>

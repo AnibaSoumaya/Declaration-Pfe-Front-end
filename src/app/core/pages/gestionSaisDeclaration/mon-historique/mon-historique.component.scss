@@ -1,0 +1,17 @@
+:host ::ng-deep {
+  .p-datatable {
+    margin-top: 1rem;
+    
+    .p-tag {
+      min-width: 80px;
+      text-align: center;
+    }
+  }
+  
+  .card {
+    padding: 2rem;
+    background: var(--surface-card);
+    border-radius: 10px;
+    margin-bottom: 2rem;
+  }
+}

@@ -7,6 +7,7 @@ import { SectionCommentsComponent } from './section-comments/section-comments.co
 import { NotificationPanelComponent } from './notification-panel/notification-panel.component';
 import { JugementComponent } from './jugement/jugement.component';
 import { BIComponent } from './bi/bi.component';
+import { MonHistoriqueComponent } from './mon-historique/mon-historique.component';
 
 const routes: Routes = [
     { path: '**', redirectTo: '/notfound' }
@@ -21,6 +22,8 @@ const routes: Routes = [
         { path: 'controleDeclaration/:id', component: ControleDeclarationComponent },
         { path: 'juge/:id', component: JugementComponent},
         { path: 'BI',  component: BIComponent},
+        { path: 'historique',  component: MonHistoriqueComponent},
+
 
         { path: '**', redirectTo: '/notfound' }
     ])],

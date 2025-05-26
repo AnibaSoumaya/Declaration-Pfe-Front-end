@@ -27,6 +27,10 @@ export class JugementComponent implements OnInit {
   newRapportContent = '';
   showRapportForm = false;
   decision: boolean | null = null;
+  activeTab: 'conclusion' | 'rapport' = 'conclusion';
+  rapportPdfUrls: SafeResourceUrl[] = [];
+  // Ajoutez cette propriété
+showPdfViewer: boolean = true;
 
   constructor(
     private route: ActivatedRoute,
@@ -61,12 +65,26 @@ export class JugementComponent implements OnInit {
       }
     });
   }
+  // Méthodes
+openPdfViewer(tab: 'conclusion' | 'rapport'): void {
+  this.activeTab = tab;
+  this.showPdfViewer = true;
+  // Réinitialiser la navigation si besoin
+  this.currentPdfIndex = 0; 
+}
 
- loadPdfs(): void {
+closePdfViewer(): void {
+  this.showPdfViewer = false;
+}
+  goBack(): void {
+    this.router.navigate(['/Assujetti/decDetails']);
+  }
+
+loadPdfs(): void {
+    // Chargement des conclusions (comme avant)
     this.conclusionService.getByDeclaration(this.declarationId).subscribe({
       next: (conclusions) => {
         if (conclusions.length === 0) {
-          // On ne montre plus le message d'avertissement
           this.isLoading = false;
           return;
         }
@@ -103,8 +121,39 @@ export class JugementComponent implements OnInit {
         });
       }
     });
-  }
 
+    // Chargement des rapports PDF (nouveau)
+    this.loadRapportPdfs();
+}
+loadRapportPdfs(): void {
+    this.rapportService.getByDeclaration(this.declarationId).subscribe({
+      next: (rapports) => {
+        const provisoireRapports = rapports.filter(r => r.type === 'PROVISOIRE');
+        
+        provisoireRapports.forEach(rapport => {
+          this.rapportService.telecharger(rapport.id).subscribe({
+            next: (blob) => {
+              const url = URL.createObjectURL(blob);
+              this.rapportPdfUrls.push(this.sanitizer.bypassSecurityTrustResourceUrl(url));
+            },
+            error: (err) => {
+              console.error('Erreur lors du chargement du rapport PDF', err);
+            }
+          });
+        });
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des rapports', err);
+      }
+    });
+}
+getCurrentPdfUrls(): SafeResourceUrl[] {
+    return this.activeTab === 'conclusion' ? this.pdfUrls : this.rapportPdfUrls;
+}
+changeTab(tab: 'conclusion' | 'rapport'): void {
+    this.activeTab = tab;
+    this.currentPdfIndex = 0; // Réinitialise l'index quand on change d'onglet
+}
   loadRapports(): void {
     if (!this.currentUser) return;
 
@@ -207,11 +256,11 @@ export class JugementComponent implements OnInit {
     });
   }
 
-  nextPdf(): void {
-    if (this.currentPdfIndex < this.pdfUrls.length - 1) {
+nextPdf(): void {
+    if (this.currentPdfIndex < this.getCurrentPdfUrls().length - 1) {
       this.currentPdfIndex++;
     }
-  }
+}
 
   prevPdf(): void {
     if (this.currentPdfIndex > 0) {

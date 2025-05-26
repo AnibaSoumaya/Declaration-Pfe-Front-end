@@ -7,8 +7,28 @@
   
   /* Couleurs personnalisées si nécessaire */
   .p-tag-help {
-    background: #9c27b0;
+    background: #27b02e;
     color: white;
   }
   
   /* Ou utilisez les classes par défaut de PrimeNG */
+  /* Style pour le bouton de transfert */
+.p-button.p-button-help {
+  background-color: #27b02e;
+  border-color: #27b02e;
+}
+
+.p-button.p-button-help:hover {
+  background-color: #27b02e;
+  border-color: #27b02e;
+}
+
+/* Style pour la liste déroulante des PG */
+.p-dropdown-items-wrapper {
+  max-height: 300px !important;
+}
+.confirmation-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

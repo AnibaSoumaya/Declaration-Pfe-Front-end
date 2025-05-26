@@ -36,9 +36,13 @@ import { StepsModule } from 'primeng/steps';
 import { BIComponent } from './bi/bi.component';
 import { ChartModule } from 'primeng/chart';
 import { NgChartsModule } from 'ng2-charts';
+import { MessageModule } from 'primeng/message';
+import { MonHistoriqueComponent } from './mon-historique/mon-historique.component';
+import { MenuModule } from 'primeng/menu';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 @NgModule({
-  declarations: [CrudAssujettisComponent,DeclarationDetailsComponent,ControleDeclarationComponent,SectionCommentsComponent,JugementComponent,BIComponent],  // ✅ Déplacer ici
+  declarations: [CrudAssujettisComponent,DeclarationDetailsComponent,ControleDeclarationComponent,SectionCommentsComponent,JugementComponent,BIComponent,MonHistoriqueComponent],  // ✅ Déplacer ici
   imports: [
     CommonModule,
     GestionSaisDeclarationRoutingModule,
@@ -58,7 +62,9 @@ import { NgChartsModule } from 'ng2-charts';
     RadioButtonModule,
     InputNumberModule,
     DialogModule,
-
+MessageModule,
+MenuModule,
+OverlayPanelModule,
 
         LoginRoutingModule,
         CheckboxModule,

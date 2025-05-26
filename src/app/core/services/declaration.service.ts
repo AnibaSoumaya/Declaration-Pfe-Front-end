@@ -22,6 +22,17 @@ export class DeclarationService {
   constructor(private http: HttpClient) { }
 
   
+
+  getHistoriqueByUtilisateur(utilisateurId: number): Observable<HistoriqueDeclarationUser[]> {
+  const url = `${this.apiUrl2}/utilisateur/${utilisateurId}`;
+  return this.http.get<HistoriqueDeclarationUser[]>(url).pipe(
+    catchError(error => {
+      console.error('Erreur lors de la récupération de l’historique utilisateur :', error);
+      return of([]); // Retourne un tableau vide en cas d’erreur
+    })
+  );
+}
+
  getFirstUtilisateurByRoleAndDeclaration(declarationId: number, role: string): Observable<User | null> {
   const url = `${this.apiUrl2}/declaration/${declarationId}/role/${role}/utilisateur`;
   console.log('Appel GET URL :', url);
@@ -33,7 +44,15 @@ export class DeclarationService {
     })
   );
 }
-
+getValidatedOrRefusedDeclarations(): Observable<Declaration[]> {
+  const url = `${this.apiUrl}/validated-or-refused`;
+  return this.http.get<Declaration[]>(url).pipe(
+    catchError(error => {
+      console.error('Erreur lors de la récupération des déclarations validées/refusées:', error);
+      return of([]);
+    })
+  );
+}
 
   getAllDeclarations(): Observable<Declaration[]> {
     return this.http.get<Declaration[]>(`${this.apiUrl}`);
@@ -119,6 +138,28 @@ export class DeclarationService {
     });
   }
   
-  
+transferDeclarations(
+    sourceUserId: number, 
+    targetUserId: number, 
+    declarationIds?: number[]
+  ): Observable<string> {
+    const url = `${this.apiUrl}/transfer/${sourceUserId}/${targetUserId}`;
+    
+    // Envoie la liste des IDs ou un tableau vide si non fourni
+    const body = declarationIds || [];
+    
+    return this.http.post<string>(url, body, {
+      responseType: 'text' as 'json' // Correction du type pour éviter les warnings
+    }).pipe(
+      catchError(error => {
+        console.error('Erreur lors du transfert:', error);
+        if (error.status === 400) {
+          return of(error.error); // Retourne le message d'erreur spécifique
+        }
+        return of('Une erreur technique est survenue lors du transfert');
+      })
+    );
+  }
+
   
 }

@@ -5,8 +5,10 @@ import { forkJoin, of } from 'rxjs';
 import { Subject } from 'rxjs';
 import { debounceTime, switchMap, map } from 'rxjs/operators';
 import { Declaration } from 'src/app/core/models/declaration';
+import { Rapport } from 'src/app/core/models/rapport';
 import { User } from 'src/app/core/models/User.model';
 import { DeclarationService } from 'src/app/core/services/declaration.service';
+import { RapportService } from 'src/app/core/services/rapport.service';
 import { UserService } from 'src/app/core/services/user.service';
 
 @Component({
@@ -28,6 +30,8 @@ export class DeclarationDetailsComponent implements OnInit {
   currentUser: User | null = null;
   currentSortField: string = 'dateDeclaration';
 currentSortOrder: number = -1; // -1 pour décroissant, 1 pour croissant
+selectedProcureurGeneral: User | null = null;
+displayTransferDialog = false;
 
   // Options pour le filtre par état
   etatOptions = [
@@ -59,6 +63,7 @@ currentSortOrder: number = -1; // -1 pour décroissant, 1 pour croissant
     private utilisateurService: UserService,
     private router: Router,
     private route: ActivatedRoute,
+    private rapportService: RapportService,
     private messageService: MessageService
   ) {}
 
@@ -137,6 +142,49 @@ currentSortOrder: number = -1; // -1 pour décroissant, 1 pour croissant
     );
   }
 }
+downloadRapport(declarationId: number): void {
+  this.rapportService.getByDeclaration(declarationId).subscribe({
+    next: (rapports: Rapport[]) => {
+      const rapportDefinitif = rapports.find(r => r.type === 'DEFINITIF');
+      
+      if (rapportDefinitif) {
+        this.rapportService.telecharger(rapportDefinitif.id).subscribe({
+          next: (response: Blob) => {
+            const blob = new Blob([response], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const newWindow = window.open(url, '_blank');
+            if (newWindow) {
+              newWindow.focus();
+            }
+          },
+          error: (err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Erreur',
+              detail: 'Échec du téléchargement du rapport',
+              life: 5000
+            });
+          }
+        });
+      } else {
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Avertissement',
+          detail: 'Aucun rapport définitif disponible pour cette déclaration',
+          life: 5000
+        });
+      }
+    },
+    error: (err) => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Impossible de récupérer les rapports',
+        life: 5000
+      });
+    }
+  });
+}
 
 hasAdminRole(): boolean {
   return this.currentUser?.role === 'administrateur';
@@ -147,18 +195,20 @@ filterForAdmin() {
     return;
   }
 
-  // Filtrage spécifique admin
   switch (this.selectedEtat) {
     case null:
     case 'valider_refuser':
-      this.filteredDeclarations = this.declarations.filter(d => 
-        d.etatDeclaration === 'valider' || d.etatDeclaration === 'refuser'
-      );
+      // Par défaut, montre toutes les déclarations validées ou refusées
+      this.filteredDeclarations = this.declarations;
       break;
     case 'valider':
+      this.filteredDeclarations = this.declarations.filter(d => 
+        d.etatDeclaration === 'valider'
+      );
+      break;
     case 'refuser':
       this.filteredDeclarations = this.declarations.filter(d => 
-        d.etatDeclaration === this.selectedEtat
+        d.etatDeclaration === 'refuser'
       );
       break;
     default:
@@ -219,17 +269,12 @@ onSort(event: any) {
     }
   }
 
-  loadDeclarations(): void {
-    if (!this.currentUser?.id) {
-      console.error('ID utilisateur manquant');
-      return;
-    }
-  
-    this.declarationService.getAllDeclarations().subscribe({
-      next: (allDeclarations) => {
-        this.declarations = allDeclarations.filter(declaration => 
-          declaration.utilisateur?.id === this.currentUser?.id
-        );
+loadDeclarations(): void {
+  if (this.hasAdminRole()) {
+    // Pour l'admin, charger toutes les déclarations validées ou refusées
+    this.declarationService.getValidatedOrRefusedDeclarations().subscribe({
+      next: (declarations) => {
+        this.declarations = declarations;
         this.filteredDeclarations = [...this.declarations];
       },
       error: (err) => {
@@ -238,7 +283,25 @@ onSort(event: any) {
         this.filteredDeclarations = [];
       }
     });
+  } else if (this.currentUser?.id) {
+    // Pour les autres utilisateurs, charger uniquement leurs déclarations
+    this.declarationService.getDeclarationsByUser(this.currentUser.id).subscribe({
+      next: (declarations) => {
+        this.declarations = declarations;
+        this.filteredDeclarations = [...this.declarations];
+      },
+      error: (err) => {
+        console.error('Erreur:', err);
+        this.declarations = [];
+        this.filteredDeclarations = [];
+      }
+    });
+  } else {
+    console.error('ID utilisateur manquant');
+    this.declarations = [];
+    this.filteredDeclarations = [];
   }
+}
 
  validerDeclaration(declarationId: number): void {
   // Vérifier que l'ID est bien un nombre
@@ -451,6 +514,98 @@ onSort(event: any) {
         error => console.error('Erreur lors de la génération du PDF', error)
       );
     }
+// Variables
+
+procureursGeneraux: User[] = [];
+
+// Dans ngOnInit ou une méthode d'initialisation
+loadProcureursGeneraux() {
+  this.utilisateurService.getAllUsers().subscribe(users => {
+    this.procureursGeneraux = users
+      .filter(u => u.role?.includes('procureur_general') && u.id !== this.currentUser?.id)
+      .map(u => ({ 
+        ...u, 
+        fullName: `${u.firstname} ${u.lastname} (${u.email})` 
+      }));
+  });
+}
+
+// Méthode pour vérifier si le transfert est possible
+canTransferDeclarations(): boolean {
+  if (this.selectedDeclarations.length === 0) return false;
+  
+  return this.selectedDeclarations.every(declaration => {
+    const etat = declaration.etatDeclaration?.toLowerCase();
+    return ['nouveau', 'en_cours', 'traitement', 'jugement'].includes(etat);
+  });
+}
+
+// Ouvrir le dialogue de transfert
+openTransferDialog(): void {
+  if (!this.canTransferDeclarations()) {
+    this.messageService.add({
+      severity: 'warn',
+      summary: 'Action impossible',
+      detail: 'Veuillez sélectionner des déclarations non finalisées (Nouveau, En cours, En traitement ou En jugement)'
+    });
+    return;
+  }
+  this.loadProcureursGeneraux(); // Rafraîchir la liste des PG
+  this.displayTransferDialog = true;
+}
+displayConfirmDialog = false;
+transferConfirmationMessage = '';
+// Confirmer le transfert
+confirmTransfer(): void {
+  if (!this.selectedProcureurGeneral || this.selectedDeclarations.length === 0) return;
+
+  // Préparer le message de confirmation
+  this.transferConfirmationMessage = `Êtes-vous sûr de vouloir transférer 
+    ${this.selectedDeclarations.length} déclaration(s) à 
+    ${this.selectedProcureurGeneral.firstname} ${this.selectedProcureurGeneral.lastname} ?`;
+
+  // Afficher la boîte de dialogue de confirmation
+  this.displayConfirmDialog = true;
+}
+
+// Nouvelle méthode pour exécuter le transfert après confirmation
+executeTransfer(): void {
+  const declarationIds = this.selectedDeclarations.map(d => d.id);
+
+  this.declarationService.transferDeclarations(
+    this.currentUser!.id,
+    this.selectedProcureurGeneral!.id,
+    declarationIds
+  ).subscribe({
+    next: (message) => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Transfert réussi',
+        detail: message || `${this.selectedDeclarations.length} déclaration(s) transférée(s) avec succès`
+      });
+      this.loadDeclarations();
+      this.resetTransferDialog();
+    },
+    error: (error) => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: error.error || error.message || 'Échec du transfert'
+      });
+    },
+    complete: () => {
+      this.displayConfirmDialog = false;
+    }
+  });
+}
+
+// Réinitialiser le dialogue
+resetTransferDialog(): void {
+  this.displayTransferDialog = false;
+  this.selectedProcureurGeneral = null;
+  this.selectedDeclarations = [];
+}
+    
     
     
 }

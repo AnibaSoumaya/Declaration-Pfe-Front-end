@@ -69,7 +69,7 @@ export class AppMenuComponent implements OnInit {
                     { label: 'Declarations Assujettis', icon: 'pi pi-fw pi-user', routerLink: ['Assujetti/decDetails'] },
                     { label: 'Profil', icon: 'pi pi-fw pi-users', routerLink: ['/profil'] },
                     { label: 'BI', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/BI'] },
-                    { label: 'Free Blocks', icon: 'pi pi-fw pi-eye', routerLink: ['/blocks'], badge: 'NEW' },                    
+                    { label: 'Historique', icon: 'pi pi-history', routerLink: ['/historique'] },                    
                 ]
             }
         ];

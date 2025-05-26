@@ -1,0 +1,277 @@
+<div class="grid">
+  <div class="col-12">
+    <style>
+      /* Styles existants conservés */
+      :host ::ng-deep .p-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      }
+      
+      :host ::ng-deep .p-datatable {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      }
+      
+      :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+        background-color: #f8f9fa;
+      }
+      
+      :host ::ng-deep .p-togglebutton.p-button.p-highlight {
+        background: #F57C00;
+        border-color: #F57C00;
+      }
+      
+      :host ::ng-deep .p-overlaypanel {
+        min-width: 250px;
+      }
+      
+      .p-button {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s;
+      }
+      
+      .non-fini-badge {
+        background: #F57C00;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      .rapport-option {
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        border-bottom: 1px solid #e9ecef;
+        transition: background-color 0.2s;
+      }
+
+      .rapport-option:hover {
+        background-color: #f8f9fa;
+      }
+
+      .rapport-option:last-child {
+        border-bottom: none;
+      }
+
+      .rapport-option.disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      .rapport-option.disabled:hover {
+        background-color: transparent;
+      }
+
+      .rapport-section {
+        margin-bottom: 0.5rem;
+      }
+
+      .rapport-section-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6c757d;
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid #dee2e6;
+        background-color: #f8f9fa;
+        margin: 0;
+      }
+    </style>
+    
+    <div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
+      <p-toast></p-toast>
+      
+      <div class="flex justify-content-between align-items-center mb-4">
+        <h3 class="m-0" style="font-weight: 500; color: #333; border-left: 3px solid #F57C00; padding-left: 10px;">
+          Historique des Déclarations
+        </h3>
+        
+        <div class="flex gap-2 align-items-center">
+          <!-- Barre de recherche -->
+          <div class="p-input-icon-left" *ngIf="isSearching">
+            <i class="pi pi-search"></i>
+            <input 
+              type="text" 
+              pInputText 
+              [(ngModel)]="searchQuery"
+              (blur)="toggleSearch()"
+              (input)="onGlobalFilter(dt, $event)"
+              placeholder="Rechercher..." 
+              style="border-radius: 20px; width: 250px;"
+              autofocus
+            />
+          </div>
+          
+          <!-- Bouton recherche -->
+          <button 
+            *ngIf="!isSearching"
+            pButton 
+            type="button" 
+            icon="pi pi-search" 
+            class="p-button-rounded p-button-success p-button-outlined"
+            style="width: 2.5rem; height: 2.5rem;"
+            (click)="toggleSearch()"
+            pTooltip="Rechercher"
+            tooltipPosition="top">
+          </button>
+        </div>
+      </div>
+      
+      <p-table 
+        #dt 
+        [value]="historique" 
+        styleClass="p-datatable-sm" 
+        [rows]="10" 
+        [globalFilterFields]="['declaration.id', 'declaration.titre', 'utilisateur.nom', 'utilisateur.prenom']" 
+        [paginator]="true" 
+        [rowsPerPageOptions]="[5,10,25]" 
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="{first} à {last} sur {totalRecords} éléments" 
+        [rowHover]="true" 
+        dataKey="id">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 10%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">N° Déclaration</th>
+            <th style="width: 20%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Assujetti</th>
+            <th style="width: 15%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Date Affectation</th>
+            <th style="width: 15%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Date Fin</th>
+            <th style="width: 10%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Documents</th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-item>
+          <tr style="border: 1px solid #e9ecef;">
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+              <strong>{{ item.declaration.id }}</strong>
+            </td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+                {{ item.declaration.assujetti ? item.declaration.assujetti.prenom + ' ' + item.declaration.assujetti.nom : 'Sans titre' }}
+            </td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+              {{ item.dateAffectation | date:'dd/MM/yyyy' }}
+            </td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
+              <span *ngIf="item.dateFinAffectation; else nonFiniTemplate">
+                {{ item.dateFinAffectation | date:'dd/MM/yyyy' }}
+              </span>
+              <ng-template #nonFiniTemplate>
+                <span class="non-fini-badge">Non fini</span>
+              </ng-template>
+            </td>
+            
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem; text-align: center;">
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-file-pdf" 
+                class="p-button-rounded p-button-danger"
+                style="width: 2.25rem; height: 2.25rem;"
+                (click)="onRapportButtonClick($event, item.declaration.id)"
+                pTooltip="Consulter documents"
+                tooltipPosition="top">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center p-4">
+              <div class="flex flex-column align-items-center">
+                <i class="pi pi-inbox mb-3" style="font-size: 2rem; color: #ccc;"></i>
+                <span>Aucun historique disponible.</span>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<!-- Panel pour les documents -->
+<p-overlayPanel #rapportPanel [showCloseIcon]="true">
+  <ng-template pTemplate="content">
+    <div style="min-width: 250px;">
+      <div class="mb-2 font-semibold text-900">
+        <i class="pi pi-file-pdf mr-2"></i>
+        Documents disponibles
+      </div>
+      
+      <!-- Chargement -->
+      <div *ngIf="loadingRapports" class="text-center p-3">
+        <i class="pi pi-spinner pi-spin mr-2"></i>
+        Chargement...
+      </div>
+      
+      <!-- Documents disponibles -->
+      <div *ngIf="!loadingRapports">
+        
+        <!-- Section Rapports -->
+        <div class="rapport-section" *ngIf="hasRapportType('PROVISOIRE') || hasRapportType('DEFINITIF')">
+          <div class="rapport-section-title">Rapports</div>
+          
+          <!-- Rapport Provisoire -->
+          <div 
+            class="rapport-option"
+            *ngIf="hasRapportType('PROVISOIRE')"
+            (click)="viewRapportByType('PROVISOIRE')">
+            <i class="pi pi-file-pdf text-primary"></i>
+            <span>Rapport Provisoire</span>
+            <i class="pi pi-external-link ml-auto" style="font-size: 0.8rem; opacity: 0.7;"></i>
+          </div>
+          
+          <!-- Rapport Définitif -->
+          <div 
+            class="rapport-option"
+            *ngIf="hasRapportType('DEFINITIF')"
+            (click)="viewRapportByType('DEFINITIF')">
+            <i class="pi pi-file-pdf text-success"></i>
+            <span>Rapport Définitif</span>
+            <i class="pi pi-external-link ml-auto" style="font-size: 0.8rem; opacity: 0.7;"></i>
+          </div>
+        </div>
+
+        <!-- Section Conclusions -->
+        <div class="rapport-section" *ngIf="hasConclusions()">
+          <div class="rapport-section-title">Conclusions</div>
+          
+          <div 
+            class="rapport-option"
+            *ngFor="let conclusion of conclusions"
+            (click)="viewConclusion(conclusion.id)">
+            <i class="pi pi-file-pdf text-warning"></i>
+            <span>Conclusion {{ conclusion.estAcceptation ? 'Acceptation' : 'Refus' }}</span>
+            <i class="pi pi-external-link ml-auto" style="font-size: 0.8rem; opacity: 0.7;"></i>
+          </div>
+        </div>
+
+        <!-- Section Déclaration -->
+        <div class="rapport-section">
+          <div class="rapport-section-title">Déclaration</div>
+          
+          <div 
+            class="rapport-option"
+            (click)="viewDeclarationPdf()">
+            <i class="pi pi-file-pdf text-info"></i>
+            <span>Déclaration PDF</span>
+            <i class="pi pi-external-link ml-auto" style="font-size: 0.8rem; opacity: 0.7;"></i>
+          </div>
+        </div>
+        
+        <!-- Aucun document -->
+        <div 
+          *ngIf="!hasRapportType('PROVISOIRE') && !hasRapportType('DEFINITIF') && !hasConclusions()"
+          class="rapport-option disabled">
+          <i class="pi pi-info-circle text-muted"></i>
+          <span class="text-muted">Seule la déclaration PDF est disponible</span>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-overlayPanel>
