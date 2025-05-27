@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { User } from '../models/User.model';
 import { UserService } from './user.service';
@@ -9,7 +9,9 @@ import { UserService } from './user.service';
   providedIn: 'root'
 })
 export class LoginService {
-  private apiURL: string = 'http://localhost:8084/api/auth';  
+  private apiURL: string = 'http://localhost:8084/api/auth'; 
+    private apiUrl1 = 'http://localhost:8084/api/utilisateurs';
+ 
 
 
   constructor(
@@ -18,6 +20,22 @@ export class LoginService {
     private userService: UserService
 
   ) { }
+
+  // Dans login.service.ts
+
+resetPassword(email: string): Observable<any> {
+  return this.http.post(`${this.apiUrl1}/reset-password`, null, {
+    params: { email }
+  });
+}
+
+checkEmailExists(email: string): Observable<boolean> {
+  return this.http.get<User>(`${this.apiUrl1}/by-email`, {
+    params: { email }
+  }).pipe(
+    map(user => !!user),
+    catchError(() => of(false))
+)}
 
   login(email: string, password: string): Observable<User> {
     const body = { email, password };  

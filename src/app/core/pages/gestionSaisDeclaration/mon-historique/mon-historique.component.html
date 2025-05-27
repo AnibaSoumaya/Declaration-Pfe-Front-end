@@ -80,6 +80,40 @@
         background-color: #f8f9fa;
         margin: 0;
       }
+
+      /* Nouveaux styles pour le système de filtrage */
+      .search-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f8f9fa;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+      }
+
+      .filter-select {
+        min-width: 180px;
+      }
+
+      .search-input {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      :host ::ng-deep .p-dropdown {
+        border-radius: 6px;
+      }
+
+      :host ::ng-deep .p-inputtext {
+        border-radius: 6px;
+      }
+
+      .search-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
     </style>
     
     <div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
@@ -91,21 +125,6 @@
         </h3>
         
         <div class="flex gap-2 align-items-center">
-          <!-- Barre de recherche -->
-          <div class="p-input-icon-left" *ngIf="isSearching">
-            <i class="pi pi-search"></i>
-            <input 
-              type="text" 
-              pInputText 
-              [(ngModel)]="searchQuery"
-              (blur)="toggleSearch()"
-              (input)="onGlobalFilter(dt, $event)"
-              placeholder="Rechercher..." 
-              style="border-radius: 20px; width: 250px;"
-              autofocus
-            />
-          </div>
-          
           <!-- Bouton recherche -->
           <button 
             *ngIf="!isSearching"
@@ -120,13 +139,69 @@
           </button>
         </div>
       </div>
+
+      <!-- Barre de recherche avancée -->
+      <div class="search-container mb-4" *ngIf="isSearching">
+        <div class="flex align-items-center gap-2 w-full">
+          <!-- Sélecteur de type de filtre -->
+          <p-dropdown 
+            [options]="filterOptions" 
+            [(ngModel)]="selectedFilterType"
+            optionLabel="label" 
+            optionValue="value"
+            [style]="{'min-width': '200px'}"
+            (onChange)="onFilterTypeChange()"
+            placeholder="Type de recherche">
+          </p-dropdown>
+
+          <!-- Champ de recherche -->
+          <div class="p-input-icon-left flex-1">
+            <i class="pi pi-search"></i>
+            <input 
+              type="text" 
+              pInputText 
+              [(ngModel)]="searchQuery"
+              (input)="onGlobalFilter(dt, $event)"
+              [placeholder]="getSearchPlaceholder()"
+              class="w-full"
+              style="border-radius: 6px;"
+            />
+          </div>
+
+          <!-- Actions -->
+          <div class="search-actions">
+            <!-- Bouton effacer -->
+            <button 
+              *ngIf="searchQuery"
+              pButton 
+              type="button" 
+              icon="pi pi-times" 
+              class="p-button-rounded p-button-text p-button-sm"
+              (click)="searchQuery = ''; dt.value = historique; dt.clear()"
+              pTooltip="Effacer la recherche"
+              tooltipPosition="top">
+            </button>
+
+            <!-- Bouton fermer -->
+            <button 
+              pButton 
+              type="button" 
+              icon="pi pi-times" 
+              class="p-button-rounded p-button-danger p-button-outlined p-button-sm"
+              (click)="toggleSearch(); dt.value = historique; dt.clear()"
+              pTooltip="Fermer la recherche"
+              tooltipPosition="top">
+            </button>
+          </div>
+        </div>
+      </div>
       
       <p-table 
         #dt 
         [value]="historique" 
         styleClass="p-datatable-sm" 
         [rows]="10" 
-        [globalFilterFields]="['declaration.id', 'declaration.titre', 'utilisateur.nom', 'utilisateur.prenom']" 
+        [globalFilterFields]="['declaration.id', 'declaration.titre', 'declaration.utilisateur.firstname', 'declaration.utilisateur.lastname', 'declaration.assujetti.nom', 'declaration.assujetti.prenom', 'dateAffectation']" 
         [paginator]="true" 
         [rowsPerPageOptions]="[5,10,25]" 
         [showCurrentPageReport]="true"
@@ -137,6 +212,7 @@
         <ng-template pTemplate="header">
           <tr>
             <th style="width: 10%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">N° Déclaration</th>
+            <th *ngIf="showResponsibleColumn" style="width: 15%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Responsable</th>
             <th style="width: 20%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Assujetti</th>
             <th style="width: 15%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Date Affectation</th>
             <th style="width: 15%; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Date Fin</th>
@@ -149,8 +225,11 @@
             <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
               <strong>{{ item.declaration.id }}</strong>
             </td>
+            <td *ngIf="showResponsibleColumn" style="border: 1px solid #e9ecef; padding: 0.75rem;">
+              {{ item.declaration.utilisateur ? item.declaration.utilisateur.firstname + ' ' + item.declaration.utilisateur.lastname : 'Sans titre' }}
+            </td>
             <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
-                {{ item.declaration.assujetti ? item.declaration.assujetti.prenom + ' ' + item.declaration.assujetti.nom : 'Sans titre' }}
+              {{ item.declaration.assujetti ? item.declaration.assujetti.prenom + ' ' + item.declaration.assujetti.nom : 'Sans titre' }}
             </td>
             <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
               {{ item.dateAffectation | date:'dd/MM/yyyy' }}
@@ -181,7 +260,7 @@
         
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="6" class="text-center p-4">
+            <td [attr.colspan]="showResponsibleColumn ? 6 : 5" class="text-center p-4">
               <div class="flex flex-column align-items-center">
                 <i class="pi pi-inbox mb-3" style="font-size: 2rem; color: #ccc;"></i>
                 <span>Aucun historique disponible.</span>

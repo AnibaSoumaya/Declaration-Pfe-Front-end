@@ -147,8 +147,6 @@
         .p5 { width: 15px; height: 15px; left: 75%; top: 10%; animation: floating 8s ease-in-out infinite; }
         .p6 { width: 6px; height: 6px; left: 40%; top: 80%; animation: floating 6s ease-in-out infinite; background-color: rgba(13, 176, 43, 0.2); }
         
-       
-        
         @keyframes flagWave {
             0% { transform: perspective(500px) rotateY(-5deg); }
             50% { transform: perspective(500px) rotateY(5deg); }
@@ -183,6 +181,31 @@
             pointer-events: none;
             z-index: 1;
         }
+
+        /* Styles pour les messages d'erreur et de succès */
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Spinner de chargement */
+        .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -196,21 +219,13 @@
         <div class="particle p6"></div>
     </div>
 
-    <!-- Cercles décoratifs en arrière-plan -->
-    <div class="decorative-circle circle-orange circle1"></div>
-    <div class="decorative-circle circle-green circle2"></div>
-    <div class="decorative-circle circle-white circle3"></div>
-    <div class="decorative-circle circle-orange circle4"></div>
-    
-
-    
     <!-- Texture subtile -->
     <div class="texture-overlay"></div>
 
     <!-- Design original avec classes d'animation -->
     <div class="surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden">
         <div class="flex flex-column align-items-center justify-content-center">
-            <img src="/assets/demo/images/logos/niger01.png" alt="Niger Logo">
+            <img src="/assets/demo/images/logos/niger01.png" alt="Niger Logo" class="logo-animate">
             
             <div class="gradient-border" style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, #E47724 10%, rgba(228, 119, 36, 0) 30%);">
                 <div class="w-full surface-card py-8 px-5 sm:px-8 login-card" style="border-radius:53px">
@@ -228,8 +243,8 @@
                         <input id="email1" type="email" [(ngModel)]="email" placeholder="Email address" pInputText class="w-full md:w-30rem mb-5 input-animate" style="padding:1rem" required email>
 
                         <!-- Message d'erreur si l'email est invalide -->
-                        <div *ngIf="isEmailInvalid" class="text-red-500 text-sm">
-                            L'adresse email doit être valide (ex: user&#64;example.com).
+                        <div *ngIf="isEmailInvalid" class="error-message">
+                            L'adresse email doit être valide .
                         </div>
 
                         <label for="password1" class="block text-900 font-medium text-xl mb-2">Mot de passe</label>
@@ -240,7 +255,11 @@
                                 <p-checkbox id="rememberme1" [binary]="true" styleClass="mr-2"></p-checkbox>
                                 <label for="rememberme1">Mémoriser mes informations</label>
                             </div>
-                            <a class="font-medium no-underline ml-2 text-right cursor-pointer" routerLink="/securite/acces" style="color: #E47724">Mot de passe oublié?</a>
+                            <a class="font-medium no-underline ml-2 text-right cursor-pointer" 
+                               style="color: #E47724" 
+                               (click)="openForgotPasswordDialog()">
+                               Mot de passe oublié?
+                            </a>
                         </div>
                         <button pButton pRipple label="Se connecter" class="w-full p-3 text-xl btn-animate" style="background-color: #E47724; border-color: #E47724;" (click)="onLogin()"></button>
                     </div>
@@ -248,6 +267,65 @@
             </div>
         </div>
     </div>
+
+    <!-- Dialog pour mot de passe oublié -->
+    <p-dialog 
+        header="Récupération du mot de passe" 
+        [(visible)]="forgotPasswordDialogVisible" 
+        [modal]="true" 
+        [closable]="true"
+        [draggable]="false" 
+        [resizable]="false"
+        styleClass="p-fluid"
+        [style]="{width: '450px'}"
+        (onHide)="closeForgotPasswordDialog()">
+        
+        <div class="field">
+            <label for="resetEmail">Adresse email *</label>
+            <input 
+                id="resetEmail" 
+                type="email" 
+                pInputText 
+                [(ngModel)]="resetEmail" 
+                placeholder="Saisissez votre adresse email"
+                class="w-full"
+                [disabled]="isResetLoading">
+            
+            <!-- Message d'erreur -->
+            <div *ngIf="resetEmailError" class="error-message">
+                {{ resetEmailError }}
+            </div>
+            
+            <!-- Message de succès -->
+            <div *ngIf="resetSuccessMessage" class="success-message">
+                {{ resetSuccessMessage }}
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <button 
+                pButton 
+                type="button" 
+                label="Annuler" 
+                icon="pi pi-times" 
+                class="p-button-text"
+                (click)="closeForgotPasswordDialog()"
+                [disabled]="isResetLoading">
+            </button>
+            <button 
+                pButton 
+                type="button" 
+                [label]="isResetLoading ? 'Envoi...' : 'Envoyer'"
+                [icon]="isResetLoading ? '' : 'pi pi-send'"
+                class="p-button-primary"
+                style="background-color: #E47724; border-color: #E47724;"
+                (click)="onSendResetEmail()"
+                [disabled]="isResetLoading || !resetEmail">
+                
+                <span *ngIf="isResetLoading" class="loading-spinner"></span>
+            </button>
+        </ng-template>
+    </p-dialog>
 
     <!-- Script pour ajouter des particules animées dynamiquement -->
     <script>

@@ -22,7 +22,15 @@ export class DeclarationService {
   constructor(private http: HttpClient) { }
 
   
-
+ getAllHistoriques(): Observable<HistoriqueDeclarationUser[]> {
+    return this.http.get<HistoriqueDeclarationUser[]>(this.apiUrl2).pipe(
+      catchError(error => {
+        console.error('Erreur lors de la récupération de tous les historiques:', error);
+        return of([]);
+      })
+    );
+  }
+  
   getHistoriqueByUtilisateur(utilisateurId: number): Observable<HistoriqueDeclarationUser[]> {
   const url = `${this.apiUrl2}/utilisateur/${utilisateurId}`;
   return this.http.get<HistoriqueDeclarationUser[]>(url).pipe(
@@ -31,6 +39,9 @@ export class DeclarationService {
       return of([]); // Retourne un tableau vide en cas d’erreur
     })
   );
+}
+getAllHistorique(): Observable<HistoriqueDeclarationUser[]> {
+  return this.http.get<HistoriqueDeclarationUser[]>(`${this.apiUrl2}/historique-declaration/actives`);
 }
 
  getFirstUtilisateurByRoleAndDeclaration(declarationId: number, role: string): Observable<User | null> {
