@@ -1,5 +1,5 @@
+// statistics.service.ts
 import { Injectable } from '@angular/core';
-
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -7,41 +7,87 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class StatisticsService {
-  private baseUrl = 'http://localhost:8084/api';  // Ajustez selon votre configuration
+  private baseUrl = 'http://localhost:8084/api/statistics';
 
   constructor(private http: HttpClient) { }
 
-  // Récupérer le nombre total de déclarations
+  // ===============================
+  // STATISTIQUES ADMINISTRATEUR
+  // ===============================
+  
+  getStatsForAdmin(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/admin-stats`);
+  }
+
   getTotalDeclarations(): Observable<number> {
-    return this.http.get<number>(`${this.baseUrl}/statistics/total-declarations`);
+    return this.http.get<number>(`${this.baseUrl}/total-declarations`);
   }
 
-  // Récupérer le nombre de rapports générés par type (provisoires/définitifs)
-  getReportsByType(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/statistics/reports-by-type`);
-  }
-
-  // Récupérer le nombre de déclarations acceptées/refusées
-  getDecisionStats(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/statistics/decisions`);
-  }
-
-  // Récupérer le nombre de déclarations traitées par type d'acteur
-  getDeclarationsByActor(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/statistics/declarations-by-actor`);
-  }
-
-  // Récupérer l'évolution des dépôts par mois ou trimestre
-  getDeclarationsTrend(period: 'monthly' | 'quarterly'): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/statistics/declarations-trend?period=${period}`);
-  }
-
-  // Récupérer les statistiques par utilisateur ou par type de déclaration
   getStatsByUser(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/statistics/stats-by-user`);
+    return this.http.get<any>(`${this.baseUrl}/stats-by-user`);
+  }
+
+  getStatsByEtat(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/stats-by-etat`);
+  }
+
+  getStatsByPeriode(period: string = 'monthly'): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/stats-by-period?period=${period}`);
+  }
+
+  getPerformanceUtilisateurs(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/user-performance`);
+  }
+
+  getWorkflowStats(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/workflow-stats`);
+  }
+
+  getAmendeStats(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/amende-stats`);
+  }
+
+  // ===============================
+  // STATISTIQUES PROCUREUR GÉNÉRAL
+  // ===============================
+
+  getStatsForProcureurGeneral(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/procureur-stats`);
+  }
+
+  getReportsByType(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/reports-by-type`);
+  }
+
+  getDecisionStats(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/decisions`);
+  }
+
+  getDeclarationsByActor(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/declarations-by-actor`);
+  }
+
+  getDeclarationsTrend(period: string = 'monthly'): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/declarations-trend?period=${period}`);
   }
 
   getStatsByDeclarationType(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/statistics/stats-by-declaration-type`);
+    return this.http.get<any>(`${this.baseUrl}/stats-by-declaration-type`);
+  }
+
+  // ===============================
+  // STATISTIQUES CONSEILLER RAPPORTEUR
+  // ===============================
+
+  getStatsForConseillerRapporteur(utilisateurId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/conseiller-stats/${utilisateurId}`);
+  }
+
+  // ===============================
+  // STATISTIQUES AVOCAT GÉNÉRAL
+  // ===============================
+
+  getStatsForAvocatGeneral(utilisateurId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/avocat-stats/${utilisateurId}`);
   }
 }

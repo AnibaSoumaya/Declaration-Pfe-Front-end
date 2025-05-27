@@ -38,7 +38,11 @@ import { MonHistoriqueComponent } from './core/pages/gestionSaisDeclaration/mon-
                     { path: 'controleDeclaration/:id', component: ControleDeclarationComponent },
                     { path: 'juge/:id', component: JugementComponent },
                     { path: 'historique',  component: MonHistoriqueComponent},
-                    
+                    { path: 'AdminStat', loadChildren: () => import('./core/pages/gestionSaisDeclaration/gestionSaisDeclaration.module').then(m => m.GestionSaisDeclarationModule) },
+                    { path: 'pgStat', loadChildren: () => import('./core/pages/gestionSaisDeclaration/gestionSaisDeclaration.module').then(m => m.GestionSaisDeclarationModule) },
+                    { path: 'conseillerstat', loadChildren: () => import('./core/pages/gestionSaisDeclaration/gestionSaisDeclaration.module').then(m => m.GestionSaisDeclarationModule) },
+                    { path: 'avocatstat', loadChildren: () => import('./core/pages/gestionSaisDeclaration/gestionSaisDeclaration.module').then(m => m.GestionSaisDeclarationModule) },
+
 
                     
                 ]

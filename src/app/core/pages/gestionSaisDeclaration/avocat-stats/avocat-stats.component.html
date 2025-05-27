@@ -1,0 +1,17 @@
+<!-- avocat-stats.component.html -->
+<div class="dashboard-container">
+  <h1 class="dashboard-title">Tableau de bord - Avocat Général</h1>
+  
+  <!-- Cartes d'informations principales -->
+  <div class="info-cards-grid">
+    <div class="info-card">
+      <h3>Dossiers en attente</h3>
+      <div class="big-number">{{ avocatStats.dossiersEnAttente || 0 }}</div>
+    </div>
+    
+    <div class="info-card">
+      <h3>Délai moyen</h3>
+      <div class="big-number">{{ avocatStats.delaiMoyen || 0 }} j</div>
+    </div>
+  </div>
+</div>

@@ -68,7 +68,11 @@ export class AppMenuComponent implements OnInit {
                     // Items visible to all users
                     { label: 'Declarations Assujettis', icon: 'pi pi-fw pi-user', routerLink: ['Assujetti/decDetails'] },
                     { label: 'Profil', icon: 'pi pi-fw pi-users', routerLink: ['/profil'] },
-                    { label: 'BI', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/BI'] },
+                    { label: 'AdminStat', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/AdminStat'] },
+                    { label: 'pgStat', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/pgStat'] },
+                    { label: 'conseillerstat', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/conseillerstat'] },
+                    { label: 'avocatstat', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/avocatstat'] },
+
                     { label: 'Historique', icon: 'pi pi-history', routerLink: ['/historique'] },                    
                 ]
             }

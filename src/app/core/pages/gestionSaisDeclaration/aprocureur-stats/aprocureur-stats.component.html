@@ -1,0 +1,132 @@
+<div class="dashboard-container">
+  <h1 class="dashboard-title">Tableau de bord - Procureur Général</h1>
+  
+  <!-- Cartes d'informations principales -->
+  <div class="info-cards-grid">
+    <div class="info-card">
+      <h3>Total des déclarations</h3>
+      <div class="big-number" style="color: #36a2eb;">{{ totalDeclarations }}</div>
+    </div>
+    
+    <div class="info-card">
+      <h3>Dossiers en cours</h3>
+      <div class="big-number" style="color: #ff6384;">{{ procureurStats.dossiersEnCours || 0 }}</div>
+    </div>
+    
+    <div class="info-card">
+      <h3>Décisions rendues</h3>
+      <div class="big-number" style="color: #36a2eb;">{{ procureurStats.decisionsRendues || 0 }}</div>
+    </div>
+    
+    <div class="info-card">
+      <h3>Taux d'acceptation</h3>
+      <div class="big-number" style="color: #ff6384;">{{ procureurStats.tauxAcceptation || 0 }}%</div>
+    </div>
+  </div>
+
+  <!-- Grille des graphiques -->
+  <div class="charts-grid">
+    <!-- Rapports par type -->
+    <div class="chart-container">
+      <h3>Rapports par type</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #pieChart
+          [data]="pieChartData"
+          [type]="pieChartType"
+          [options]="pieChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Décisions acceptées/refusées -->
+    <div class="chart-container">
+      <h3>Décisions rendues</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #barChart
+          [data]="barChartData"
+          [type]="barChartType"
+          [options]="barChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Évolution des dépôts -->
+    <div class="chart-container full-width">
+      <h3>Évolution des dépôts par mois</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #lineChart
+          [data]="lineChartData"
+          [type]="lineChartType"
+          [options]="lineChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Déclarations par acteur -->
+    <div class="chart-container">
+      <h3>Déclarations traitées par acteur</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #horizontalBarChart
+          [data]="horizontalBarChartData"
+          [type]="horizontalBarChartType"
+          [options]="horizontalBarChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Statistiques par type de déclaration -->
+    <div class="chart-container">
+      <h3>Types de déclarations</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #declarationTypeChart
+          [data]="declarationTypeChartData"
+          [type]="declarationTypeChartType"
+          [options]="declarationTypeChartOptions">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section de synthèse -->
+  <div class="summary-section">
+    <h2>Synthèse mensuelle</h2>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <h4>Nouvelles déclarations</h4>
+        <p class="summary-value">{{ procureurStats.nouvellesDeclarations || 0 }}</p>
+        <span class="trend positive" *ngIf="procureurStats.tendancePositive">↗ +12%</span>
+        <span class="trend negative" *ngIf="!procureurStats.tendancePositive">↘ -5%</span>
+      </div>
+      
+      <div class="summary-card">
+        <h4>Dossiers clôturés</h4>
+        <p class="summary-value">{{ procureurStats.dossiersClotures || 0 }}</p>
+      </div>
+      
+      <div class="summary-card">
+        <h4>Délai moyen de traitement</h4>
+        <p class="summary-value">{{ procureurStats.delaiMoyen || 0 }} jours</p>
+      </div>
+      
+      <div class="summary-card">
+        <h4>Sanctions appliquées</h4>
+        <p class="summary-value">{{ procureurStats.sanctionsAppliquees || 0 }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bouton de rafraîchissement -->
+  <div style="text-align: center; margin-top: 30px;">
+    <button 
+      type="button" 
+      class="btn btn-primary"
+      (click)="refreshData()">
+      🔄 Actualiser les données
+    </button>
+  </div>
+</div>

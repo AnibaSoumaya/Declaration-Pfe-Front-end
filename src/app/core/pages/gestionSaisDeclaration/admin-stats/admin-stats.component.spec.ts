@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BIComponent } from './bi.component';
+import { AdminStatsComponent } from './admin-stats.component';
 
-describe('BIComponent', () => {
-  let component: BIComponent;
-  let fixture: ComponentFixture<BIComponent>;
+describe('AdminStatsComponent', () => {
+  let component: AdminStatsComponent;
+  let fixture: ComponentFixture<AdminStatsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BIComponent]
+      imports: [AdminStatsComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(BIComponent);
+    fixture = TestBed.createComponent(AdminStatsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

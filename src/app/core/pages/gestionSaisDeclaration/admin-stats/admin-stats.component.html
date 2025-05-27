@@ -1,0 +1,115 @@
+<!-- admin-stats.component.html -->
+<div class="dashboard-container">
+  <h1 class="dashboard-title">Tableau de bord - Administrateur</h1>
+ 
+  <!-- Cartes d'informations principales -->
+  <div class="info-cards-grid">
+    <div class="info-card">
+      <h3>Total des déclarations</h3>
+      <div class="big-number" style="color: #FF9800;">{{ totalDeclarations }}</div>
+    </div>
+   
+    <div class="info-card">
+      <h3>Utilisateurs actifs</h3>
+      <div class="big-number" style="color: #4CAF50;">{{ adminStats.utilisateursActifs || 0 }}</div>
+    </div>
+   
+    <div class="info-card">
+      <h3>Taux de traitement</h3>
+      <div class="big-number" style="color: #FF9800;">{{ workflowStats.tauxTraitement || 0 }}%</div>
+    </div>
+  </div>
+
+  <!-- Grille des graphiques -->
+  <div class="charts-grid">
+    <!-- Performance des utilisateurs -->
+    <div class="chart-container">
+      <h3>Performance des utilisateurs</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #performanceChart
+          [data]="performanceChartData"
+          [type]="performanceChartType"
+          [options]="performanceChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Statistiques par état -->
+    <div class="chart-container">
+      <h3>Répartition par état</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #etatChart
+          [data]="etatChartData"
+          [type]="etatChartType"
+          [options]="etatChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Évolution par période -->
+    <div class="chart-container full-width">
+      <h3>Évolution mensuelle des déclarations</h3>
+      <div style="height: 400px; position: relative;">
+        <canvas baseChart
+          #periodeChart
+          [data]="periodeChartData"
+          [type]="periodeChartType"
+          [options]="periodeChartOptions">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section des métriques avancées -->
+  <div class="metrics-section">
+    <h2>Métriques avancées</h2>
+    <div class="metrics-grid">
+      <div class="metric-card" style="border-left-color: #4CAF50;">
+        <h4>Temps moyen de traitement</h4>
+        <p class="metric-value" style="color: #4CAF50;">{{ workflowStats.tempsMoyenTraitement || 0 }} jours</p>
+      </div>
+     
+      <div class="metric-card" style="border-left-color: #FF9800;">
+        <h4>Dossiers non traités</h4>
+        <p class="metric-value alert" style="color: #FF5722;">{{ workflowStats.dossiersEnRetard || 0 }}</p>
+      </div>
+
+      <div class="metric-card" style="border-left-color: #FF9800;">
+        <h4>Taux de satisfaction</h4>
+        <p class="metric-value success" style="color: #4CAF50;">{{ adminStats.tauxSatisfaction || 95 }}%</p>
+      </div>
+
+      <div class="metric-card" style="border-left-color: #4CAF50;">
+        <h4>Dossiers traités ce mois</h4>
+        <p class="metric-value" style="color: #FF9800;">{{ adminStats.dossiersMoisCourant || 0 }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section des actions rapides -->
+  <div class="quick-actions-section">
+    <h2>Actions rapides</h2>
+    <div class="actions-grid">
+      <button 
+        type="button" 
+        class="action-btn refresh-btn"
+        (click)="refreshData()">
+        🔄 Actualiser les données
+      </button>
+      
+      <button 
+        type="button" 
+        class="action-btn export-btn">
+        📊 Exporter les statistiques
+      </button>
+      
+      <button 
+        type="button" 
+        class="action-btn alert-btn">
+        🚨 Voir les alertes
+      </button>
+    </div>
+  </div>
+</div>

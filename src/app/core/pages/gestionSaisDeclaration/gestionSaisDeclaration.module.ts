@@ -33,16 +33,20 @@ import { TooltipModule } from 'primeng/tooltip';
 import { JugementComponent } from './jugement/jugement.component';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { StepsModule } from 'primeng/steps';
-import { BIComponent } from './bi/bi.component';
 import { ChartModule } from 'primeng/chart';
-import { NgChartsModule } from 'ng2-charts';
+import {  NgChartsModule } from 'ng2-charts';
 import { MessageModule } from 'primeng/message';
 import { MonHistoriqueComponent } from './mon-historique/mon-historique.component';
 import { MenuModule } from 'primeng/menu';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { ConseillerStatsComponent } from './aconseiller-stats/aconseiller-stats.component';
+import { AdminStatsComponent } from './admin-stats/admin-stats.component';
+import { ProcureurStatsComponent } from './aprocureur-stats/aprocureur-stats.component';
+import { AvocatStatsComponent } from './avocat-stats/avocat-stats.component';
+
 
 @NgModule({
-  declarations: [CrudAssujettisComponent,DeclarationDetailsComponent,ControleDeclarationComponent,SectionCommentsComponent,JugementComponent,BIComponent,MonHistoriqueComponent],  // ✅ Déplacer ici
+  declarations: [CrudAssujettisComponent,DeclarationDetailsComponent,ControleDeclarationComponent,SectionCommentsComponent,JugementComponent,MonHistoriqueComponent,ProcureurStatsComponent,AdminStatsComponent,ConseillerStatsComponent,AvocatStatsComponent],  // ✅ Déplacer ici
   imports: [
     CommonModule,
     GestionSaisDeclarationRoutingModule,
@@ -82,7 +86,7 @@ OverlayPanelModule,
         TabMenuModule,
         StepsModule,
         
-        NgChartsModule
+        NgChartsModule,
   ],
   exports :[
     ChartModule

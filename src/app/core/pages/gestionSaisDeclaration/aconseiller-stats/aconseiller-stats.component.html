@@ -1,0 +1,93 @@
+<!-- conseiller-stats.component.html -->
+<div class="dashboard-container">
+  <h1 class="dashboard-title">Tableau de bord - Conseiller Rapporteur</h1>
+ 
+  <!-- Cartes d'informations principales -->
+  <div class="info-cards-grid">
+    <div class="info-card">
+      <h3>Dossiers assignés</h3>
+      <div class="big-number" style="color: #FF9800;">{{ conseillerStats.dossiersAssignes || 0 }}</div>
+    </div>
+   
+    <div class="info-card">
+      <h3>Dossiers traités</h3>
+      <div class="big-number" style="color: #4CAF50;">{{ conseillerStats.dossiersTraites || 0 }}</div>
+    </div>
+   
+    <div class="info-card">
+      <h3>En cours de traitement</h3>
+      <div class="big-number" style="color: #FF9800;">{{ conseillerStats.dossiersEnCours || 0 }}</div>
+    </div>
+   
+    <div class="info-card">
+      <h3>Délai moyen</h3>
+      <div class="big-number" style="color: #4CAF50;">{{ conseillerStats.delaiMoyen || 0 }} j</div>
+    </div>
+  </div>
+
+  <!-- Grille des graphiques -->
+  <div class="charts-grid">
+    <!-- Statut des déclarations -->
+    <div class="chart-container">
+      <h3>Statut des déclarations</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #declarationsChart
+          [data]="declarationsChartData"
+          [type]="declarationsChartType"
+          [options]="declarationsChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Performance mensuelle -->
+    <div class="chart-container">
+      <h3>Performance mensuelle</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #performanceChart
+          [data]="performanceChartData"
+          [type]="performanceChartType"
+          [options]="performanceChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Temps de traitement -->
+    <div class="chart-container">
+      <h3>Répartition des délais de traitement</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #tempsTraitementChart
+          [data]="tempsTraitementChartData"
+          [type]="tempsTraitementChartType"
+          [options]="tempsTraitementChartOptions">
+        </canvas>
+      </div>
+    </div>
+
+    <!-- Types de déclarations -->
+    <div class="chart-container">
+      <h3>Types de déclarations traitées</h3>
+      <div style="height: 350px; position: relative;">
+        <canvas baseChart
+          #typesChart
+          [data]="typesChartData"
+          [type]="typesChartType"
+          [options]="typesChartOptions">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bouton de rafraîchissement -->
+  <div style="text-align: center; margin-top: 30px;">
+    <button 
+      type="button" 
+      class="btn btn-primary"
+      (click)="refreshData()"
+      style="background: linear-gradient(45deg, #FF9800, #4CAF50); border: none; padding: 12px 24px; border-radius: 25px; color: white; font-weight: 600;">
+      🔄 Actualiser les données
+    </button>
+  </div>
+</div>
