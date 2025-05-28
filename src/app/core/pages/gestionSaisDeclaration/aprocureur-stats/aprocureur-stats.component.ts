@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-import { StatisticsService } from 'src/app/core/services/statistique.service';
+import { PgstatService } from 'src/app/core/services/pgstat.service';
 import { BaseChartDirective } from 'ng2-charts';
 
 @Component({
   selector: 'app-procureur-stats',
-  templateUrl: './aprocureur-stats.component.html',
-  styleUrls: ['./aprocureur-stats.component.scss']
+  templateUrl: './Aprocureur-stats.component.html',
+  styleUrls: ['./Aprocureur-stats.component.scss']
 })
 export class ProcureurStatsComponent implements OnInit {
 
@@ -16,25 +16,26 @@ export class ProcureurStatsComponent implements OnInit {
   @ViewChild('horizontalBarChart') horizontalBarChart!: BaseChartDirective;
   @ViewChild('declarationTypeChart') declarationTypeChart!: BaseChartDirective;
 
-  // Couleurs personnalisées
-  private blueColors = [
-    'rgba(54, 162, 235, 0.8)',   // Bleu principal
-    'rgba(25, 130, 210, 0.8)',   // Bleu foncé
-    'rgba(100, 180, 255, 0.8)',  // Bleu clair
-    'rgba(70, 130, 180, 0.8)',   // Bleu acier
-    'rgba(0, 105, 180, 0.8)'     // Bleu royal
+  // Nouvelle palette de couleurs orange/verte
+  private orangeColors = [
+    'rgba(255, 159, 64, 0.8)',   // Orange principal
+    'rgba(255, 127, 36, 0.8)',   // Orange foncé
+    'rgba(255, 183, 77, 0.8)',   // Orange clair
+    'rgba(230, 81, 0, 0.8)',     // Orange profond
+    'rgba(255, 152, 0, 0.8)'     // Orange vif
   ];
 
-  private redColors = [
-    'rgba(255, 99, 132, 0.8)',   // Rouge principal
-    'rgba(220, 60, 90, 0.8)',     // Rouge foncé
-    'rgba(255, 130, 150, 0.8)',   // Rouge clair
-    'rgba(200, 40, 70, 0.8)',     // Rouge bordeaux
-    'rgba(255, 80, 100, 0.8)'     // Rouge vif
+  private greenColors = [
+    'rgba(75, 192, 192, 0.8)',   // Vert principal
+    'rgba(56, 142, 60, 0.8)',    // Vert foncé
+    'rgba(102, 187, 106, 0.8)',  // Vert clair
+    'rgba(46, 125, 50, 0.8)',    // Vert profond
+    'rgba(67, 160, 71, 0.8)'     // Vert vif
   ];
 
   procureurStats: any = {};
   totalDeclarations: number = 0;
+  isLoading: boolean = true;
 
   // Graphique des rapports par type
   public pieChartOptions: ChartConfiguration['options'] = {
@@ -46,7 +47,8 @@ export class ProcureurStatsComponent implements OnInit {
         position: 'top',
         labels: {
           usePointStyle: true,
-          padding: 20
+          padding: 20,
+          color: '#5a5a5a'
         }
       }
     }
@@ -56,7 +58,7 @@ export class ProcureurStatsComponent implements OnInit {
     labels: ['Provisoires', 'Définitifs'],
     datasets: [{
       data: [0, 0],
-      backgroundColor: [this.blueColors[0], this.redColors[0]],
+      backgroundColor: [this.orangeColors[0], this.greenColors[0]],
       borderWidth: 2,
       borderColor: '#ffffff'
     }]
@@ -70,19 +72,28 @@ export class ProcureurStatsComponent implements OnInit {
       y: { 
         beginAtZero: true,
         grid: {
-          color: 'rgba(0,0,0,0.1)'
+          color: 'rgba(0,0,0,0.05)'
+        },
+        ticks: {
+          color: '#5a5a5a'
         }
       },
       x: {
         grid: {
           display: false
+        },
+        ticks: {
+          color: '#5a5a5a'
         }
       }
     },
     plugins: {
       legend: { 
         display: true,
-        position: 'top'
+        position: 'top',
+        labels: {
+          color: '#5a5a5a'
+        }
       }
     }
   };
@@ -92,9 +103,9 @@ export class ProcureurStatsComponent implements OnInit {
     datasets: [{
       data: [0, 0],
       label: 'Décisions',
-      backgroundColor: ['rgba(75, 192, 192, 0.8)', 'rgba(255, 99, 132, 0.8)'],
+      backgroundColor: [this.greenColors[0], this.orangeColors[0]],
       borderWidth: 1,
-      borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)']
+      borderColor: [this.greenColors[1], this.orangeColors[1]]
     }]
   };
 
@@ -106,19 +117,28 @@ export class ProcureurStatsComponent implements OnInit {
       y: { 
         beginAtZero: true,
         grid: {
-          color: 'rgba(0,0,0,0.1)'
+          color: 'rgba(0,0,0,0.05)'
+        },
+        ticks: {
+          color: '#5a5a5a'
         }
       },
       x: {
         grid: {
           display: false
+        },
+        ticks: {
+          color: '#5a5a5a'
         }
       }
     },
     plugins: {
       legend: { 
         display: true,
-        position: 'top'
+        position: 'top',
+        labels: {
+          color: '#5a5a5a'
+        }
       }
     },
     elements: {
@@ -134,11 +154,11 @@ export class ProcureurStatsComponent implements OnInit {
     datasets: [{
       data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       label: 'Dépôts mensuels',
-      borderColor: this.blueColors[0],
-      backgroundColor: this.blueColors[0].replace('0.8', '0.2'),
+      borderColor: this.orangeColors[0],
+      backgroundColor: this.orangeColors[0].replace('0.8', '0.2'),
       tension: 0.4,
       fill: true,
-      pointBackgroundColor: this.blueColors[0],
+      pointBackgroundColor: this.orangeColors[0],
       pointBorderColor: '#ffffff',
       pointBorderWidth: 2
     }]
@@ -153,12 +173,18 @@ export class ProcureurStatsComponent implements OnInit {
       x: { 
         beginAtZero: true,
         grid: {
-          color: 'rgba(0,0,0,0.1)'
+          color: 'rgba(0,0,0,0.05)'
+        },
+        ticks: {
+          color: '#5a5a5a'
         }
       },
       y: {
         grid: {
           display: false
+        },
+        ticks: {
+          color: '#5a5a5a'
         }
       }
     },
@@ -172,15 +198,15 @@ export class ProcureurStatsComponent implements OnInit {
     datasets: [{
       data: [0, 0, 0],
       backgroundColor: [
-        this.blueColors[0],
-        this.redColors[0],
-        'rgba(255, 206, 86, 0.8)'
+        this.orangeColors[0],
+        this.greenColors[0],
+        'rgba(153, 102, 255, 0.8)'
       ],
       borderWidth: 1,
       borderColor: [
-        this.blueColors[1],
-        this.redColors[1],
-        'rgba(255, 206, 86, 1)'
+        this.orangeColors[1],
+        this.greenColors[1],
+        'rgba(153, 102, 255, 1)'
       ]
     }]
   };
@@ -195,7 +221,8 @@ export class ProcureurStatsComponent implements OnInit {
         position: 'top',
         labels: {
           usePointStyle: true,
-          padding: 15
+          padding: 15,
+          color: '#5a5a5a'
         }
       }
     }
@@ -205,63 +232,61 @@ export class ProcureurStatsComponent implements OnInit {
     labels: [],
     datasets: [{
       data: [],
-      backgroundColor: [...this.blueColors, ...this.redColors],
+      backgroundColor: [...this.orangeColors, ...this.greenColors],
       borderWidth: 2,
       borderColor: '#ffffff'
     }]
   };
 
-  constructor(private statisticsService: StatisticsService) { }
+  constructor(private pgStatService: PgstatService) { }
 
   ngOnInit(): void {
     this.loadProcureurStatistics();
   }
 
   loadProcureurStatistics(): void {
-    // Statistiques générales procureur
-    this.statisticsService.getStatsForProcureurGeneral().subscribe(data => {
+    this.isLoading = true;
+    
+    // Statistiques du dashboard
+    this.pgStatService.getDashboardStats().subscribe(data => {
       this.procureurStats = data;
+      this.totalDeclarations = data.totalDeclarations;
+      
+      // Mise à jour des graphiques avec les données
+      this.updateChartsWithData(data);
+      
+      this.isLoading = false;
+    }, error => {
+      console.error('Error loading statistics:', error);
+      this.isLoading = false;
     });
+  }
 
-    // Total déclarations
-    this.statisticsService.getTotalDeclarations().subscribe(total => {
-      this.totalDeclarations = total;
-    });
-
+  private updateChartsWithData(data: any): void {
     // Rapports par type
-    this.statisticsService.getReportsByType().subscribe(data => {
-      this.pieChartData.datasets[0].data = [data.provisoires, data.definitifs];
-      this.pieChart?.update();
-    });
+    this.pieChartData.datasets[0].data = [data.reports.provisoires, data.reports.definitifs];
+    this.pieChart?.update();
 
-    // Statistiques de décisions
-    this.statisticsService.getDecisionStats().subscribe(data => {
-      this.barChartData.datasets[0].data = [data.acceptees, data.refusees];
-      this.barChart?.update();
-    });
+    // Décisions
+    this.barChartData.datasets[0].data = [data.decisions.acceptees, data.decisions.refusees];
+    this.barChart?.update();
 
     // Évolution des dépôts
-    this.statisticsService.getDeclarationsTrend('monthly').subscribe(data => {
-      this.lineChartData.datasets[0].data = data.values;
-      this.lineChart?.update();
-    });
+    this.lineChartData.datasets[0].data = data.temporal.monthlyValues;
+    this.lineChart?.update();
 
-    // Déclarations par acteur
-    this.statisticsService.getDeclarationsByActor().subscribe(data => {
-      this.horizontalBarChartData.datasets[0].data = [
-        data.conseillerRapporteur,
-        data.procureurGeneral,
-        data.avocatGeneral
-      ];
-      this.horizontalBarChart?.update();
-    });
+    // Par acteur
+    this.horizontalBarChartData.datasets[0].data = [
+      data.actors.conseillerRapporteur,
+      data.actors.procureurGeneral,
+      data.actors.avocatGeneral
+    ];
+    this.horizontalBarChart?.update();
 
-    // Statistiques par type de déclaration
-    this.statisticsService.getStatsByDeclarationType().subscribe(data => {
-      this.declarationTypeChartData.labels = data.map((item: any) => item.type);
-      this.declarationTypeChartData.datasets[0].data = data.map((item: any) => item.nombre);
-      this.declarationTypeChart?.update();
-    });
+    // Types de déclaration
+    this.declarationTypeChartData.labels = data.declarationTypes.map((item: any) => item.type);
+    this.declarationTypeChartData.datasets[0].data = data.declarationTypes.map((item: any) => item.count);
+    this.declarationTypeChart?.update();
   }
 
   refreshData(): void {

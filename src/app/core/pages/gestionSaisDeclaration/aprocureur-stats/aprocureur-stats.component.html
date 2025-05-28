@@ -1,35 +1,73 @@
 <div class="dashboard-container">
-  <h1 class="dashboard-title">Tableau de bord - Procureur Général</h1>
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Tableau de bord - Procureur Général</h1>
+    <button 
+      type="button" 
+      class="refresh-btn"
+      (click)="refreshData()"
+      [disabled]="isLoading">
+      <span *ngIf="!isLoading">🔄 Actualiser</span>
+      <span *ngIf="isLoading">Chargement...</span>
+    </button>
+  </div>
   
   <!-- Cartes d'informations principales -->
-  <div class="info-cards-grid">
+  <div class="info-cards-grid" *ngIf="!isLoading">
     <div class="info-card">
+      <div class="info-card-icon" style="background-color: #FFA000;">
+        <i class="fas fa-file-alt"></i>
+      </div>
       <h3>Total des déclarations</h3>
-      <div class="big-number" style="color: #36a2eb;">{{ totalDeclarations }}</div>
+      <div class="big-number">{{ totalDeclarations | number }}</div>
+      <div class="info-card-footer">+12% vs mois dernier</div>
     </div>
     
     <div class="info-card">
+      <div class="info-card-icon" style="background-color: #4CAF50;">
+        <i class="fas fa-folder-open"></i>
+      </div>
       <h3>Dossiers en cours</h3>
-      <div class="big-number" style="color: #ff6384;">{{ procureurStats.dossiersEnCours || 0 }}</div>
+      <div class="big-number">{{ procureurStats.dossiersEnCours || 0 | number }}</div>
+      <div class="info-card-footer">En traitement</div>
     </div>
     
     <div class="info-card">
+      <div class="info-card-icon" style="background-color: #FF9800;">
+        <i class="fas fa-gavel"></i>
+      </div>
       <h3>Décisions rendues</h3>
-      <div class="big-number" style="color: #36a2eb;">{{ procureurStats.decisionsRendues || 0 }}</div>
+      <div class="big-number">{{ procureurStats.decisionsRendues || 0 | number }}</div>
+      <div class="info-card-footer">Ce mois-ci</div>
     </div>
     
     <div class="info-card">
+      <div class="info-card-icon" style="background-color: #8BC34A;">
+        <i class="fas fa-chart-line"></i>
+      </div>
       <h3>Taux d'acceptation</h3>
-      <div class="big-number" style="color: #ff6384;">{{ procureurStats.tauxAcceptation || 0 }}%</div>
+      <div class="big-number">{{ procureurStats.tauxAcceptation || 0 }}%</div>
+      <div class="info-card-footer">Moyenne annuelle</div>
     </div>
   </div>
 
+  <!-- Chargement -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Chargement des données...</p>
+  </div>
+
   <!-- Grille des graphiques -->
-  <div class="charts-grid">
+  <div class="charts-grid" *ngIf="!isLoading">
     <!-- Rapports par type -->
     <div class="chart-container">
-      <h3>Rapports par type</h3>
-      <div style="height: 350px; position: relative;">
+      <div class="chart-header">
+        <h3>Rapports par type</h3>
+        <div class="chart-legend">
+          <span><span class="legend-color" style="background: #FFA000;"></span> Provisoires</span>
+          <span><span class="legend-color" style="background: #4CAF50;"></span> Définitifs</span>
+        </div>
+      </div>
+      <div class="chart-wrapper">
         <canvas baseChart
           #pieChart
           [data]="pieChartData"
@@ -41,8 +79,14 @@
 
     <!-- Décisions acceptées/refusées -->
     <div class="chart-container">
-      <h3>Décisions rendues</h3>
-      <div style="height: 350px; position: relative;">
+      <div class="chart-header">
+        <h3>Décisions rendues</h3>
+        <div class="chart-legend">
+          <span><span class="legend-color" style="background: #4CAF50;"></span> Acceptées</span>
+          <span><span class="legend-color" style="background: #FF9800;"></span> Refusées</span>
+        </div>
+      </div>
+      <div class="chart-wrapper">
         <canvas baseChart
           #barChart
           [data]="barChartData"
@@ -54,8 +98,15 @@
 
     <!-- Évolution des dépôts -->
     <div class="chart-container full-width">
-      <h3>Évolution des dépôts par mois</h3>
-      <div style="height: 350px; position: relative;">
+      <div class="chart-header">
+        <h3>Évolution des dépôts par mois</h3>
+        <div class="time-filter">
+          <button class="time-btn active">Mensuel</button>
+          <button class="time-btn">Trimestriel</button>
+          <button class="time-btn">Annuel</button>
+        </div>
+      </div>
+      <div class="chart-wrapper">
         <canvas baseChart
           #lineChart
           [data]="lineChartData"
@@ -67,8 +118,14 @@
 
     <!-- Déclarations par acteur -->
     <div class="chart-container">
-      <h3>Déclarations traitées par acteur</h3>
-      <div style="height: 350px; position: relative;">
+      <div class="chart-header">
+        <h3>Activité par acteur</h3>
+        <div class="chart-legend">
+          <span><span class="legend-color" style="background: #FFA000;"></span> Conseiller</span>
+          <span><span class="legend-color" style="background: #4CAF50;"></span> Procureur</span>
+        </div>
+      </div>
+      <div class="chart-wrapper">
         <canvas baseChart
           #horizontalBarChart
           [data]="horizontalBarChartData"
@@ -80,8 +137,13 @@
 
     <!-- Statistiques par type de déclaration -->
     <div class="chart-container">
-      <h3>Types de déclarations</h3>
-      <div style="height: 350px; position: relative;">
+      <div class="chart-header">
+        <h3>Types de déclarations</h3>
+        <div class="chart-legend">
+          <span>Répartition par catégorie</span>
+        </div>
+      </div>
+      <div class="chart-wrapper">
         <canvas baseChart
           #declarationTypeChart
           [data]="declarationTypeChartData"
@@ -93,40 +155,46 @@
   </div>
 
   <!-- Section de synthèse -->
-  <div class="summary-section">
+  <div class="summary-section" *ngIf="!isLoading">
     <h2>Synthèse mensuelle</h2>
     <div class="summary-grid">
       <div class="summary-card">
+        <div class="summary-icon" style="color: #FF9800;">
+          <i class="fas fa-file-import"></i>
+        </div>
         <h4>Nouvelles déclarations</h4>
-        <p class="summary-value">{{ procureurStats.nouvellesDeclarations || 0 }}</p>
-        <span class="trend positive" *ngIf="procureurStats.tendancePositive">↗ +12%</span>
-        <span class="trend negative" *ngIf="!procureurStats.tendancePositive">↘ -5%</span>
+        <p class="summary-value">{{ procureurStats.nouvellesDeclarations || 0 | number }}</p>
+        <span class="trend positive" *ngIf="procureurStats.tendancePositive">
+          <i class="fas fa-arrow-up"></i> +12%
+        </span>
+        <span class="trend negative" *ngIf="!procureurStats.tendancePositive">
+          <i class="fas fa-arrow-down"></i> -5%
+        </span>
       </div>
       
       <div class="summary-card">
+        <div class="summary-icon" style="color: #4CAF50;">
+          <i class="fas fa-folder-minus"></i>
+        </div>
         <h4>Dossiers clôturés</h4>
-        <p class="summary-value">{{ procureurStats.dossiersClotures || 0 }}</p>
+        <p class="summary-value">{{ procureurStats.dossiersClotures || 0 | number }}</p>
       </div>
       
       <div class="summary-card">
+        <div class="summary-icon" style="color: #FFA000;">
+          <i class="fas fa-clock"></i>
+        </div>
         <h4>Délai moyen de traitement</h4>
         <p class="summary-value">{{ procureurStats.delaiMoyen || 0 }} jours</p>
       </div>
       
       <div class="summary-card">
+        <div class="summary-icon" style="color: #8BC34A;">
+          <i class="fas fa-balance-scale"></i>
+        </div>
         <h4>Sanctions appliquées</h4>
-        <p class="summary-value">{{ procureurStats.sanctionsAppliquees || 0 }}</p>
+        <p class="summary-value">{{ procureurStats.sanctionsAppliquees || 0 | number }}</p>
       </div>
     </div>
-  </div>
-
-  <!-- Bouton de rafraîchissement -->
-  <div style="text-align: center; margin-top: 30px;">
-    <button 
-      type="button" 
-      class="btn btn-primary"
-      (click)="refreshData()">
-      🔄 Actualiser les données
-    </button>
   </div>
 </div>

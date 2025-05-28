@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-import { StatisticsService } from 'src/app/core/services/statistique.service';
+import { AdminstatService } from 'src/app/core/services/adminstat.service';
 import { BaseChartDirective } from 'ng2-charts';
 
 @Component({
@@ -8,38 +8,24 @@ import { BaseChartDirective } from 'ng2-charts';
   templateUrl: './admin-stats.component.html',
   styleUrls: ['./admin-stats.component.scss']
 })
-export class AdminStatsComponent implements OnInit, AfterViewInit {
+export class AdminStatsComponent implements OnInit {
+  @ViewChild('performanceChart') performanceChart?: BaseChartDirective;
+  @ViewChild('etatChart') etatChart?: BaseChartDirective;
+  @ViewChild('periodeChart') periodeChart?: BaseChartDirective;
 
-  @ViewChild('performanceChart') performanceChart!: BaseChartDirective;
-  @ViewChild('etatChart') etatChart!: BaseChartDirective;
-  @ViewChild('periodeChart') periodeChart!: BaseChartDirective;
+  // Données principales
+  dashboardStats: any = {};
+  loading = true;
 
-  // Données générales
-  totalDeclarations: number = 0;
-  adminStats: any = {
-    utilisateursActifs: 0
-  };
-  workflowStats: any = {
-    tauxTraitement: 0,
-    tempsMoyenTraitement: 0,
-    dossiersEnRetard: 0
-  };
-
-  // Couleurs orange et verte personnalisées
-  private orangeColors = [
-    'rgba(255, 152, 0, 0.8)',   // Orange principal
-    'rgba(255, 193, 7, 0.8)',   // Orange clair
-    'rgba(255, 87, 34, 0.8)',   // Orange foncé
-    'rgba(255, 183, 77, 0.8)',  // Orange moyen
-    'rgba(230, 126, 34, 0.8)'   // Orange terre
+  // Couleurs personnalisées
+  private orangePalette = [
+    '#FF6D00', '#FF9100', '#FFAB00', '#FFC400', '#FFD740', // Orange vifs
+    '#FFE0B2', '#FFF3E0' // Orange clairs
   ];
 
-  private greenColors = [
-    'rgba(76, 175, 80, 0.8)',   // Vert principal
-    'rgba(139, 195, 74, 0.8)',  // Vert clair
-    'rgba(46, 125, 50, 0.8)',   // Vert foncé
-    'rgba(102, 187, 106, 0.8)', // Vert moyen
-    'rgba(67, 160, 71, 0.8)'    // Vert vif
+  private greenPalette = [
+    '#00C853', '#64DD17', '#AEEA00', // Verts vifs
+    '#B9F6CA', '#CCFF90' // Verts clairs
   ];
 
   // Graphique des performances utilisateurs
@@ -47,27 +33,27 @@ export class AdminStatsComponent implements OnInit, AfterViewInit {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { 
-        display: true, 
-        position: 'top',
-        labels: {
-          usePointStyle: true,
-          padding: 20
-        }
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        bodyFont: { size: 14 },
+        titleFont: { size: 16, weight: 'bold' }
       }
     },
     scales: {
       y: { 
         beginAtZero: true,
-        grid: {
-          color: 'rgba(0,0,0,0.1)'
-        }
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { color: '#5D4037' }
       },
       x: {
-        grid: {
-          display: false
-        }
+        grid: { display: false },
+        ticks: { color: '#5D4037' }
       }
+    },
+    animation: {
+      duration: 2000,
+      easing: 'easeOutQuart'
     }
   };
 
@@ -76,31 +62,37 @@ export class AdminStatsComponent implements OnInit, AfterViewInit {
     labels: [],
     datasets: [{
       data: [],
-      label: 'Déclarations traitées',
-      backgroundColor: this.greenColors[0],
-      borderColor: this.greenColors[2],
+      label: 'Activité',
+      backgroundColor: this.orangePalette[0],
+      hoverBackgroundColor: this.orangePalette[1],
+      borderColor: '#FFF',
       borderWidth: 2,
-      hoverBackgroundColor: this.orangeColors[0],
-      hoverBorderColor: this.orangeColors[2]
+      borderRadius: 4
     }]
   };
 
-  // Graphique des statistiques par état
-  public etatChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { 
-        display: true, 
-        position: 'top',
-        labels: {
-          usePointStyle: true,
-          padding: 15
-        }
+// Pour le graphique en doughnut (remplacer les anciennes options)
+public etatChartOptions: ChartConfiguration['options'] = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { 
+      position: 'right',
+      labels: {
+        font: { size: 12 },
+        usePointStyle: true,
+        padding: 16
       }
-    },
-    //cutout: '50%'
-  };
+    }
+  },
+  //cutout: '65%',
+  animation: {
+    duration: 1000,
+    easing: 'easeOutQuart',
+    //animateRotate: true,  // Animation de rotation pour le doughnut
+    //animateScale: true    // Maintenant correct dans Chart.js 3+
+  }
+};
 
   public etatChartType: ChartType = 'doughnut';
   public etatChartData: ChartData<'doughnut'> = {
@@ -108,9 +100,9 @@ export class AdminStatsComponent implements OnInit, AfterViewInit {
     datasets: [{
       data: [],
       backgroundColor: [],
-      borderWidth: 2,
-      borderColor: '#ffffff',
-      hoverOffset: 10
+      hoverOffset: 8,
+      borderColor: '#FFF',
+      borderWidth: 3
     }]
   };
 
@@ -119,32 +111,35 @@ export class AdminStatsComponent implements OnInit, AfterViewInit {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { 
-        display: true,
-        position: 'top'
-      }
+      legend: { display: false }
     },
     scales: {
       y: { 
         beginAtZero: true,
-        grid: {
-          color: 'rgba(0,0,0,0.1)'
-        }
+        grid: { color: 'rgba(0,0,0,0.05)' },
+        ticks: { color: '#5D4037' }
       },
       x: {
-        grid: {
-          display: false
-        }
+        grid: { display: false },
+        ticks: { color: '#5D4037' }
       }
     },
     elements: {
       point: {
         radius: 6,
-        hoverRadius: 8,
-        backgroundColor: this.orangeColors[0],
-        borderColor: '#ffffff',
+        hoverRadius: 10,
+        backgroundColor: this.orangePalette[0],
+        borderColor: '#FFF',
         borderWidth: 2
+      },
+      line: {
+        tension: 0.4,
+        borderWidth: 3
       }
+    },
+    animation: {
+      duration: 2000,
+      easing: 'easeOutQuart'
     }
   };
 
@@ -153,149 +148,77 @@ export class AdminStatsComponent implements OnInit, AfterViewInit {
     labels: [],
     datasets: [{
       data: [],
-      label: 'Évolution mensuelle',
-      borderColor: this.greenColors[0],
-      backgroundColor: this.greenColors[0].replace('0.8', '0.2'),
-      tension: 0.4,
+      label: 'Évolution',
+      borderColor: this.greenPalette[0],
+      backgroundColor: 'rgba(100, 221, 23, 0.1)',
       fill: true,
-      pointBackgroundColor: this.orangeColors[0],
-      pointBorderColor: '#ffffff',
-      pointBorderWidth: 2
+      pointBackgroundColor: this.orangePalette[0],
+      pointBorderColor: '#FFF'
     }]
   };
 
-  constructor(private statisticsService: StatisticsService) { }
+  constructor(private statsService: AdminstatService) { }
 
   ngOnInit(): void {
-    this.loadAdminStatistics();
+    this.loadDashboardData();
   }
 
-  ngAfterViewInit(): void {
-    // Attendre que la vue soit complètement initialisée
-    setTimeout(() => {
-      this.updateAllCharts();
-    }, 100);
-  }
-
-  loadAdminStatistics(): void {
-    // Statistiques générales admin
-    this.statisticsService.getStatsForAdmin().subscribe({
+  loadDashboardData(): void {
+    this.loading = true;
+    
+    // Chargement des stats principales
+    this.statsService.getDashboardStats().subscribe({
       next: (data) => {
-        this.adminStats = { ...data };
-        this.updateAllCharts();
+        this.dashboardStats = data;
+        this.loading = false;
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des stats admin:', err);
+        console.error('Erreur stats dashboard:', err);
+        this.loading = false;
       }
     });
 
-    // Total déclarations
-    this.statisticsService.getTotalDeclarations().subscribe({
-      next: (total) => {
-        this.totalDeclarations = total;
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement du total:', err);
-      }
-    });
-
-    // Performance des utilisateurs
-    this.statisticsService.getPerformanceUtilisateurs().subscribe({
+    // Stats utilisateurs
+    this.statsService.getUserStatistics().subscribe({
       next: (data) => {
-        if (data && data.length > 0) {
-          this.performanceChartData.labels = data.map((item: any) => item.nomUtilisateur);
-          this.performanceChartData.datasets[0].data = data.map((item: any) => item.nombreDeclarations);
-          
-          // Couleurs alternées pour chaque barre
-          this.performanceChartData.datasets[0].backgroundColor = data.map((item: any, index: number) => {
-            return index % 2 === 0 ? this.greenColors[index % this.greenColors.length] : this.orangeColors[index % this.orangeColors.length];
-          });
+        if (data?.usersActivity) {
+          this.performanceChartData.labels = data.usersActivity.map((u: any) => u.name);
+          this.performanceChartData.datasets[0].data = data.usersActivity.map((u: any) => u.count);
+          this.performanceChart?.update();
         }
-        setTimeout(() => this.updateChart('performance'), 50);
       },
-      error: (err) => {
-        console.error('Erreur lors du chargement des performances:', err);
-      }
+      error: (err) => console.error('Erreur stats utilisateurs:', err)
     });
 
-    // Statistiques par état
-    this.statisticsService.getStatsByEtat().subscribe({
+    // Stats déclarations
+    this.statsService.getDeclarationStatistics().subscribe({
       next: (data) => {
-        if (data && data.length > 0) {
-          this.etatChartData.labels = data.map((item: any) => item.etat);
-          this.etatChartData.datasets[0].data = data.map((item: any) => item.nombre);
-          
-          // Couleurs alternées orange et vert
-          this.etatChartData.datasets[0].backgroundColor = data.map((item: any, index: number) => {
-            return index % 2 === 0 ? this.orangeColors[index % this.orangeColors.length] : this.greenColors[index % this.greenColors.length];
-          });
+        if (data?.byStatus) {
+          this.etatChartData.labels = data.byStatus.map((s: any) => s.status);
+          this.etatChartData.datasets[0].data = data.byStatus.map((s: any) => s.count);
+          this.etatChartData.datasets[0].backgroundColor = data.byStatus.map(
+            (_, i) => i % 2 === 0 ? this.orangePalette[i % 4] : this.greenPalette[i % 3]
+          );
+          this.etatChart?.update();
         }
-        setTimeout(() => this.updateChart('etat'), 50);
       },
-      error: (err) => {
-        console.error('Erreur lors du chargement des stats par état:', err);
-      }
+      error: (err) => console.error('Erreur stats déclarations:', err)
     });
 
-    // Statistiques par période
-    this.statisticsService.getStatsByPeriode('monthly').subscribe({
+    // Trends
+    this.statsService.getDeclarationTrends().subscribe({
       next: (data) => {
-        if (data && data.length > 0) {
-          this.periodeChartData.labels = data.map((item: any) => item.periode);
-          this.periodeChartData.datasets[0].data = data.map((item: any) => item.nombre);
+        if (data?.monthlyTrends) {
+          this.periodeChartData.labels = data.monthlyTrends.map((t: any) => t.month);
+          this.periodeChartData.datasets[0].data = data.monthlyTrends.map((t: any) => t.count);
+          this.periodeChart?.update();
         }
-        setTimeout(() => this.updateChart('periode'), 50);
       },
-      error: (err) => {
-        console.error('Erreur lors du chargement des stats par période:', err);
-      }
-    });
-
-    // Statistiques workflow
-    this.statisticsService.getWorkflowStats().subscribe({
-      next: (data) => {
-        this.workflowStats = { ...data };
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement des stats workflow:', err);
-      }
+      error: (err) => console.error('Erreur trends déclarations:', err)
     });
   }
 
-  private updateAllCharts(): void {
-    setTimeout(() => {
-      this.updateChart('performance');
-      this.updateChart('etat');
-      this.updateChart('periode');
-    }, 100);
-  }
-
-  private updateChart(chartType: string): void {
-    try {
-      switch (chartType) {
-        case 'performance':
-          if (this.performanceChart) {
-            this.performanceChart.update();
-          }
-          break;
-        case 'etat':
-          if (this.etatChart) {
-            this.etatChart.update();
-          }
-          break;
-        case 'periode':
-          if (this.periodeChart) {
-            this.periodeChart.update();
-          }
-          break;
-      }
-    } catch (error) {
-      console.warn(`Erreur lors de la mise à jour du graphique ${chartType}:`, error);
-    }
-  }
-
-  // Méthode pour rafraîchir manuellement les données
   refreshData(): void {
-    this.loadAdminStatistics();
+    this.loadDashboardData();
   }
 }
