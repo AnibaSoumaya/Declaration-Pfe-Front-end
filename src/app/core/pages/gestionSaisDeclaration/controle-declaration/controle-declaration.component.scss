@@ -1293,4 +1293,197 @@ textarea {
     cursor: not-allowed;
   }
 }
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  i {
+    font-size: 0.9rem;
+  }
+}
     
+.btn-download-animal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  i {
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+}
+.btn-download-appareil {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  
+  i {
+    font-size: 0.8rem;
+  }
+}
+.btn-download-bien {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  
+  i {
+    font-size: 0.8rem;
+  }
+}
+
+.btn-download-dette {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  
+  i {
+    font-size: 0.9rem;
+    color: #e74c3c; // Rouge pour les documents financiers
+  }
+  
+  &:hover i {
+    color: #c0392b;
+  }
+}
+
+.btn-download-attestation {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+  
+  i {
+    font-size: 0.9rem;
+    color: #3498db; // Bleu pour les documents bancaires
+  }
+  
+  &:hover {
+    background-color: #e9ecef;
+    i {
+      color: #2980b9;
+    }
+  }
+}
+
+.btn-download-emprunt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #f8f9fa;
+  
+  i {
+    font-size: 0.9rem;
+    color: #2ecc71; // Vert pour les documents financiers
+  }
+  
+  &:hover {
+    background-color: #e9ecef;
+    i {
+      color: #27ae60;
+    }
+  }
+}
+
+.btn-download-espece {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  
+  i {
+    font-size: 0.9rem;
+    color: #9b59b6; // Violet pour les documents monétaires
+  }
+  
+  &:hover i {
+    color: #8e44ad;
+  }
+}
+
+.btn-download-foncier {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #f8f9fa;
+  
+  i {
+    font-size: 0.9rem;
+    color: #e67e22; // Orange pour les documents fonciers
+  }
+  
+  &:hover {
+    background-color: #e9ecef;
+    i {
+      color: #d35400;
+    }
+  }
+}
+
+.btn-download-foncier-non-bati {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #f8f9fa;
+  
+  i {
+    font-size: 0.9rem;
+    color: #16a085; // Turquoise pour les titres fonciers
+  }
+  
+  &:hover {
+    background-color: #e9ecef;
+    i {
+      color: #1abc9c;
+    }
+  }
+}
+
+.btn-download-creance {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.5rem;
+  
+  i {
+    font-size: 0.9rem;
+    color: #e74c3c; // Rouge pour les documents financiers
+  }
+  
+  &:hover i {
+    color: #c0392b;
+  }
+}
+
+/* Pour les titres */
+.btn-download-titre {
+  background-color: #f8f9fa;
+  i { color: #3498db; } // Bleu
+  &:hover i { color: #2980b9; }
+}
+
+/* Pour les revenus */
+.btn-download-revenu {
+  background-color: #f8f9fa;
+  i { color: #2ecc71; } // Vert
+  &:hover i { color: #27ae60; }
+}
+
+/* Pour les meubles */
+.btn-download-meuble {
+  background-color: #f8f9fa;
+  i { color: #9b59b6; } // Violet
+  &:hover i { color: #8e44ad; }
+}

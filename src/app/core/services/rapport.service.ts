@@ -13,6 +13,13 @@ export class RapportService {
 
   constructor(private http: HttpClient) {}
 
+  envoyerRapportParEmail(declarationId: number): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/envoyer/${declarationId}`,
+      null // Pas de corps nécessaire
+    );
+  }
+
   genererProvisoire(utilisateurId: number, declarationId: number, contenu: string): Observable<Rapport> {
     const params = new HttpParams()
       .set('utilisateurId', utilisateurId)

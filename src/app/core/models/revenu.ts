@@ -11,6 +11,11 @@ export class Revenu {
     dateCreation?: Date
     declaration?: Declaration
 
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
+
 
 
 

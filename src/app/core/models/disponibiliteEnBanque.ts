@@ -18,4 +18,9 @@ export class DisponibiliteEnBanque {
     isEdit: boolean;
     attestationSoldeCompte?: string;
 
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
+
 }

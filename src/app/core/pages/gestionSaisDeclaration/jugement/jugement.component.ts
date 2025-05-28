@@ -182,6 +182,27 @@ changeTab(tab: 'conclusion' | 'rapport'): void {
     return this.rapports.some(r => r.type === expectedType);
   }
 
+  // Dans jugement.component.ts
+
+envoyerRapportParEmail(rapportId: number): void {
+  this.rapportService.envoyerRapportParEmail(this.declarationId).subscribe({
+    next: (response) => {
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Succès',
+        detail: response.message || 'Rapport envoyé par email avec succès'
+      });
+    },
+    error: (error) => {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: error.error?.message || 'Erreur lors de l\'envoi du rapport par email'
+      });
+    }
+  });
+}
+
   genererRapportDefinitif(): void {
     if (this.decision === null || !this.newRapportContent) {
       this.messageService.add({

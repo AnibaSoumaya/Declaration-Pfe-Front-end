@@ -202,6 +202,7 @@
                         tooltipPosition="top">
                       </button>
                       
+
                       <!-- Bouton supprimer -->
                       <button 
                         *ngIf="currentUser.id === r.utilisateur?.id"
@@ -213,6 +214,18 @@
                         pTooltip="Supprimer"
                         tooltipPosition="top"
                         (click)="deleteRapport(r.id)">
+                      </button>
+
+                                            <!-- Bouton envoyer par email (visible seulement pour procureur_general) -->
+                      <button 
+                        *ngIf="currentUser?.role === 'procureur_general'"
+                        pButton 
+                        (click)="envoyerRapportParEmail(r.id)"
+                        icon="pi pi-envelope" 
+                        class="p-button-rounded p-button-info p-button-text"
+                        style="width: 2.25rem; height: 2.25rem;"
+                        pTooltip="Envoyer a l'assujetti"
+                        tooltipPosition="top">
                       </button>
                     </div>
                   </td>

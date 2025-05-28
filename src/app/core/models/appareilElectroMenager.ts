@@ -13,5 +13,10 @@ export class AppareilElectroMenager {
     dateCreation?: string;  
     declaration?: Declaration; 
     isEdit: boolean; 
+
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
 }
 

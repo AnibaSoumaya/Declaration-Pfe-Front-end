@@ -10,5 +10,10 @@ export class Titre {
     dateCreation?: Date;
     declaration?: Declaration; 
     isEdit: boolean;
+
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
 } 
 

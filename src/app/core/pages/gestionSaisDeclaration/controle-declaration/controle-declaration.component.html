@@ -126,30 +126,40 @@
       </div>
           <div class="table-responsive">
             <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Désignation</th>
-                  <th>Marque</th>
-                  <th>Immatriculation</th>
-                  <th>Transmission</th>
-                  <th>Carburant</th>
-                  <th>Année</th>
-                  <th>Valeur (FCFA)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let vehicule of declaration.vehicules">
-                  <td>{{vehicule.designation?.intitule || 'N/A'}}</td>
-                  <td>{{vehicule.marque?.intitule || 'N/A'}}</td>
-                  <td>{{vehicule.immatriculation || 'N/A'}}</td>
-                  <td>{{vehicule.transmission?.intitule || 'N/A'}}</td>
-                  <td>{{vehicule.carburant?.intitule || 'N/A'}}</td>
-                  <td>{{vehicule.anneeAcquisition || 'N/A'}}</td>
-                  <td>{{formatNumber(vehicule.valeurAcquisition)}}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+  <thead>
+    <tr>
+      <th>Désignation</th>
+      <th>Marque</th>
+      <th>Immatriculation</th>
+      <th>Transmission</th>
+      <th>Carburant</th>
+      <th>Année</th>
+      <th>Valeur (FCFA)</th>
+      <th>Document</th> <!-- Nouvelle colonne -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let vehicule of declaration.vehicules">
+      <td>{{vehicule.designation?.intitule || 'N/A'}}</td>
+      <td>{{vehicule.marque?.intitule || 'N/A'}}</td>
+      <td>{{vehicule.immatriculation || 'N/A'}}</td>
+      <td>{{vehicule.transmission?.intitule || 'N/A'}}</td>
+      <td>{{vehicule.carburant?.intitule || 'N/A'}}</td>
+      <td>{{vehicule.anneeAcquisition || 'N/A'}}</td>
+      <td>{{formatNumber(vehicule.valeurAcquisition)}}</td>
+      <td>
+        <!-- Bouton de téléchargement -->
+        <button *ngIf="vehicule.fileName" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadVehiculeFile(vehicule)"
+                title="Télécharger le document">
+          <i class="pi pi-download"></i> {{vehicule.fileName}}
+        </button>
+        <span *ngIf="!vehicule.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>          </div>
           <br>
               <!-- Bouton pour afficher/masquer les commentaires -->
               <button class="btn btn-sm btn-outline-primary mb-2"
@@ -179,21 +189,31 @@
         <div class="section-content" *ngIf="isSectionExpanded('Revenus')">
           <div class="table-responsive">
             <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Salaire Mensuel Net</th>
-                  <th>Autres Revenus</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let revenu of declaration.revenus">
-                  <td>{{formatNumber(revenu.salaireMensuelNet)}} FCFA</td>
-                  <td>{{revenu.autresRevenus?.intitule || 'N/A'}}</td>
-                  <td>{{formatDate(revenu.dateCreation)}}</td>
-                </tr>
-              </tbody>
-            </table>
+  <thead>
+    <tr>
+      <th>Salaire Mensuel Net</th>
+      <th>Autres Revenus</th>
+      <th>Date</th>
+      <th>Justificatif</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let revenu of declaration.revenus">
+      <td>{{formatNumber(revenu.salaireMensuelNet)}} FCFA</td>
+      <td>{{revenu.autresRevenus?.intitule || 'N/A'}}</td>
+      <td>{{formatDate(revenu.dateCreation)}}</td>
+      <td>
+        <button *ngIf="revenu.fileName && !isDownloading" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadRevenuFile(revenu)"
+                title="Télécharger {{revenu.fileName}}">
+          <i class="pi pi-file-pdf"></i> Justificatif
+        </button>
+        <span *ngIf="!revenu.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
           <br>
               <!-- Bouton pour afficher/masquer les commentaires -->
@@ -232,30 +252,43 @@
         </button>
       </div>
           <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Nature</th>
-                  <th>Année Construction</th>
-                  <th>Mode Acquisition</th>
-                  <th>Superficie</th>
-                  <th>Localisation</th>
-                  <th>Usage</th>
-                  <th>Coût (FCFA)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let foncier of declaration.fonciersBatis">
-                  <td>{{foncier.nature?.intitule || 'N/A'}}</td>
-                  <td>{{foncier.anneeConstruction || 'N/A'}}</td>
-                  <td>{{foncier.modeAcquisition?.intitule || 'N/A'}}</td>
-                  <td>{{foncier.superficie || 'N/A'}}</td>
-                  <td>{{foncier.localis?.intitule || 'N/A'}}</td>
-                  <td>{{foncier.typeUsage?.intitule || 'N/A'}}</td>
-                  <td>{{formatNumber(foncier.coutAcquisitionFCFA)}} FCFA</td>
-                </tr>
-              </tbody>
-            </table>
+           <table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Nature</th>
+      <th>Année Construction</th>
+      <th>Mode Acquisition</th>
+      <th>Superficie</th>
+      <th>Localisation</th>
+      <th>Usage</th>
+      <th>Coût (FCFA)</th>
+      <th>Document</th> <!-- Nouvelle colonne -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let foncier of declaration.fonciersBatis">
+      <td>{{foncier.nature?.intitule || 'N/A'}}</td>
+      <td>{{foncier.anneeConstruction || 'N/A'}}</td>
+      <td>{{foncier.modeAcquisition?.intitule || 'N/A'}}</td>
+      <td>{{foncier.superficie || 'N/A'}}</td>
+      <td>{{foncier.localisation?.intitule || 'N/A'}}</td> <!-- Corrigé de localis à localisation -->
+      <td>{{foncier.typeUsage?.intitule || 'N/A'}}</td>
+      <td>{{formatNumber(foncier.coutAcquisitionFCFA)}} FCFA</td>
+      <td>
+        <button *ngIf="foncier.fileName && !isDownloading" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadFoncierBatiFile(foncier)"
+                title="Télécharger {{foncier.fileName}}">
+          <i class="pi pi-file-pdf"></i> Cadastre
+        </button>
+        <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
+          <i class="pi pi-spinner pi-spin"></i> Chargement...
+        </button>
+        <span *ngIf="!foncier.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
           <br>
               <!-- Bouton pour afficher/masquer les commentaires -->
@@ -295,29 +328,42 @@
       </div>
           <div class="table-responsive">
             <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Nature</th>
-                  <th>Mode Acquisition</th>
-                  <th>Superficie</th>
-                  <th>Localité</th>
-                  <th>Titre Propriété</th>
-                  <th>Année</th>
-                  <th>Valeur (FCFA)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let foncier of declaration.fonciersNonBatis">
-                  <td>{{foncier.nature?.intitule || 'N/A'}}</td>
-                  <td>{{foncier.modeAcquisition?.intitule || 'N/A'}}</td>
-                  <td>{{foncier.superficie || 'N/A'}}</td>
-                  <td>{{foncier.localite || 'N/A'}}</td>
-                  <td>{{foncier.titrePropriete || 'N/A'}}</td>
-                  <td>{{foncier.dateAcquis || 'N/A'}}</td>
-                  <td>{{formatNumber(foncier.valeurAcquisFCFA)}} FCFA</td>
-                </tr>
-              </tbody>
-            </table>
+  <thead>
+    <tr>
+      <th>Nature</th>
+      <th>Mode Acquisition</th>
+      <th>Superficie</th>
+      <th>Localité</th>
+      <th>Titre Propriété</th>
+      <th>Année</th>
+      <th>Valeur (FCFA)</th>
+      <th>Titre</th> <!-- Nouvelle colonne -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let foncier of declaration.fonciersNonBatis">
+      <td>{{foncier.nature?.intitule || 'N/A'}}</td>
+      <td>{{foncier.modeAcquisition?.intitule || 'N/A'}}</td>
+      <td>{{foncier.superficie || 'N/A'}}</td>
+      <td>{{foncier.localite || 'N/A'}}</td>
+      <td>{{foncier.titrePropriete || 'N/A'}}</td>
+      <td>{{foncier.dateAquis | date:'yyyy' || 'N/A'}}</td> <!-- Corrigé dateAcquis en dateAquis -->
+      <td>{{formatNumber(foncier.valeurAcquisFCFA)}} FCFA</td>
+      <td>
+        <button *ngIf="foncier.fileName && !isDownloading" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadFoncierNonBatiFile(foncier)"
+                title="Télécharger {{foncier.fileName}}">
+          <i class="pi pi-file-pdf"></i> Titre
+        </button>
+        <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
+          <i class="pi pi-spinner pi-spin"></i> Chargement...
+        </button>
+        <span *ngIf="!foncier.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
@@ -347,25 +393,38 @@
         <div class="section-content" *ngIf="isSectionExpanded('Emprunts')">
           <div class="table-responsive">
             <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Institution</th>
-                  <th>Numéro Compte</th>
-                  <th>Type</th>
-                  <th>Montant (FCFA)</th>
-                  <th>Montant en cours (FCFA)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let emprunt of declaration.emprunts">
-                  <td>{{emprunt.institutionsFinancieres?.intitule || 'N/A'}}</td>
-                  <td>{{emprunt.numeroCompte || 'N/A'}}</td>
-                  <td>{{emprunt.typeEmprunt?.intitule || 'N/A'}}</td>
-                  <td>{{formatNumber(emprunt.montantEmprunt)}} FCFA</td>
-                  <td>{{formatNumber(emprunt.montantRestant)}} FCFA</td>
-                </tr>
-              </tbody>
-            </table>
+  <thead>
+    <tr>
+      <th>Institution</th>
+      <th>Numéro Compte</th>
+      <th>Type</th>
+      <th>Montant (FCFA)</th>
+      <th>Montant en cours (FCFA)</th>
+      <th>Document</th> <!-- Nouvelle colonne -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let emprunt of declaration.emprunts">
+      <td>{{emprunt.institutionsFinancieres?.intitule || 'N/A'}}</td>
+      <td>{{emprunt.numeroCompte || 'N/A'}}</td>
+      <td>{{emprunt.typeEmprunt?.intitule || 'N/A'}}</td>
+      <td>{{formatNumber(emprunt.montantEmprunt)}} FCFA</td>
+      <td>{{formatNumber(emprunt.montantRestant)}} FCFA</td>
+      <td>
+        <button *ngIf="emprunt.fileName && !isDownloading" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadEmpruntFile(emprunt)"
+                title="Télécharger {{emprunt.fileName}}">
+          <i class="pi pi-file-pdf"></i> Contrat
+        </button>
+        <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
+          <i class="pi pi-spinner pi-spin"></i> Chargement...
+        </button>
+        <span *ngIf="!emprunt.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
@@ -395,25 +454,38 @@
         <div class="section-content" *ngIf="isSectionExpanded('DisponibilitesEnBanque')">
           <div class="table-responsive">
             <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Banque</th>
-                  <th>Numéro Compte</th>
-                  <th>Type Compte</th>
-                  <th>Solde (FCFA)</th>
-                  <th>Date Solde</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let disponibilite of declaration.disponibilitesBanque">
-                  <td>{{disponibilite.banque?.intitule || 'N/A'}}</td>
-                  <td>{{disponibilite.numeroCompte || 'N/A'}}</td>
-                  <td>{{disponibilite.typeCompte?.intitule || 'N/A'}}</td>
-                  <td>{{formatNumber(disponibilite.soldeFCFA)}} FCFA</td>
-                  <td>{{formatDate(disponibilite.dateSolde)}}</td>
-                </tr>
-              </tbody>
-            </table>
+  <thead>
+    <tr>
+      <th>Banque</th>
+      <th>Numéro Compte</th>
+      <th>Type Compte</th>
+      <th>Solde (FCFA)</th>
+      <th>Date Solde</th>
+      <th>Attestation</th> <!-- Nouvelle colonne -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let disponibilite of declaration.disponibilitesBanque">
+      <td>{{disponibilite.banque?.intitule || 'N/A'}}</td>
+      <td>{{disponibilite.numeroCompte || 'N/A'}}</td>
+      <td>{{disponibilite.typeCompte?.intitule || 'N/A'}}</td>
+      <td>{{formatNumber(disponibilite.soldeFCFA)}} FCFA</td>
+      <td>{{formatDate(disponibilite.dateSolde)}}</td>
+      <td>
+        <button *ngIf="disponibilite.fileName && !isDownloading" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadDisponibiliteFile(disponibilite)"
+                title="Télécharger {{disponibilite.fileName}}">
+          <i class="pi pi-file-pdf"></i> Attestation
+        </button>
+        <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
+          <i class="pi pi-spinner pi-spin"></i> Chargement...
+        </button>
+        <span *ngIf="!disponibilite.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
@@ -442,28 +514,41 @@
         </div>
         <div class="section-content" *ngIf="isSectionExpanded('Especes')">
           <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Monnaie</th>
-                  <th>Devise</th>
-                  <th>Taux Change</th>
-                  <th>Montant FCFA</th>
-                  <th>Total FCFA</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let espece of declaration.especes">
-                  <td>{{formatNumber(espece.monnaie)}} FCFA</td>
-                  <td>{{formatNumber(espece.devise)}} FCFA</td>
-                  <td>{{espece.tauxChange || 'N/A'}}</td>
-                  <td>{{formatNumber(espece.montantFCFA)}} FCFA</td>
-                  <td>{{formatNumber(espece.montantTotalFCFA)}} FCFA</td>
-                  <td>{{formatDate(espece.dateEspece)}}</td>
-                </tr>
-              </tbody>
-            </table>
+           <table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Monnaie</th>
+      <th>Devise</th>
+      <th>Taux Change</th>
+      <th>Montant FCFA</th>
+      <th>Total FCFA</th>
+      <th>Date</th>
+      <th>Justificatif</th> <!-- Nouvelle colonne -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let espece of declaration.especes">
+      <td>{{formatNumber(espece.monnaie)}} FCFA</td>
+      <td>{{espece.devise?.intitule || 'N/A'}}</td>
+      <td>{{espece.tauxChange || 'N/A'}}</td>
+      <td>{{formatNumber(espece.montantFCFA)}} FCFA</td>
+      <td>{{formatNumber(espece.montantTotalFCFA)}} FCFA</td>
+      <td>{{formatDate(espece.dateEspece)}}</td>
+      <td>
+        <button *ngIf="espece.fileName && !isDownloading" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadEspeceFile(espece)"
+                title="Télécharger {{espece.fileName}}">
+          <i class="pi pi-file-pdf"></i> Justificatif
+        </button>
+        <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
+          <i class="pi pi-spinner pi-spin"></i> Chargement...
+        </button>
+        <span *ngIf="!espece.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
@@ -492,28 +577,39 @@
         </div>
         <div class="section-content" *ngIf="isSectionExpanded('Animaux')">
           <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Espèce</th>
-                  <th>Nombre Têtes</th>
-                  <th>Mode Acquisition</th>
-                  <th>Année</th>
-                  <th>Valeur (FCFA)</th>
-                  <th>Localité</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let animal of declaration.animaux">
-                  <td>{{animal.especes || 'N/A'}}</td>
-                  <td>{{animal.nombreTetes || 'N/A'}}</td>
-                  <td>{{animal.modeAcquisition?.intitule || 'N/A'}}</td>
-                  <td>{{animal.anneeAcquisition || 'N/A'}}</td>
-                  <td>{{formatNumber(animal.valeurAcquisition)}} FCFA</td>
-                  <td>{{animal.localite?.intitule || 'N/A'}}</td>
-                </tr>
-              </tbody>
-            </table>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Espèce</th>
+      <th>Nombre Têtes</th>
+      <th>Mode Acquisition</th>
+      <th>Année</th>
+      <th>Valeur (FCFA)</th>
+      <th>Localité</th>
+      <th>Document</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let animal of declaration.animaux">
+      <td>{{animal.espece || 'N/A'}}</td>
+      <td>{{animal.nombreTetes || 'N/A'}}</td>
+      <td>{{animal.modeAcquisition?.intitule || 'N/A'}}</td>
+      <td>{{animal.anneeAcquisition | date:'yyyy' || 'N/A'}}</td>
+      <td>{{formatNumber(animal.valeurAcquisition)}} FCFA</td>
+      <td>{{animal.localite || 'N/A'}}</td>
+      <td>
+        <!-- Solution simple sans truncate -->
+        <button *ngIf="animal.fileName" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadAnimauxFile(animal)"
+                title="Télécharger {{animal.fileName}}">
+          <i class="pi pi-download"></i> Document
+        </button>
+        <span *ngIf="!animal.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
@@ -543,23 +639,33 @@
         <div class="section-content" *ngIf="isSectionExpanded('MeublesMeublants')">
           <div class="table-responsive">
             <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Désignation</th>
-                  <th>Année</th>
-                  <th>Valeur (FCFA)</th>
-                  <th>État</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let meuble of declaration.meublesMeublants">
-                  <td>{{meuble.designation?.intitule || 'N/A'}}</td>
-                  <td>{{meuble.anneeAcquisition || 'N/A'}}</td>
-                  <td>{{formatNumber(meuble.valeurAcquisition)}} FCFA</td>
-                  <td>{{meuble.etatGeneral?.intitule || 'N/A'}}</td>
-                </tr>
-              </tbody>
-            </table>
+  <thead>
+    <tr>
+      <th>Désignation</th>
+      <th>Année</th>
+      <th>Valeur (FCFA)</th>
+      <th>État</th>
+      <th>Facture</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let meuble of declaration.meublesMeublants">
+      <td>{{meuble.designation?.intitule || 'N/A'}}</td>
+      <td>{{meuble.anneeAcquisition || 'N/A'}}</td>
+      <td>{{formatNumber(meuble.valeurAcquisition)}} FCFA</td>
+      <td>{{meuble.etatGeneral?.intitule || 'N/A'}}</td>
+      <td>
+        <button *ngIf="meuble.fileName && !isDownloading" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadMeubleFile(meuble)"
+                title="Télécharger {{meuble.fileName}}">
+          <i class="pi pi-file-pdf"></i> Facture
+        </button>
+        <span *ngIf="!meuble.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
@@ -589,23 +695,33 @@
         <div class="section-content" *ngIf="isSectionExpanded('Titres')">
           <div class="table-responsive">
             <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Nature/Actions</th>
-                  <th>Valeur (FCFA)</th>
-                  <th>Emplacement</th>
-                  <th>Précisions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let titre of declaration.titres">
-                  <td>{{titre.designationNatureActions?.intitule || 'N/A'}}</td>
-                  <td>{{formatNumber(titre.valeurEmplacement)}} FCFA</td>
-                  <td>{{titre.emplacement?.intitule || 'N/A'}}</td>
-                  <td>{{titre.autrePrecisions?.intitule || 'N/A'}}</td>
-                </tr>
-              </tbody>
-            </table>
+  <thead>
+    <tr>
+      <th>Nature/Actions</th>
+      <th>Valeur (FCFA)</th>
+      <th>Emplacement</th>
+      <th>Précisions</th>
+      <th>Document</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let titre of declaration.titres">
+      <td>{{titre.designationNatureActions?.intitule || 'N/A'}}</td>
+      <td>{{formatNumber(titre.valeurEmplacement)}} FCFA</td>
+      <td>{{titre.emplacement?.intitule || 'N/A'}}</td>
+      <td>{{titre.autrePrecisions?.intitule || 'N/A'}}</td>
+      <td>
+        <button *ngIf="titre.fileName && !isDownloading" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadTitreFile(titre)"
+                title="Télécharger {{titre.fileName}}">
+          <i class="pi pi-file-pdf"></i> Titre
+        </button>
+        <span *ngIf="!titre.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
@@ -635,21 +751,34 @@
         <div class="section-content" *ngIf="isSectionExpanded('LesCreances')">
           <div class="table-responsive">
             <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Débiteur</th>
-                  <th>Montant (FCFA)</th>
-                  <th>Précisions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let creance of declaration.creances">
-                  <td>{{creance.debiteurs?.intitule || 'N/A'}}</td>
-                  <td>{{formatNumber(creance.montant)}} FCFA</td>
-                  <td>{{creance.autresPrecisions?.intitule || 'N/A'}}</td>
-                </tr>
-              </tbody>
-            </table>
+  <thead>
+    <tr>
+      <th>Débiteur</th>
+      <th>Montant (FCFA)</th>
+      <th>Précisions</th>
+      <th>Justificatif</th> <!-- Nouvelle colonne -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let creance of declaration.creances">
+      <td>{{creance.debiteurs?.intitule || 'N/A'}}</td>
+      <td>{{formatNumber(creance.montant)}} FCFA</td>
+      <td>{{creance.autresPrecisions?.intitule || 'N/A'}}</td>
+      <td>
+        <button *ngIf="creance.fileName && !isDownloading" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadCreanceFile(creance)"
+                title="Télécharger {{creance.fileName}}">
+          <i class="pi pi-file-pdf"></i> Justificatif
+        </button>
+        <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
+          <i class="pi pi-spinner pi-spin"></i> Chargement...
+        </button>
+        <span *ngIf="!creance.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
@@ -679,23 +808,36 @@
         <div class="section-content" *ngIf="isSectionExpanded('AutresDettes')">
           <div class="table-responsive">
             <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Créancier</th>
-                  <th>Montant (FCFA)</th>
-                  <th>Justificatifs</th>
-                  <th>Précisions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let dette of declaration.autresDettes">
-                  <td>{{dette.creanciers?.intitule || 'N/A'}}</td>
-                  <td>{{formatNumber(dette.montant)}} FCFA</td>
-                  <td>{{dette.justificatifs?.intitule || 'N/A'}}</td>
-                  <td>{{dette.autresPrecisions?.intitule || 'N/A'}}</td>
-                </tr>
-              </tbody>
-            </table>
+  <thead>
+    <tr>
+      <th>Créancier</th>
+      <th>Montant (FCFA)</th>
+      <th>Justificatifs</th>
+      <th>Précisions</th>
+      <th>Document</th> <!-- Nouvelle colonne -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let dette of declaration.autresDettes">
+      <td>{{dette.creanciers?.intitule || 'N/A'}}</td>
+      <td>{{formatNumber(dette.montant)}} FCFA</td>
+      <td>{{dette.justificatifs?.intitule || 'N/A'}}</td>
+      <td>{{dette.autresPrecisions?.intitule || 'N/A'}}</td>
+      <td>
+        <button *ngIf="dette.fileName && !isDownloading" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadDetteFile(dette)"
+                title="Télécharger {{dette.fileName}}">
+          <i class="pi pi-file-pdf"></i> Document
+        </button>
+        <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
+          <i class="pi pi-spinner pi-spin"></i> Chargement...
+        </button>
+        <span *ngIf="!dette.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
           </div>
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
@@ -723,28 +865,38 @@
     </div>
     <div class="section-content" *ngIf="isSectionExpanded('AutresBiensDeValeur')">
       <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Désignation</th>
-              <th>Localité</th>
-              <th>Année</th>
-              <th>Valeur (FCFA)</th>
-              <th>Précisions</th>
-              <th>Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let bien of declaration.autresBiensDeValeur">
-              <td>{{bien.designation?.intitule || 'N/A'}}</td>
-              <td>{{bien.localite?.intitule || 'N/A'}}</td>
-              <td>{{bien.anneeAcquis || 'N/A'}}</td>
-              <td>{{formatNumber(bien.valeurAcquisition)}} FCFA</td>
-              <td>{{bien.autrePrecisions?.intitule || 'N/A'}}</td>
-              <td>{{bien.type?.intitule || 'N/A'}}</td>
-            </tr>
-          </tbody>
-        </table>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Désignation</th>
+      <th>Localité</th>
+      <th>Année</th>
+      <th>Valeur (FCFA)</th>
+      <th>Précisions</th>
+      <th>Type</th>
+      <th>Document</th> <!-- Nouvelle colonne -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let bien of declaration.autresBiensDeValeur">
+      <td>{{bien.designation?.intitule || 'N/A'}}</td>
+      <td>{{bien.localite?.intitule || 'N/A'}}</td>
+      <td>{{bien.anneeAcquis || 'N/A'}}</td>
+      <td>{{formatNumber(bien.valeurAcquisition)}} FCFA</td>
+      <td>{{bien.autrePrecisions?.intitule || 'N/A'}}</td>
+      <td>{{bien.type?.intitule || 'N/A'}}</td>
+      <td>
+        <button *ngIf="bien.fileName" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadAutreBienFile(bien)"
+                title="Télécharger {{bien.fileName}}">
+          <i class="pi pi-download"></i> Document
+        </button>
+        <span *ngIf="!bien.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
       </div>
        <!-- Bouton pour afficher/masquer les commentaires -->
        <button class="btn btn-sm btn-outline-primary mb-2"
@@ -773,24 +925,34 @@
     </div>
     <div class="section-content" *ngIf="isSectionExpanded('AppareilsElectroMenagers')">
       <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Désignation</th>
-              <th>Année</th>
-              <th>Valeur (FCFA)</th>
-              <th>État</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let appareil of declaration.appareilsElectromenagers">
-              <td>{{appareil.designation?.intitule || 'N/A'}}</td>
-              <td>{{appareil.anneeAcquisition || 'N/A'}}</td>
-              <td>{{formatNumber(appareil.valeurAcquisition)}} FCFA</td>
-              <td>{{appareil.etatGeneral?.intitule || 'N/A'}}</td>
-            </tr>
-          </tbody>
-        </table>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Désignation</th>
+      <th>Année</th>
+      <th>Valeur (FCFA)</th>
+      <th>État</th>
+      <th>Document</th> <!-- Nouvelle colonne -->
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let appareil of declaration.appareilsElectromenagers">
+      <td>{{appareil.designation?.intitule || 'N/A'}}</td>
+      <td>{{appareil.anneeAcquisition || 'N/A'}}</td>
+      <td>{{formatNumber(appareil.valeurAcquisition)}} FCFA</td>
+      <td>{{appareil.etatGeneral?.intitule || 'N/A'}}</td>
+      <td>
+        <button *ngIf="appareil.fileName" 
+                class="btn btn-sm btn-outline-primary"
+                (click)="downloadAppareilFile(appareil)"
+                title="Télécharger {{appareil.fileName}}">
+          <i class="pi pi-download"></i> Document
+        </button>
+        <span *ngIf="!appareil.fileName">N/A</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
       </div>
        <!-- Bouton pour afficher/masquer les commentaires -->
        <button class="btn btn-sm btn-outline-primary mb-2"

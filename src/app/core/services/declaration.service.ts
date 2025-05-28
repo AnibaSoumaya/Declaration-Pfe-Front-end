@@ -10,6 +10,8 @@ import { User } from '../models/User.model';
 })
 export class DeclarationService {
 
+  private Url1 = 'http://localhost:8084/api'; 
+
   private apiUrl = 'http://localhost:8084/api/declarations'; 
   private apiUrl2 = 'http://localhost:8084/api/historique-declaration'; 
   private apiUrlpredFNB = 'http://localhost:8084/api/foncier-non-bati'; // Adaptez selon votre configuration
@@ -21,6 +23,76 @@ export class DeclarationService {
 
   constructor(private http: HttpClient) { }
 
+
+  downloadVehiculeFile(vehiculeId: number): Observable<Blob> {
+  const url = `${this.apiUrlpredVH}/download/${vehiculeId}`;
+  
+  return this.http.get(url, {
+    responseType: 'blob' // Important pour les fichiers binaires
+  });
+}
+
+downloadAnimauxFile(animauxId: number): Observable<Blob> {
+  const url = `${this.Url1}/animaux/download/${animauxId}`; // Assurez-vous d'avoir apiUrlAnimaux défini
+  return this.http.get(url, { responseType: 'blob' });
+}
+
+downloadAppareilFile(appareilId: number): Observable<Blob> {
+  const url = `${this.Url1}/appareils-electromenagers/download/${appareilId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+downloadAutreBienFile(bienId: number): Observable<Blob> {
+  const url = `${this.Url1}/autres-biens-de-valeur/download/${bienId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+
+downloadDetteFile(detteId: number): Observable<Blob> {
+  const url = `${this.Url1}/autres-dettes/download/${detteId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+
+downloadDisponibiliteFile(disponibiliteId: number): Observable<Blob> {
+  const url = `${this.Url1}/disponibilites-en-banque/download/${disponibiliteId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+downloadEmpruntFile(empruntId: number): Observable<Blob> {
+  const url = `${this.Url1}/emprunts/download/${empruntId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+downloadEspeceFile(especeId: number): Observable<Blob> {
+  const url = `${this.Url1}/especes/download/${especeId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+downloadFoncierBatiFile(foncierId: number): Observable<Blob> {
+  const url = `${this.apiUrlpredFB}/download/${foncierId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+downloadFoncierNonBatiFile(foncierId: number): Observable<Blob> {
+  const url = `${this.apiUrlpredFNB}/download/${foncierId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+
+downloadCreanceFile(creanceId: number): Observable<Blob> {
+  const url = `${this.Url1}/les-creances/download/${creanceId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+// Pour les titres
+downloadTitreFile(titreId: number): Observable<Blob> {
+  const url = `${this.Url1}/titres/download/${titreId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+
+// Pour les revenus
+downloadRevenuFile(revenuId: number): Observable<Blob> {
+  const url = `${this.Url1}/revenus/download/${revenuId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
+
+// Pour les meubles
+downloadMeubleFile(meubleId: number): Observable<Blob> {
+  const url = `${this.Url1}/meubles-meublants/download/${meubleId}`;
+  return this.http.get(url, { responseType: 'blob' });
+}
   
  getAllHistoriques(): Observable<HistoriqueDeclarationUser[]> {
     return this.http.get<HistoriqueDeclarationUser[]>(this.apiUrl2).pipe(

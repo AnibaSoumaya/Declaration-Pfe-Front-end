@@ -7,5 +7,10 @@ export class Creance{
     montant?: number;
     autresPrecision?: string;  
     declaration?: Declaration; 
-    isEdit: boolean;   
+    isEdit: boolean; 
+    
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
 }   

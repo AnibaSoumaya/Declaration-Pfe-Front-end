@@ -17,4 +17,9 @@ export class Emprunt{
     declaration?: Declaration;
     isEdit: boolean;  
     tableauAmortissement?: string;
+
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
 }

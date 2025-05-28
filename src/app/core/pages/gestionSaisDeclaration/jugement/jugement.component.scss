@@ -644,3 +644,16 @@
 .custom-back-btn:active {
   transform: scale(0.98);
 }
+
+// Dans jugement.component.scss
+
+.p-button-info {
+  color: #ffffff;
+  background: #2c8331;
+  border: 1px solid #2c8331;
+
+  &:enabled:hover {
+    background: #59b15f;
+    border-color: #59b15f;
+  }
+}

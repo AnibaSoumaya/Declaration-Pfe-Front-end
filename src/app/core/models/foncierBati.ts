@@ -19,6 +19,11 @@ export class FoncierBati {
   declaration: Declaration;
   isEdit: boolean;
 
+  fileName?: string;
+  fileType?: string;
+  fileDownloadUri?: string;
+  fileData?: Blob;
+
 
 
 }

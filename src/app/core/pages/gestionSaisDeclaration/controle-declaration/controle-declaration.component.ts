@@ -10,6 +10,20 @@ import { UserService } from 'src/app/core/services/user.service';
 import { ConclusionService } from 'src/app/core/services/conclusion.service';
 import { MessageService } from 'primeng/api';
 import { of, switchMap } from 'rxjs';
+import { Vehicule } from 'src/app/core/models/vehicule';
+import { Animaux } from 'src/app/core/models/animaux';
+import { AppareilElectroMenager } from 'src/app/core/models/appareilElectroMenager';
+import { AutreBienDeValeur } from 'src/app/core/models/autreBienDeValeur';
+import { AutreDette } from 'src/app/core/models/autreDette';
+import { DisponibiliteEnBanque } from 'src/app/core/models/disponibiliteEnBanque';
+import { Emprunt } from 'src/app/core/models/emprunt';
+import { Espece } from 'src/app/core/models/espece';
+import { FoncierBati } from 'src/app/core/models/foncierBati';
+import { FoncierNonBati } from 'src/app/core/models/foncierNonBati';
+import { Creance } from 'src/app/core/models/creance';
+import { MeubleMeublant } from 'src/app/core/models/meubleMeublant';
+import { Revenu } from 'src/app/core/models/revenu';
+import { Titre } from 'src/app/core/models/titre';
 
 @Component({
   selector: 'app-controle-declaration',
@@ -259,6 +273,376 @@ export class ControleDeclarationComponent implements OnInit {
         }
       });
   }
+  downloadVehiculeFile(vehicule: Vehicule): void {
+  if (!vehicule.id) return;
+
+  this.declarationService.downloadVehiculeFile(vehicule.id).subscribe({
+    next: (blob: Blob) => {
+      // Créer un objet URL pour le blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Créer un lien temporaire et déclencher le téléchargement
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = vehicule.fileName || `document-vehicule-${vehicule.id}`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Nettoyage
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur lors du téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Impossible de télécharger le fichier',
+        life: 5000
+      });
+    }
+  });
+}
+
+downloadAnimauxFile(animal: Animaux): void {
+  if (!animal.id) return;
+
+  this.declarationService.downloadAnimauxFile(animal.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = animal.fileName || `document-animal-${animal.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Téléchargement échoué',
+        life: 5000
+      });
+    }
+  });
+}
+downloadAppareilFile(appareil: AppareilElectroMenager): void {
+  if (!appareil.id) return;
+
+  this.declarationService.downloadAppareilFile(appareil.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = appareil.fileName || `document-appareil-${appareil.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Impossible de télécharger le fichier',
+        life: 5000
+      });
+    }
+  });
+}
+
+downloadAutreBienFile(bien: AutreBienDeValeur): void {
+  if (!bien.id) return;
+
+  this.declarationService.downloadAutreBienFile(bien.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = bien.fileName || `document-bien-${bien.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Impossible de télécharger le fichier',
+        life: 5000
+      });
+    }
+  });
+}
+
+downloadDetteFile(dette: AutreDette): void {
+  if (!dette.id) return;
+
+  this.declarationService.downloadDetteFile(dette.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = dette.fileName || `document-dette-${dette.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du téléchargement du justificatif',
+        life: 5000
+      });
+    }
+  });
+}
+
+downloadDisponibiliteFile(disponibilite: DisponibiliteEnBanque): void {
+  if (!disponibilite.id) return;
+
+  this.declarationService.downloadDisponibiliteFile(disponibilite.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = disponibilite.fileName || `attestation-banque-${disponibilite.numeroCompte || disponibilite.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du téléchargement de l\'attestation',
+        life: 5000
+      });
+    }
+  });
+}
+
+downloadEmpruntFile(emprunt: Emprunt): void {
+  if (!emprunt.id) return;
+
+  this.declarationService.downloadEmpruntFile(emprunt.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = emprunt.fileName || `document-emprunt-${emprunt.numeroCompte || emprunt.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du téléchargement du document',
+        life: 5000
+      });
+    }
+  });
+}
+
+downloadEspeceFile(espece: Espece): void {
+  if (!espece.id) return;
+
+  this.declarationService.downloadEspeceFile(espece.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = espece.fileName || `justificatif-espece-${espece.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du téléchargement du justificatif',
+        life: 5000
+      });
+    }
+  });
+}
+
+downloadFoncierBatiFile(foncier: FoncierBati): void {
+  if (!foncier.id) return;
+
+  this.declarationService.downloadFoncierBatiFile(foncier.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = foncier.fileName || `document-foncier-${foncier.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du téléchargement du document cadastral',
+        life: 5000
+      });
+    }
+  });
+}
+
+downloadFoncierNonBatiFile(foncier: FoncierNonBati): void {
+  if (!foncier.id) return;
+
+  this.declarationService.downloadFoncierNonBatiFile(foncier.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = foncier.fileName || `titre-foncier-${foncier.titrePropriete || foncier.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du téléchargement du titre foncier',
+        life: 5000
+      });
+    }
+  });
+}
+
+downloadCreanceFile(creance: Creance): void {
+  if (!creance.id) return;
+
+  this.declarationService.downloadCreanceFile(creance.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = creance.fileName || `justificatif-creance-${creance.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du téléchargement du justificatif',
+        life: 5000
+      });
+    }
+  });
+}
+
+// Pour les titres
+downloadTitreFile(titre: Titre): void {
+  if (!titre.id) return;
+
+  this.declarationService.downloadTitreFile(titre.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = titre.fileName || `titre-${titre.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du téléchargement du titre',
+        life: 5000
+      });
+    }
+  });
+}
+
+// Pour les revenus
+downloadRevenuFile(revenu: Revenu): void {
+  if (!revenu.id) return;
+
+  this.declarationService.downloadRevenuFile(revenu.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = revenu.fileName || `justificatif-revenu-${revenu.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du téléchargement du justificatif',
+        life: 5000
+      });
+    }
+  });
+}
+
+// Pour les meubles
+downloadMeubleFile(meuble: MeubleMeublant): void {
+  if (!meuble.id) return;
+
+  this.declarationService.downloadMeubleFile(meuble.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = meuble.fileName || `facture-meuble-${meuble.id}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    },
+    error: (error) => {
+      console.error('Erreur de téléchargement', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du téléchargement de la facture',
+        life: 5000
+      });
+    }
+  });
+}
 
   goBack(): void {
     this.router.navigate(['/Assujetti/decDetails']);

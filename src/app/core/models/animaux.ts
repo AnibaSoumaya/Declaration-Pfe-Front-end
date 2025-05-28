@@ -16,4 +16,9 @@ export class Animaux{
     dateCreation?: string;
     declaration?: Declaration;
     isEdit: boolean;
+
+    fileName?: string;
+    fileType?: string;
+    fileDownloadUri?: string;
+    fileData?: Blob;
 }
