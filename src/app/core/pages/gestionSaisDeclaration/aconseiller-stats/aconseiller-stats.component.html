@@ -1,93 +1,194 @@
-<!-- conseiller-stats.component.html -->
-<div class="dashboard-container">
-  <h1 class="dashboard-title">Tableau de bord - Conseiller Rapporteur</h1>
- 
-  <!-- Cartes d'informations principales -->
+<!-- Enhanced Conseiller Statistics Dashboard Template -->
+<div class="conseiller-dashboard">
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoadingDashboard" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Chargement des statistiques...</p>
+  </div>
+
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <h1>Tableau de Bord - Conseiller Rapporteur</h1>
+    <div class="header-actions">
+      <button class="btn btn-refresh" (click)="refreshData()" [disabled]="isLoadingDashboard">
+        <i class="fas fa-sync-alt"></i> Actualiser
+      </button>
+      <button class="btn btn-export" (click)="exportStatistics()">
+        <i class="fas fa-download"></i> Exporter
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Statistics Cards -->
   <div class="info-cards-grid">
-    <div class="info-card">
-      <h3>Dossiers assignés</h3>
-      <div class="big-number" style="color: #FF9800;">{{ conseillerStats.dossiersAssignes || 0 }}</div>
+    <div class="info-card primary">
+      <div class="card-icon">
+        <i class="fas fa-folder-open"></i>
+      </div>
+      <div class="card-content">
+        <h3>Dossiers assignés</h3>
+        <div class="big-number" style="color: #FF9800;">{{ conseillerStats.dossiersAssignes || 0 }}</div>
+        <small class="card-subtitle">Dossiers en cours</small>
+      </div>
     </div>
    
-    <div class="info-card">
-      <h3>Dossiers traités</h3>
-      <div class="big-number" style="color: #4CAF50;">{{ conseillerStats.dossiersTraites || 0 }}</div>
+    <div class="info-card success">
+      <div class="card-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="card-content">
+        <h3>Dossiers traités</h3>
+        <div class="big-number" style="color: #4CAF50;">{{ conseillerStats.dossiersTraites || 0 }}</div>
+        <small class="card-subtitle">Total traité</small>
+      </div>
     </div>
    
-    <div class="info-card">
-      <h3>En cours de traitement</h3>
-      <div class="big-number" style="color: #FF9800;">{{ conseillerStats.dossiersEnCours || 0 }}</div>
+    <div class="info-card warning">
+      <div class="card-icon">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="card-content">
+        <h3>En cours de traitement</h3>
+        <div class="big-number" style="color: #FF9800;">{{ conseillerStats.dossiersEnCours || 0 }}</div>
+        <small class="card-subtitle">Nécessitent action</small>
+      </div>
     </div>
    
-    <div class="info-card">
-      <h3>Délai moyen</h3>
-      <div class="big-number" style="color: #4CAF50;">{{ conseillerStats.delaiMoyen || 0 }} j</div>
+    <div class="info-card info">
+      <div class="card-icon">
+        <i class="fas fa-calendar-alt"></i>
+      </div>
+      <div class="card-content">
+        <h3>Délai moyen</h3>
+        <div class="big-number" style="color: #2196F3;">{{ conseillerStats.delaiMoyen || 0 }} j</div>
+        <small class="card-subtitle">Temps de traitement</small>
+      </div>
+    </div>
+
+    <!-- New Statistics Cards -->
+    <div class="info-card accent">
+      <div class="card-icon">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div class="card-content">
+        <h3>Rapports générés</h3>
+        <div class="big-number" style="color: #9C27B0;">{{ conseillerStats.rapportsGeneres || 0 }}</div>
+        <small class="card-subtitle">Rapports provisoires</small>
+      </div>
+    </div>
+
+    <div class="info-card secondary">
+      <div class="card-icon">
+        <i class="fas fa-comment-dots"></i>
+      </div>
+      <div class="card-content">
+        <h3>Observations</h3>
+        <div class="big-number" style="color: #607D8B;">{{ conseillerStats.observationsRealisees || 0 }}</div>
+        <small class="card-subtitle">Total observations</small>
+      </div>
     </div>
   </div>
 
-  <!-- Grille des graphiques -->
+  <!-- Priority Declarations Section -->
+  <div class="priority-section" *ngIf="declarationsPrioritaires.length > 0">
+    <h2>
+      <i class="fas fa-exclamation-triangle"></i> 
+      Déclarations Prioritaires
+      <span class="badge badge-warning">{{ declarationsPrioritaires.length }}</span>
+    </h2>
+    
+    <div class="priority-cards" *ngIf="!isLoadingPrioritaires">
+      <div *ngFor="let declaration of declarationsPrioritaires.slice(0, 5)" 
+           class="priority-card" 
+           [ngClass]="getPriorityClass(declaration.joursDepuisDeclaration)">
+        <div class="priority-header">
+          <h4>{{ declaration.assujettiNom }} {{ declaration.assujettiPrenom }}</h4>
+          <span class="priority-badge">{{ getPriorityLevel(declaration.joursDepuisDeclaration) }}</span>
+        </div>
+        <div class="priority-details">
+          <p><strong>Date:</strong> {{ declaration.dateDeclaration | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Délai:</strong> {{ declaration.joursDepuisDeclaration }} jours</p>
+          <p><strong>État:</strong> {{ translateEtatDeclaration(declaration.etatDeclaration) }}</p>
+        </div>
+        <div class="priority-actions">
+          <button class="btn btn-sm btn-primary" 
+                  (click)="genererRapportProvisoire(declaration.declarationId)">
+            <i class="fas fa-file-alt"></i> Rapport
+          </button>
+          <button class="btn btn-sm btn-secondary" 
+                  (click)="verifierDeclaration(declaration.declarationId)">
+            <i class="fas fa-search"></i> Vérifier
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="isLoadingPrioritaires" class="loading-content">
+      <i class="fas fa-spinner fa-spin"></i> Chargement des déclarations prioritaires...
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+<!-- Charts Section -->
+<div class="charts-section">
   <div class="charts-grid">
-    <!-- Statut des déclarations -->
+    
+    <!-- Status Distribution Chart -->
     <div class="chart-container">
-      <h3>Statut des déclarations</h3>
-      <div style="height: 350px; position: relative;">
-        <canvas baseChart
-          #declarationsChart
-          [data]="declarationsChartData"
-          [type]="declarationsChartType"
-          [options]="declarationsChartOptions">
+      <h3>
+        <i class="fas fa-chart-pie"></i> Répartition par État
+      </h3>
+      <div class="chart-wrapper">
+        <canvas baseChart 
+                [data]="declarationsChartData"
+                [options]="declarationsChartOptions"
+                [type]="declarationsChartType">
         </canvas>
       </div>
     </div>
-
-    <!-- Performance mensuelle -->
+    
+    <!-- Monthly Performance Chart -->
     <div class="chart-container">
-      <h3>Performance mensuelle</h3>
-      <div style="height: 350px; position: relative;">
-        <canvas baseChart
-          #performanceChart
-          [data]="performanceChartData"
-          [type]="performanceChartType"
-          [options]="performanceChartOptions">
+      <h3>
+        <i class="fas fa-chart-line"></i> Performance Mensuelle
+      </h3>
+      <div class="chart-wrapper">
+        <canvas baseChart 
+                [data]="performanceChartData"
+                [options]="performanceChartOptions"
+                [type]="performanceChartType">
         </canvas>
       </div>
     </div>
-
-    <!-- Temps de traitement -->
+    
+    <!-- Types Distribution Chart -->
     <div class="chart-container">
-      <h3>Répartition des délais de traitement</h3>
-      <div style="height: 350px; position: relative;">
-        <canvas baseChart
-          #tempsTraitementChart
-          [data]="tempsTraitementChartData"
-          [type]="tempsTraitementChartType"
-          [options]="tempsTraitementChartOptions">
+      <h3>
+        <i class="fas fa-chart-bar"></i> Répartition par Type
+      </h3>
+      <div class="chart-wrapper">
+        <canvas baseChart 
+                [data]="typesChartData"
+                [options]="typesChartOptions"
+                [type]="typesChartType">
         </canvas>
       </div>
     </div>
-
-    <!-- Types de déclarations -->
+    
+    <!-- Validation Statistics Chart -->
     <div class="chart-container">
-      <h3>Types de déclarations traitées</h3>
-      <div style="height: 350px; position: relative;">
-        <canvas baseChart
-          #typesChart
-          [data]="typesChartData"
-          [type]="typesChartType"
-          [options]="typesChartOptions">
+      <h3>
+        <i class="fas fa-check-double"></i> Statistiques de Validation
+      </h3>
+      <div class="chart-wrapper">
+        <canvas baseChart 
+                [data]="validationChartData"
+                [options]="validationChartOptions"
+                [type]="validationChartType">
         </canvas>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Bouton de rafraîchissement -->
-  <div style="text-align: center; margin-top: 30px;">
-    <button 
-      type="button" 
-      class="btn btn-primary"
-      (click)="refreshData()"
-      style="background: linear-gradient(45deg, #FF9800, #4CAF50); border: none; padding: 12px 24px; border-radius: 25px; color: white; font-weight: 600;">
-      🔄 Actualiser les données
-    </button>
-  </div>
 </div>

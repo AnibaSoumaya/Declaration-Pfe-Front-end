@@ -1,163 +1,34 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-import { AdminstatService } from 'src/app/core/services/adminstat.service';
+import { StatisticsService } from 'src/app/core/services/statistique.service';
 import { BaseChartDirective } from 'ng2-charts';
+import { AdminstatService } from 'src/app/core/services/adminstat.service';
 
 @Component({
   selector: 'app-admin-stats',
   templateUrl: './admin-stats.component.html',
   styleUrls: ['./admin-stats.component.scss']
 })
-export class AdminStatsComponent implements OnInit {
-  @ViewChild('performanceChart') performanceChart?: BaseChartDirective;
-  @ViewChild('etatChart') etatChart?: BaseChartDirective;
-  @ViewChild('periodeChart') periodeChart?: BaseChartDirective;
-
-  // Données principales
+export class AdminStatsComponent  implements OnInit {
+  loading = false;
   dashboardStats: any = {};
-  loading = true;
+  
+  // Chart data properties
+  performanceChartData: any;
+  performanceChartType = 'bar';
+  performanceChartOptions: any;
+  
+  etatChartData: any;
+  etatChartType = 'doughnut';
+  etatChartOptions: any;
+  
+  periodeChartData: any;
+  periodeChartType = 'line';
+  periodeChartOptions: any;
 
-  // Couleurs personnalisées
-  private orangePalette = [
-    '#FF6D00', '#FF9100', '#FFAB00', '#FFC400', '#FFD740', // Orange vifs
-    '#FFE0B2', '#FFF3E0' // Orange clairs
-  ];
-
-  private greenPalette = [
-    '#00C853', '#64DD17', '#AEEA00', // Verts vifs
-    '#B9F6CA', '#CCFF90' // Verts clairs
-  ];
-
-  // Graphique des performances utilisateurs
-  public performanceChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: 'rgba(0,0,0,0.8)',
-        bodyFont: { size: 14 },
-        titleFont: { size: 16, weight: 'bold' }
-      }
-    },
-    scales: {
-      y: { 
-        beginAtZero: true,
-        grid: { color: 'rgba(0,0,0,0.05)' },
-        ticks: { color: '#5D4037' }
-      },
-      x: {
-        grid: { display: false },
-        ticks: { color: '#5D4037' }
-      }
-    },
-    animation: {
-      duration: 2000,
-      easing: 'easeOutQuart'
-    }
-  };
-
-  public performanceChartType: ChartType = 'bar';
-  public performanceChartData: ChartData<'bar'> = {
-    labels: [],
-    datasets: [{
-      data: [],
-      label: 'Activité',
-      backgroundColor: this.orangePalette[0],
-      hoverBackgroundColor: this.orangePalette[1],
-      borderColor: '#FFF',
-      borderWidth: 2,
-      borderRadius: 4
-    }]
-  };
-
-// Pour le graphique en doughnut (remplacer les anciennes options)
-public etatChartOptions: ChartConfiguration['options'] = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { 
-      position: 'right',
-      labels: {
-        font: { size: 12 },
-        usePointStyle: true,
-        padding: 16
-      }
-    }
-  },
-  //cutout: '65%',
-  animation: {
-    duration: 1000,
-    easing: 'easeOutQuart',
-    //animateRotate: true,  // Animation de rotation pour le doughnut
-    //animateScale: true    // Maintenant correct dans Chart.js 3+
+  constructor(private adminstatService: AdminstatService) {
+    this.initializeChartOptions();
   }
-};
-
-  public etatChartType: ChartType = 'doughnut';
-  public etatChartData: ChartData<'doughnut'> = {
-    labels: [],
-    datasets: [{
-      data: [],
-      backgroundColor: [],
-      hoverOffset: 8,
-      borderColor: '#FFF',
-      borderWidth: 3
-    }]
-  };
-
-  // Graphique évolution par période
-  public periodeChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false }
-    },
-    scales: {
-      y: { 
-        beginAtZero: true,
-        grid: { color: 'rgba(0,0,0,0.05)' },
-        ticks: { color: '#5D4037' }
-      },
-      x: {
-        grid: { display: false },
-        ticks: { color: '#5D4037' }
-      }
-    },
-    elements: {
-      point: {
-        radius: 6,
-        hoverRadius: 10,
-        backgroundColor: this.orangePalette[0],
-        borderColor: '#FFF',
-        borderWidth: 2
-      },
-      line: {
-        tension: 0.4,
-        borderWidth: 3
-      }
-    },
-    animation: {
-      duration: 2000,
-      easing: 'easeOutQuart'
-    }
-  };
-
-  public periodeChartType: ChartType = 'line';
-  public periodeChartData: ChartData<'line'> = {
-    labels: [],
-    datasets: [{
-      data: [],
-      label: 'Évolution',
-      borderColor: this.greenPalette[0],
-      backgroundColor: 'rgba(100, 221, 23, 0.1)',
-      fill: true,
-      pointBackgroundColor: this.orangePalette[0],
-      pointBorderColor: '#FFF'
-    }]
-  };
-
-  constructor(private statsService: AdminstatService) { }
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -166,59 +37,280 @@ public etatChartOptions: ChartConfiguration['options'] = {
   loadDashboardData(): void {
     this.loading = true;
     
-    // Chargement des stats principales
-    this.statsService.getDashboardStats().subscribe({
-      next: (data) => {
-        this.dashboardStats = data;
+    this.adminstatService.getDashboardStats().subscribe({
+      next: (response) => {
+        console.log('API Response:', response);
+        this.processDashboardData(response);
         this.loading = false;
       },
-      error: (err) => {
-        console.error('Erreur stats dashboard:', err);
+      error: (error) => {
+        console.error('Error loading dashboard data:', error);
         this.loading = false;
       }
     });
+  }
 
-    // Stats utilisateurs
-    this.statsService.getUserStatistics().subscribe({
-      next: (data) => {
-        if (data?.usersActivity) {
-          this.performanceChartData.labels = data.usersActivity.map((u: any) => u.name);
-          this.performanceChartData.datasets[0].data = data.usersActivity.map((u: any) => u.count);
-          this.performanceChart?.update();
+  processDashboardData(data: any): void {
+    // Traitement direct des données selon la structure de votre console
+    this.dashboardStats = {
+      // Données principales
+      totalDeclarations: data.totalDeclarations || 0,
+      activeUsers: data.activeUsers || 0,
+      totalUsers: data.totalUsers || 0,
+      archivedUsers: data.archivedUsers || 0,
+      totalAssujettis: data.totalAssujettis || 0,
+      activeAssujettis: data.activeAssujettis || 0,
+      archivedAssujettis: data.archivedAssujettis || 0,
+      totalTerms: data.totalTerms || 0,
+      
+      // Données détaillées
+      usersByRole: data.usersByRole || {},
+      assujettisByEtat: data.assujettisByEtat || {},
+      assujettisByYear: data.assujettisByYear || {},
+      declarationsByEtat: data.declarationsByEtat || {},
+      declarationsByType: data.declarationsByType || {},
+      declarationsByYear: data.declarationsByYear || {},
+      termsByType: data.termsByType || {},
+      
+      // Calculs
+      processRate: this.calculateProcessRate(data),
+      avgProcessTime: data.avgProcessTime || 0,
+      recentActivity: this.generateRecentActivity(data)
+    };
+
+    console.log('Processed dashboard stats:', this.dashboardStats);
+
+    // Mise à jour des graphiques
+    this.updateCharts(data);
+  }
+
+  calculateProcessRate(data: any): number {
+    const total = data.totalDeclarations || 0;
+    if (total === 0) return 0;
+    
+    const byEtat = data.declarationsByEtat || {};
+    const processed = Object.values<number>(byEtat)
+      .reduce((sum: number, count: number) => sum + count, 0);
+    
+    return total > 0 ? Math.round((processed / total) * 100) : 0;
+  }
+
+  generateRecentActivity(data: any): any[] {
+    const activities = [];
+    
+    if (data.totalUsers > 0) {
+      activities.push({
+        type: 'user',
+        description: `${data.totalUsers} utilisateurs dans le système`,
+        user: 'Système',
+        time: 'Il y a 2 heures'
+      });
+    }
+    
+    if (data.totalAssujettis > 0) {
+      activities.push({
+        type: 'assujetti',
+        description: `${data.totalAssujettis} assujettis enregistrés`,
+        user: 'Système',
+        time: 'Il y a 4 heures'
+      });
+    }
+    
+    if (data.totalTerms > 0) {
+      activities.push({
+        type: 'vocabulary',
+        description: `${data.totalTerms} termes dans le vocabulaire`,
+        user: 'Système',
+        time: 'Il y a 6 heures'
+      });
+    }
+    
+    return activities;
+  }
+
+  updateCharts(data: any): void {
+    // Graphique des utilisateurs par rôle
+    this.updatePerformanceChart(data.usersByRole || {});
+    
+    // Graphique des déclarations par état
+    this.updateEtatChart(data.declarationsByEtat || {});
+    
+  }
+
+  updatePerformanceChart(usersByRole: any): void {
+    const roles = Object.keys(usersByRole);
+    const counts = Object.values(usersByRole) as number[];
+    
+    if (roles.length === 0) {
+      this.performanceChartData = null;
+      return;
+    }
+    
+    this.performanceChartData = {
+      labels: roles.map(role => this.formatRoleName(role)),
+      datasets: [{
+        label: 'Nombre d\'utilisateurs',
+        data: counts,
+        backgroundColor: [
+          '#4CAF50',
+          '#2196F3',
+          '#FF9800',
+          '#9C27B0',
+          '#F44336'
+        ],
+        borderColor: [
+          '#45a049',
+          '#1976D2',
+          '#F57C00',
+          '#7B1FA2',
+          '#D32F2F'
+        ],
+        borderWidth: 2
+      }]
+    };
+  }
+
+  updateEtatChart(declarationsByEtat: any): void {
+    const labels = Object.keys(declarationsByEtat);
+    const values = Object.values(declarationsByEtat) as number[];
+    
+    if (labels.length === 0) {
+      // Si pas de déclarations, afficher un message
+      this.etatChartData = null;
+      return;
+    }
+    
+    this.etatChartData = {
+      labels: labels,
+      datasets: [{
+        data: values,
+        backgroundColor: [
+          '#4CAF50',
+          '#2196F3',
+          '#FF9800',
+          '#F44336',
+          '#9C27B0'
+        ],
+        borderColor: [
+          '#45a049',
+          '#1976D2',
+          '#F57C00',
+          '#D32F2F',
+          '#7B1FA2'
+        ],
+        borderWidth: 2
+      }]
+    };
+  }
+
+  updatePeriodeChart(declarationsByYear: any): void {
+    const years = Object.keys(declarationsByYear);
+    const counts = Object.values(declarationsByYear) as number[];
+    
+    if (years.length === 0) {
+      // Données de démonstration si pas de données
+      this.periodeChartData = {
+        labels: ['2023', '2024', '2025'],
+        datasets: [{
+          label: 'Déclarations par année',
+          data: [0, 0, 0],
+          borderColor: '#2196F3',
+          backgroundColor: 'rgba(33, 150, 243, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      };
+    } else {
+      this.periodeChartData = {
+        labels: years,
+        datasets: [{
+          label: 'Déclarations par année',
+          data: counts,
+          borderColor: '#2196F3',
+          backgroundColor: 'rgba(33, 150, 243, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      };
+    }
+  }
+
+  formatRoleName(role: string): string {
+    const roleNames: { [key: string]: string } = {
+      'verificateur': 'Vérificateur',
+      'procureur_general': 'Procureur Général',
+      'conseiller_rapporteur': 'Conseiller Rapporteur',
+      'administrateur': 'Administrateur'
+    };
+    return roleNames[role] || role;
+  }
+
+  initializeChartOptions(): void {
+    this.performanceChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
         }
       },
-      error: (err) => console.error('Erreur stats utilisateurs:', err)
-    });
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    };
 
-    // Stats déclarations
-    this.statsService.getDeclarationStatistics().subscribe({
-      next: (data) => {
-        if (data?.byStatus) {
-          this.etatChartData.labels = data.byStatus.map((s: any) => s.status);
-          this.etatChartData.datasets[0].data = data.byStatus.map((s: any) => s.count);
-          this.etatChartData.datasets[0].backgroundColor = data.byStatus.map(
-            (_, i) => i % 2 === 0 ? this.orangePalette[i % 4] : this.greenPalette[i % 3]
-          );
-          this.etatChart?.update();
+    this.etatChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    };
+
+    this.periodeChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true
         }
       },
-      error: (err) => console.error('Erreur stats déclarations:', err)
-    });
-
-    // Trends
-    this.statsService.getDeclarationTrends().subscribe({
-      next: (data) => {
-        if (data?.monthlyTrends) {
-          this.periodeChartData.labels = data.monthlyTrends.map((t: any) => t.month);
-          this.periodeChartData.datasets[0].data = data.monthlyTrends.map((t: any) => t.count);
-          this.periodeChart?.update();
+      scales: {
+        y: {
+          beginAtZero: true
         }
-      },
-      error: (err) => console.error('Erreur trends déclarations:', err)
-    });
+      }
+    };
   }
 
   refreshData(): void {
     this.loadDashboardData();
+  }
+
+  getActivityClass(type: string): string {
+    const classes: { [key: string]: string } = {
+      'user': 'activity-user',
+      'assujetti': 'activity-assujetti',
+      'declaration': 'activity-declaration',
+      'vocabulary': 'activity-vocabulary'
+    };
+    return classes[type] || 'activity-default';
+  }
+
+  getActivityIcon(type: string): string {
+    const icons: { [key: string]: string } = {
+      'user': 'fas fa-user',
+      'assujetti': 'fas fa-user-tie',
+      'declaration': 'fas fa-file-alt',
+      'vocabulary': 'fas fa-book'
+    };
+    return icons[type] || 'fas fa-info-circle';
   }
 }

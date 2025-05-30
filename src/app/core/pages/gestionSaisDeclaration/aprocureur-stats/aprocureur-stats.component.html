@@ -96,26 +96,19 @@
       </div>
     </div>
 
-    <!-- Évolution des dépôts -->
-    <div class="chart-container full-width">
-      <div class="chart-header">
-        <h3>Évolution des dépôts par mois</h3>
-        <div class="time-filter">
-          <button class="time-btn active">Mensuel</button>
-          <button class="time-btn">Trimestriel</button>
-          <button class="time-btn">Annuel</button>
-        </div>
-      </div>
-      <div class="chart-wrapper">
-        <canvas baseChart
-          #lineChart
-          [data]="lineChartData"
-          [type]="lineChartType"
-          [options]="lineChartOptions">
-        </canvas>
-      </div>
-    </div>
-
+<div class="chart-container full-width">
+  <div class="chart-header">
+    <h3>Répartition des rapports</h3>
+  </div>
+  <div class="chart-wrapper">
+    <canvas baseChart
+      #pieChart
+      [data]="pieChartData"
+      [type]="pieChartType"
+      [options]="pieChartOptions">
+    </canvas>
+  </div>
+</div>
     <!-- Déclarations par acteur -->
     <div class="chart-container">
       <div class="chart-header">

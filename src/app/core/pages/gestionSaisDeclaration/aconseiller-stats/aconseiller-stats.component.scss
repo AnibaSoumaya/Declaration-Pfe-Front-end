@@ -1,24 +1,58 @@
 /* conseiller-stats.component.scss */
 
+// Variables de couleur
+$primary-orange: #FF8C00;
+$secondary-orange: #FFA726;
+$primary-green: #4CAF50;
+$secondary-green: #81C784;
+$dark-text: #2C3E50;
+$light-bg: #F9F9F9;
+
+// Mixins pour les animations
+@mixin card-hover-effect {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  border-color: rgba($primary-green, 0.3);
+}
+
+@mixin gradient-text {
+  background: linear-gradient(45deg, $primary-orange, $primary-green);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .dashboard-container {
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: $light-bg;
   min-height: 100vh;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .dashboard-title {
-  background: linear-gradient(45deg, #FF9800, #4CAF50);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  @include gradient-text;
   margin-bottom: 30px;
   text-align: center;
   font-weight: 700;
   font-size: 2.5rem;
   text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+  padding-bottom: 15px;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, $primary-orange, $primary-green);
+    border-radius: 2px;
+  }
 }
 
 /* Cartes d'informations */
@@ -30,15 +64,16 @@
 }
 
 .info-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  background: white;
   border-radius: 15px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   padding: 25px;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: 2px solid transparent;
   position: relative;
   overflow: hidden;
+  animation: fadeInUp 0.6s ease-out both;
 
   &::before {
     content: '';
@@ -46,32 +81,53 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #FF9800, #4CAF50);
+    height: 5px;
+    background: linear-gradient(90deg, $primary-orange, $primary-green);
+    transition: all 0.3s ease;
   }
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    border: 2px solid rgba(76, 175, 80, 0.3);
+    @include card-hover-effect;
+    
+    &::before {
+      height: 8px;
+    }
   }
 
   h3 {
-    color: #2c3e50;
+    color: $dark-text;
     margin: 0 0 15px 0;
     font-size: 1.1rem;
     font-weight: 600;
+    transition: all 0.3s ease;
   }
 
   .big-number {
     font-size: 3rem;
     font-weight: 800;
     margin: 10px 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    display: inline-block;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 3px;
+      background: $primary-orange;
+      transition: width 0.3s ease;
+    }
     
     &:hover {
-      transform: scale(1.1);
+      transform: scale(1.15);
+      
+      &::after {
+        width: 60%;
+      }
     }
   }
 }
@@ -89,14 +145,15 @@
 }
 
 .chart-container {
-  background: #ffffff;
+  background: white;
   border-radius: 15px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   padding: 25px;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: 1px solid rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
+  animation: fadeInUp 0.6s ease-out both;
 
   &::before {
     content: '';
@@ -104,33 +161,51 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #FF9800, #4CAF50);
+    height: 5px;
+    background: linear-gradient(90deg, $primary-orange, $primary-green);
+    transition: all 0.3s ease;
   }
 
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    
+    &::before {
+      height: 8px;
+    }
   }
 
   h3 {
-    color: #2c3e50;
+    @include gradient-text;
     margin: 0 0 20px 0;
     font-size: 1.3rem;
     font-weight: 700;
     text-align: center;
     padding-bottom: 15px;
-    border-bottom: 2px solid #ecf0f1;
-    background: linear-gradient(45deg, #FF9800, #4CAF50);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, $primary-orange, $primary-green);
+      border-radius: 2px;
+    }
   }
 
   canvas {
     width: 100% !important;
     height: auto !important;
     min-height: 300px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: scale(1.02);
+    }
   }
 
   &.full-width {
@@ -145,28 +220,72 @@
   border-radius: 25px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   text-transform: uppercase;
   letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, $primary-orange, $primary-green);
+    z-index: -1;
+    transition: opacity 0.3s ease;
+  }
 
   &.btn-primary {
-    background: linear-gradient(45deg, #FF9800, #4CAF50);
+    background: transparent;
     color: white;
-    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
-
+    position: relative;
+    z-index: 1;
+    
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4);
-      background: linear-gradient(45deg, #F57C00, #388E3C);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba($primary-orange, 0.3);
+      
+      &::after {
+        opacity: 0.9;
+      }
     }
 
     &:active {
-      transform: translateY(0);
+      transform: translateY(1px);
     }
   }
 }
 
-/* Animations personnalisées */
+.no-data-message {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba($primary-orange, 0.3);
+  border-radius: 15px;
+  background: rgba(white, 0.7);
+  animation: pulse 2s infinite;
+  
+  &::before {
+    content: '⚠️';
+    margin-right: 10px;
+    font-size: 1.5rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -178,21 +297,36 @@
   }
 }
 
-.info-card,
-.chart-container {
-  animation: fadeInUp 0.6s ease-out;
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
 }
 
-.info-card:nth-child(2) { animation-delay: 0.1s; }
-.info-card:nth-child(3) { animation-delay: 0.2s; }
-.info-card:nth-child(4) { animation-delay: 0.3s; }
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-.chart-container:nth-child(1) { animation-delay: 0.4s; }
-.chart-container:nth-child(2) { animation-delay: 0.5s; }
-.chart-container:nth-child(3) { animation-delay: 0.6s; }
-.chart-container:nth-child(4) { animation-delay: 0.7s; }
+// Délais d'animation pour les cartes
+.info-card {
+  @for $i from 1 through 4 {
+    &:nth-child(#{$i}) {
+      animation-delay: $i * 0.1s;
+    }
+  }
+}
 
-/* Responsive design amélioré */
+.chart-container {
+  @for $i from 1 through 4 {
+    &:nth-child(#{$i}) {
+      animation-delay: 0.4s + ($i * 0.1s);
+    }
+  }
+}
+
+/* Responsive design */
 @media (max-width: 1200px) {
   .charts-grid {
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));

@@ -13,7 +13,6 @@ export class ProcureurStatsComponent implements OnInit {
 
   @ViewChild('pieChart') pieChart!: BaseChartDirective;
   @ViewChild('barChart') barChart!: BaseChartDirective;
-  @ViewChild('lineChart') lineChart!: BaseChartDirective;
   @ViewChild('horizontalBarChart') horizontalBarChart!: BaseChartDirective;
   @ViewChild('declarationTypeChart') declarationTypeChart!: BaseChartDirective;
 
@@ -335,7 +334,7 @@ export class ProcureurStatsComponent implements OnInit {
       }
 
       // Update line chart - Monthly evolution (generate sample data since temporal data might not be available)
-      this.updateLineChartWithSampleData();
+
 
       // Update horizontal bar chart - By actor (use advisors performance data)
       if (data?.advisorsPerformance && data.advisorsPerformance.length > 0) {
@@ -363,28 +362,6 @@ export class ProcureurStatsComponent implements OnInit {
     }
   }
 
-  private updateLineChartWithSampleData(): void {
-    // Generate sample monthly data or load from temporal stats
-    this.pgStatService.getTemporalStats('monthly').subscribe({
-      next: (temporalData) => {
-        if (temporalData?.monthlyData) {
-          // Convert temporal data to chart format
-          const monthlyValues = Object.values(temporalData.monthlyData)
-            .map((data: any) => data.declarations || 0);
-          this.lineChartData.datasets[0].data = monthlyValues;
-        } else {
-          // Use sample data if temporal data is not available
-          this.lineChartData.datasets[0].data = this.generateSampleMonthlyData();
-        }
-        this.lineChart?.update();
-      },
-      error: (error) => {
-        console.warn('Temporal data not available, using sample data:', error);
-        this.lineChartData.datasets[0].data = this.generateSampleMonthlyData();
-        this.lineChart?.update();
-      }
-    });
-  }
 
   private generateSampleMonthlyData(): number[] {
     // Generate sample data based on total declarations

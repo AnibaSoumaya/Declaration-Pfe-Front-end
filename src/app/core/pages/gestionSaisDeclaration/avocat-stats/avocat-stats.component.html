@@ -1,17 +1,70 @@
-<!-- avocat-stats.component.html -->
 <div class="dashboard-container">
   <h1 class="dashboard-title">Tableau de bord - Avocat Général</h1>
-  
-  <!-- Cartes d'informations principales -->
+
+  <!-- Loading indicator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <p>Chargement des statistiques...</p>
+  </div>
+
+  <!-- Dashboard content -->
+  <div *ngIf="!isLoading">
+    <!-- Statistiques globales -->
+    <div class="section">
+      <h2 class="section-title">Statistiques Globales</h2>
+      <div class="info-cards-grid">
+        <div class="info-card">
+          <h3>Total Déclarations</h3>
+          <div class="big-number">{{ getStatValue('statistiquesGlobales.totalDeclarations') }}</div>
+        </div>
+        <div class="info-card">
+          <h3>Conclusions Générées</h3>
+          <div class="big-number">{{ getStatValue('statistiquesGlobales.conclusionsGenerees') }}</div>
+        </div>
+        <div class="info-card">
+          <h3>En Attente de Conclusion</h3>
+          <div class="big-number">{{ getStatValue('statistiquesGlobales.enAttenteConclusion') }}</div>
+        </div>
+        <div class="info-card">
+          <h3>Taux de Traitement</h3>
+          <div class="big-number">{{ formatPercentage(getStatValue('statistiquesGlobales.tauxTraitement')) }}</div>
+        </div>
+      </div>
+    </div>
+<!-- Charge de travail -->
+<div class="section">
+  <h2 class="section-title">Charge de Travail</h2>
   <div class="info-cards-grid">
     <div class="info-card">
-      <h3>Dossiers en attente</h3>
-      <div class="big-number">{{ avocatStats.dossiersEnAttente || 0 }}</div>
+      <h3>Nouvelles</h3>
+      <div class="big-number">{{ getStatValue('chargeTravail.nouvelles') }}</div>
     </div>
-    
     <div class="info-card">
-      <h3>Délai moyen</h3>
-      <div class="big-number">{{ avocatStats.delaiMoyen || 0 }} j</div>
+      <h3>En Cours</h3>
+      <div class="big-number">{{ getStatValue('chargeTravail.enCours') }}</div>
+    </div>
+  </div>
+</div>
+    <!-- Statistiques des conclusions -->
+    <div class="section">
+      <h2 class="section-title">Statistiques des Conclusions</h2>
+      <div class="info-cards-grid">
+        <div class="info-card">
+          <h3>Total Conclusions</h3>
+          <div class="big-number">{{ getStatValue('conclusionStats.totalConclusions') }}</div>
+        </div>
+        <div class="info-card">
+          <h3>Acceptations</h3>
+          <div class="big-number">{{ getStatValue('conclusionStats.acceptations') }}</div>
+        </div>
+        <div class="info-card">
+          <h3>Refus</h3>
+          <div class="big-number">{{ getStatValue('conclusionStats.refus') }}</div>
+        </div>
+        <div class="info-card">
+          <h3>Taux d'Acceptation</h3>
+          <div class="big-number">{{ formatPercentage(getStatValue('conclusionStats.tauxAcceptation')) }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

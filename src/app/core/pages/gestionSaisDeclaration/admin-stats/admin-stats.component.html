@@ -6,8 +6,8 @@
 
   <h1 class="dashboard-title">
     <span>Tableau de bord administratif</span>
-    <button class="refresh-btn" (click)="refreshData()">
-      <i class="fas fa-sync-alt"></i>
+    <button class="refresh-btn" (click)="refreshData()" [disabled]="loading">
+      <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
     </button>
   </h1>
 
@@ -20,6 +20,7 @@
       <div class="stat-content">
         <h3>Déclarations totales</h3>
         <div class="stat-value">{{ dashboardStats.totalDeclarations || 0 }}</div>
+        <div class="stat-subtitle">Toutes les déclarations</div>
       </div>
     </div>
 
@@ -30,26 +31,29 @@
       <div class="stat-content">
         <h3>Utilisateurs actifs</h3>
         <div class="stat-value">{{ dashboardStats.activeUsers || 0 }}</div>
+        <div class="stat-subtitle">Sur {{ dashboardStats.totalUsers || 0 }} total</div>
       </div>
     </div>
 
-    <div class="stat-card orange-gradient">
+    <div class="stat-card blue-gradient">
       <div class="stat-icon">
-        <i class="fas fa-check-circle"></i>
+        <i class="fas fa-user-tie"></i>
       </div>
       <div class="stat-content">
-        <h3>Taux de traitement</h3>
-        <div class="stat-value">{{ dashboardStats.processRate || 0 }}%</div>
+        <h3>Assujettis</h3>
+        <div class="stat-value">{{ dashboardStats.totalAssujettis || 0 }}</div>
+        <div class="stat-subtitle">{{ dashboardStats.activeAssujettis || 0 }} actifs</div>
       </div>
     </div>
 
-    <div class="stat-card green-gradient">
+    <div class="stat-card purple-gradient">
       <div class="stat-icon">
-        <i class="fas fa-clock"></i>
+        <i class="fas fa-book"></i>
       </div>
       <div class="stat-content">
-        <h3>Temps moyen</h3>
-        <div class="stat-value">{{ dashboardStats.avgProcessTime || 0 }} jours</div>
+        <h3>Vocabulaire</h3>
+        <div class="stat-value">{{ dashboardStats.totalTerms || 0 }}</div>
+        <div class="stat-subtitle">Termes disponibles</div>
       </div>
     </div>
   </div>
@@ -57,55 +61,77 @@
   <!-- Graphiques -->
   <div class="charts-container">
     <div class="chart-card">
-      <h2><i class="fas fa-chart-bar"></i> Activité des utilisateurs</h2>
+      <h2><i class="fas fa-chart-bar"></i> Répartition des utilisateurs</h2>
       <div class="chart-wrapper">
-        <canvas baseChart
+        <canvas *ngIf="performanceChartData" 
+          baseChart
           [data]="performanceChartData"
           [type]="performanceChartType"
           [options]="performanceChartOptions">
         </canvas>
+        <div *ngIf="!performanceChartData" class="no-data">
+          Aucune donnée disponible
+        </div>
       </div>
     </div>
 
     <div class="chart-card">
       <h2><i class="fas fa-chart-pie"></i> Statut des déclarations</h2>
       <div class="chart-wrapper">
-        <canvas baseChart
+        <canvas *ngIf="etatChartData"
+          baseChart
           [data]="etatChartData"
           [type]="etatChartType"
           [options]="etatChartOptions">
         </canvas>
+        <div *ngIf="!etatChartData" class="no-data">
+          Aucune donnée disponible
+        </div>
       </div>
     </div>
 
-    <div class="chart-card full-width">
-      <h2><i class="fas fa-chart-line"></i> Évolution mensuelle</h2>
-      <div class="chart-wrapper">
-        <canvas baseChart
-          [data]="periodeChartData"
-          [type]="periodeChartType"
-          [options]="periodeChartOptions">
-        </canvas>
-      </div>
-    </div>
+    
   </div>
 
-  <!-- Dernières activités -->
-  <div class="activity-section" *ngIf="dashboardStats.recentActivity">
-    <h2><i class="fas fa-history"></i> Dernières activités</h2>
-    <div class="activity-list">
-      <div class="activity-item" *ngFor="let activity of dashboardStats.recentActivity">
-        <div class="activity-icon" [ngClass]="getActivityClass(activity.type)">
-          <i [class]="getActivityIcon(activity.type)"></i>
+  <!-- Résumé des données -->
+  <div class="summary-section">
+    <h2><i class="fas fa-info-circle"></i> Résumé du système</h2>
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="summary-label">Utilisateurs</div>
+        <div class="summary-details">
+          <div>Total: <strong>{{ dashboardStats.totalUsers || 0 }}</strong></div>
+          <div>Actifs: <strong>{{ dashboardStats.activeUsers || 0 }}</strong></div>
+          <div>Archivés: <strong>{{ dashboardStats.archivedUsers || 0 }}</strong></div>
         </div>
-        <div class="activity-content">
-          <div class="activity-title">{{ activity.description }}</div>
-          <div class="activity-meta">
-            <span class="activity-user">{{ activity.user }}</span>
-            <span class="activity-time">{{ activity.time }}</span>
+      </div>
+      
+      <div class="summary-item">
+        <div class="summary-label">Assujettis</div>
+        <div class="summary-details">
+          <div>Total: <strong>{{ dashboardStats.totalAssujettis || 0 }}</strong></div>
+          <div>Actifs: <strong>{{ dashboardStats.activeAssujettis || 0 }}</strong></div>
+          <div>Archivés: <strong>{{ dashboardStats.archivedAssujettis || 0 }}</strong></div>
+        </div>
+      </div>
+      
+      <div class="summary-item">
+        <div class="summary-label">Déclarations</div>
+        <div class="summary-details">
+          <div>Total: <strong>{{ dashboardStats.totalDeclarations || 0 }}</strong></div>
+          <div *ngIf="dashboardStats.totalDeclarations === 0" class="no-data-text">
+            Aucune déclaration enregistrée
           </div>
         </div>
       </div>
+      
+      <div class="summary-item">
+        <div class="summary-label">Vocabulaire</div>
+        <div class="summary-details">
+          <div>Termes: <strong>{{ dashboardStats.totalTerms || 0 }}</strong></div>
+        </div>
+      </div>
     </div>
   </div>
+
 </div>
