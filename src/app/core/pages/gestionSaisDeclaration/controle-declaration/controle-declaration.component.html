@@ -194,7 +194,7 @@
       <th>Salaire Mensuel Net</th>
       <th>Autres Revenus</th>
       <th>Date</th>
-      <th>Justificatif</th>
+      <th>Document</th>
     </tr>
   </thead>
   <tbody>
@@ -207,7 +207,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadRevenuFile(revenu)"
                 title="Télécharger {{revenu.fileName}}">
-          <i class="pi pi-file-pdf"></i> Justificatif
+          <i class="pi pi-file-pdf"></i>  {{revenu.fileName}}
         </button>
         <span *ngIf="!revenu.fileName">N/A</span>
       </td>
@@ -219,7 +219,7 @@
               <!-- Bouton pour afficher/masquer les commentaires -->
               <button class="btn btn-sm btn-outline-primary mb-2"
               *ngIf="isSectionExpanded('Revenus')"
-              (click)="showComments['Revenus'] = !showComments['Revenus']">
+              (click)="showComments['Revenus'] = !showComments['Revenus']"><i class="pi pi-comments"style="color: orange;"></i>
               {{ showComments['Revenus'] ? 'Masquer les observations' : 'Voir les observations' }}
               </button>
 
@@ -278,8 +278,8 @@
         <button *ngIf="foncier.fileName && !isDownloading" 
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadFoncierBatiFile(foncier)"
-                title="Télécharger {{foncier.fileName}}">
-          <i class="pi pi-file-pdf"></i> Cadastre
+                title="Télécharger {{foncier.fileName}}"><i class="pi pi-comments"style="color: orange;"></i>
+          <i class="pi pi-file-pdf"></i> {{foncier.fileName}}
         </button>
         <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
           <i class="pi pi-spinner pi-spin"></i> Chargement...
@@ -320,7 +320,7 @@
   <div class="prediction-actions">
         <button class="prediction-btn" 
                 (click)="generatePredictionReport()"
-                [disabled]="isGeneratingReport">
+                [disabled]="isGeneratingReport"><i class="pi pi-comments"style="color: orange;"></i>
           <i class="pi pi-chart-line"></i>
           <span>Analyse Prédictive des Terrains</span>
           <div class="pulse-effect"></div>
@@ -337,7 +337,7 @@
       <th>Titre Propriété</th>
       <th>Année</th>
       <th>Valeur (FCFA)</th>
-      <th>Titre</th> <!-- Nouvelle colonne -->
+      <th>Document</th> <!-- Nouvelle colonne -->
     </tr>
   </thead>
   <tbody>
@@ -354,7 +354,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadFoncierNonBatiFile(foncier)"
                 title="Télécharger {{foncier.fileName}}">
-          <i class="pi pi-file-pdf"></i> Titre
+          <i class="pi pi-file-pdf"></i> {{foncier.fileName}}
         </button>
         <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
           <i class="pi pi-spinner pi-spin"></i> Chargement...
@@ -368,7 +368,7 @@
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
            *ngIf="isSectionExpanded('FoncierNonBati')"
-           (click)="showComments['FoncierNonBati'] = !showComments['FoncierNonBati']">
+           (click)="showComments['FoncierNonBati'] = !showComments['FoncierNonBati']"><i class="pi pi-comments"style="color: orange;"></i>
            {{ showComments['FoncierNonBati'] ? 'Masquer les observations' : 'Voir les observations' }}
            </button>
 
@@ -415,7 +415,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadEmpruntFile(emprunt)"
                 title="Télécharger {{emprunt.fileName}}">
-          <i class="pi pi-file-pdf"></i> Contrat
+          <i class="pi pi-file-pdf"></i> {{emprunt.fileName}}
         </button>
         <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
           <i class="pi pi-spinner pi-spin"></i> Chargement...
@@ -429,7 +429,7 @@
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
            *ngIf="isSectionExpanded('Emprunts')"
-           (click)="showComments['Emprunts'] = !showComments['Emprunts']">
+           (click)="showComments['Emprunts'] = !showComments['Emprunts']"><i class="pi pi-comments"style="color: orange;"></i>
            {{ showComments['Emprunts'] ? 'Masquer les observations' : 'Voir les observations' }}
            </button>
 
@@ -461,7 +461,7 @@
       <th>Type Compte</th>
       <th>Solde (FCFA)</th>
       <th>Date Solde</th>
-      <th>Attestation</th> <!-- Nouvelle colonne -->
+      <th>Document</th> <!-- Nouvelle colonne -->
     </tr>
   </thead>
   <tbody>
@@ -476,7 +476,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadDisponibiliteFile(disponibilite)"
                 title="Télécharger {{disponibilite.fileName}}">
-          <i class="pi pi-file-pdf"></i> Attestation
+          <i class="pi pi-file-pdf"></i> {{disponibilite.fileName}}
         </button>
         <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
           <i class="pi pi-spinner pi-spin"></i> Chargement...
@@ -490,7 +490,7 @@
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
            *ngIf="isSectionExpanded('DisponibilitesEnBanque')"
-           (click)="showComments['DisponibilitesEnBanque'] = !showComments['DisponibilitesEnBanque']">
+           (click)="showComments['DisponibilitesEnBanque'] = !showComments['DisponibilitesEnBanque']"><i class="pi pi-comments"style="color: orange;"></i>
            {{ showComments['DisponibilitesEnBanque'] ? 'Masquer les observations' : 'Voir les observations' }}
            </button>
 
@@ -523,7 +523,7 @@
       <th>Montant FCFA</th>
       <th>Total FCFA</th>
       <th>Date</th>
-      <th>Justificatif</th> <!-- Nouvelle colonne -->
+      <th>Document</th> <!-- Nouvelle colonne -->
     </tr>
   </thead>
   <tbody>
@@ -539,7 +539,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadEspeceFile(espece)"
                 title="Télécharger {{espece.fileName}}">
-          <i class="pi pi-file-pdf"></i> Justificatif
+          <i class="pi pi-file-pdf"></i> {{espece.fileName}}
         </button>
         <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
           <i class="pi pi-spinner pi-spin"></i> Chargement...
@@ -553,7 +553,7 @@
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
            *ngIf="isSectionExpanded('Especes')"
-           (click)="showComments['Especes'] = !showComments['Especes']">
+           (click)="showComments['Especes'] = !showComments['Especes']"><i class="pi pi-comments"style="color: orange;"></i>
            {{ showComments['Especes'] ? 'Masquer les observations' : 'Voir les observations' }}
            </button>
 
@@ -602,8 +602,8 @@
         <button *ngIf="animal.fileName" 
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadAnimauxFile(animal)"
-                title="Télécharger {{animal.fileName}}">
-          <i class="pi pi-download"></i> Document
+                title="Télécharger {{animal.fileName}}"><i class="pi pi-comments"style="color: orange;"></i>
+          <i class="pi pi-download"></i> {{animal.fileName}}
         </button>
         <span *ngIf="!animal.fileName">N/A</span>
       </td>
@@ -645,7 +645,7 @@
       <th>Année</th>
       <th>Valeur (FCFA)</th>
       <th>État</th>
-      <th>Facture</th>
+      <th>Document</th>
     </tr>
   </thead>
   <tbody>
@@ -659,7 +659,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadMeubleFile(meuble)"
                 title="Télécharger {{meuble.fileName}}">
-          <i class="pi pi-file-pdf"></i> Facture
+          <i class="pi pi-file-pdf"></i>  {{meuble.fileName}}
         </button>
         <span *ngIf="!meuble.fileName">N/A</span>
       </td>
@@ -670,7 +670,7 @@
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
            *ngIf="isSectionExpanded('MeublesMeublants')"
-           (click)="showComments['MeublesMeublants'] = !showComments['MeublesMeublants']">
+           (click)="showComments['MeublesMeublants'] = !showComments['MeublesMeublants']"><i class="pi pi-comments"style="color: orange;"></i>
            {{ showComments['MeublesMeublants'] ? 'Masquer les observations' : 'Voir les observations' }}
            </button>
 
@@ -715,7 +715,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadTitreFile(titre)"
                 title="Télécharger {{titre.fileName}}">
-          <i class="pi pi-file-pdf"></i> Titre
+          <i class="pi pi-file-pdf"></i> {{titre.fileName}}
         </button>
         <span *ngIf="!titre.fileName">N/A</span>
       </td>
@@ -726,7 +726,7 @@
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
            *ngIf="isSectionExpanded('Titres')"
-           (click)="showComments['Titres'] = !showComments['Titres']">
+           (click)="showComments['Titres'] = !showComments['Titres']"><i class="pi pi-comments"style="color: orange;"></i>
            {{ showComments['Titres'] ? 'Masquer les observations' : 'Voir les observations' }}
            </button>
 
@@ -756,7 +756,7 @@
       <th>Débiteur</th>
       <th>Montant (FCFA)</th>
       <th>Précisions</th>
-      <th>Justificatif</th> <!-- Nouvelle colonne -->
+      <th>Document</th> <!-- Nouvelle colonne -->
     </tr>
   </thead>
   <tbody>
@@ -769,7 +769,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadCreanceFile(creance)"
                 title="Télécharger {{creance.fileName}}">
-          <i class="pi pi-file-pdf"></i> Justificatif
+          <i class="pi pi-file-pdf"></i> {{creance.fileName}}
         </button>
         <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
           <i class="pi pi-spinner pi-spin"></i> Chargement...
@@ -783,7 +783,7 @@
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
            *ngIf="isSectionExpanded('LesCreances')"
-           (click)="showComments['LesCreances'] = !showComments['LesCreances']">
+           (click)="showComments['LesCreances'] = !showComments['LesCreances']"><i class="pi pi-comments"style="color: orange;"></i>
            {{ showComments['LesCreances'] ? 'Masquer les observations' : 'Voir les observations' }}
            </button>
 
@@ -828,7 +828,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadDetteFile(dette)"
                 title="Télécharger {{dette.fileName}}">
-          <i class="pi pi-file-pdf"></i> Document
+          <i class="pi pi-file-pdf"></i> {{dette.fileName}}
         </button>
         <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
           <i class="pi pi-spinner pi-spin"></i> Chargement...
@@ -842,7 +842,7 @@
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
            *ngIf="isSectionExpanded('AutresDettes')"
-           (click)="showComments['AutresDettes'] = !showComments['AutresDettes']">
+           (click)="showComments['AutresDettes'] = !showComments['AutresDettes']"><i class="pi pi-comments"style="color: orange;"></i>
            {{ showComments['AutresDettes'] ? 'Masquer les observations' : 'Voir les observations' }}
            </button>
 
@@ -890,7 +890,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadAutreBienFile(bien)"
                 title="Télécharger {{bien.fileName}}">
-          <i class="pi pi-download"></i> Document
+          <i class="pi pi-download"></i> {{bien.fileName}}
         </button>
         <span *ngIf="!bien.fileName">N/A</span>
       </td>
@@ -901,7 +901,7 @@
        <!-- Bouton pour afficher/masquer les commentaires -->
        <button class="btn btn-sm btn-outline-primary mb-2"
        *ngIf="isSectionExpanded('AutresBiensDeValeur')"
-       (click)="showComments['AutresBiensDeValeur'] = !showComments['AutresBiensDeValeur']">
+       (click)="showComments['AutresBiensDeValeur'] = !showComments['AutresBiensDeValeur']"><i class="pi pi-comments"style="color: orange;"></i>
        {{ showComments['AutresBiensDeValeur'] ? 'Masquer les observations' : 'Voir les observations' }}
        </button>
 
@@ -946,7 +946,7 @@
                 class="btn btn-sm btn-outline-primary"
                 (click)="downloadAppareilFile(appareil)"
                 title="Télécharger {{appareil.fileName}}">
-          <i class="pi pi-download"></i> Document
+          <i class="pi pi-download"></i> {{appareil.fileName}}
         </button>
         <span *ngIf="!appareil.fileName">N/A</span>
       </td>
@@ -957,7 +957,7 @@
        <!-- Bouton pour afficher/masquer les commentaires -->
        <button class="btn btn-sm btn-outline-primary mb-2"
        *ngIf="isSectionExpanded('AppareilsElectroMenagers')"
-       (click)="showComments['AppareilsElectroMenagers'] = !showComments['AppareilsElectroMenagers']">
+       (click)="showComments['AppareilsElectroMenagers'] = !showComments['AppareilsElectroMenagers']"><i class="pi pi-comments"style="color: orange;"></i>
        {{ showComments['AppareilsElectroMenagers'] ? 'Masquer les observations' : 'Voir les observations' }}
        </button>
 

@@ -27,19 +27,22 @@ export class NotificationPanelComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadNotifications();
-    this.loadUnreadCount();
+    this.notificationService.notifications$.subscribe(notifications => {
+      this.notifications = notifications;
+    });
+
+    this.notificationService.unreadCount$.subscribe(count => {
+      this.unreadCount = count;
+    });
+
+    this.notificationService.loadUserNotifications(this.userId).subscribe();
   }
 
-  loadNotifications(): void {
+  /*loadNotifications(): void {
     this.notificationService.getUserNotifications(this.userId).subscribe({
-      next: (notifications) => {
-        this.notifications = notifications;
-        this.updateUnreadCount();
-      },
       error: (err) => console.error('Error loading notifications', err)
     });
-  }
+  }*/
 
   loadUnreadCount(): void {
     this.notificationService.getUnreadCount(this.userId).subscribe({
@@ -72,48 +75,47 @@ export class NotificationPanelComponent implements OnInit {
     return rtf.format(-diffInDays, 'day');
   }
 
-  markAsRead(notification: Notification, event: Event): void {
+    markAsRead(notification: Notification, event: Event): void {
     event.stopPropagation();
-    this.notificationService.markAsRead(notification.id).subscribe({
-      next: () => {
-        notification.isRead = true;
-        this.updateUnreadCount();
-        this.loadUnreadCount(); // Recharger le compteur depuis le serveur
-      },
-      error: (err) => console.error('Error marking as read', err)
+    this.notificationService.markAsRead(notification.id).subscribe(success => {
+      if (!success) {
+        // Gérer l'échec si nécessaire
+      }
     });
   }
 
   markAllAsRead(): void {
-    this.notificationService.markAllAsRead(this.userId).subscribe({
-      next: () => {
-        this.notifications.forEach(n => n.isRead = true);
-        this.updateUnreadCount();
-        this.loadUnreadCount(); // Recharger le compteur depuis le serveur
-      },
-      error: (err) => console.error('Error marking all as read', err)
+    this.notificationService.markAllAsRead(this.userId).subscribe(success => {
+      if (!success) {
+        // Gérer l'échec si nécessaire
+      }
     });
   }
 
   navigateToItem(notification: Notification): void {
     if (notification.declaration) {
-      const url = `/declarations/${notification.declaration.id}`;
+      const url = `/controleDeclaration/${notification.declaration.id}`;
+      console.log('etat:',notification.isRead);
       
       if (!notification.isRead) {
         this.notificationService.markAsRead(notification.id).subscribe({
           next: () => {
-            notification.isRead = true;
-            this.updateUnreadCount();
-            this.router.navigateByUrl(url);
-            this.onClose.emit();
+            this.navigateWithForceReload(url);
           },
           error: (err) => console.error('Error marking as read', err)
         });
       } else {
-        this.router.navigateByUrl(url);
-        this.onClose.emit();
+        this.navigateWithForceReload(url);
       }
     }
+  }
+
+  private navigateWithForceReload(url: string): void {
+    this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => {
+      this.router.navigate([url]).then(() => {
+        this.onClose.emit();
+      });
+    });
   }
 
   close(): void {

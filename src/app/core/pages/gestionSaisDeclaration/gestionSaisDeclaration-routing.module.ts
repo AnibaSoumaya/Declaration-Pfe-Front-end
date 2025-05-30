@@ -12,9 +12,9 @@ import { AvocatStatsComponent } from './avocat-stats/avocat-stats.component';
 import { ProcureurStatsComponent } from './aprocureur-stats/aprocureur-stats.component';
 import { AdminStatsComponent } from './admin-stats/admin-stats.component';
 
-const routes: Routes = [
+/*const routes: Routes = [
     { path: '**', redirectTo: '/notfound' }
-];
+];*/
 
 @NgModule({
     imports: [RouterModule.forChild([
