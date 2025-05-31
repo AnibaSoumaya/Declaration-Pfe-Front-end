@@ -30,20 +30,18 @@
         </div>
       </div>
     </div>
-<!-- Charge de travail -->
-<div class="section">
-  <h2 class="section-title">Charge de Travail</h2>
-  <div class="info-cards-grid">
-    <div class="info-card">
-      <h3>Nouvelles</h3>
-      <div class="big-number">{{ getStatValue('chargeTravail.nouvelles') }}</div>
+
+    <!-- Charge de travail - Uniquement En Cours -->
+    <div class="section">
+      <h2 class="section-title">Charge de Travail</h2>
+      <div class="info-cards-grid">
+        <div class="info-card">
+          <h3>Déclarations en Cours</h3>
+          <div class="big-number">{{ getStatValue('chargeTravail.enCours') }}</div>
+        </div>
+      </div>
     </div>
-    <div class="info-card">
-      <h3>En Cours</h3>
-      <div class="big-number">{{ getStatValue('chargeTravail.enCours') }}</div>
-    </div>
-  </div>
-</div>
+
     <!-- Statistiques des conclusions -->
     <div class="section">
       <h2 class="section-title">Statistiques des Conclusions</h2>

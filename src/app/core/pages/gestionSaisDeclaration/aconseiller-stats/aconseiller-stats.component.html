@@ -89,46 +89,6 @@
     </div>
   </div>
 
-  <!-- Priority Declarations Section -->
-  <div class="priority-section" *ngIf="declarationsPrioritaires.length > 0">
-    <h2>
-      <i class="fas fa-exclamation-triangle"></i> 
-      Déclarations Prioritaires
-      <span class="badge badge-warning">{{ declarationsPrioritaires.length }}</span>
-    </h2>
-    
-    <div class="priority-cards" *ngIf="!isLoadingPrioritaires">
-      <div *ngFor="let declaration of declarationsPrioritaires.slice(0, 5)" 
-           class="priority-card" 
-           [ngClass]="getPriorityClass(declaration.joursDepuisDeclaration)">
-        <div class="priority-header">
-          <h4>{{ declaration.assujettiNom }} {{ declaration.assujettiPrenom }}</h4>
-          <span class="priority-badge">{{ getPriorityLevel(declaration.joursDepuisDeclaration) }}</span>
-        </div>
-        <div class="priority-details">
-          <p><strong>Date:</strong> {{ declaration.dateDeclaration | date:'dd/MM/yyyy' }}</p>
-          <p><strong>Délai:</strong> {{ declaration.joursDepuisDeclaration }} jours</p>
-          <p><strong>État:</strong> {{ translateEtatDeclaration(declaration.etatDeclaration) }}</p>
-        </div>
-        <div class="priority-actions">
-          <button class="btn btn-sm btn-primary" 
-                  (click)="genererRapportProvisoire(declaration.declarationId)">
-            <i class="fas fa-file-alt"></i> Rapport
-          </button>
-          <button class="btn btn-sm btn-secondary" 
-                  (click)="verifierDeclaration(declaration.declarationId)">
-            <i class="fas fa-search"></i> Vérifier
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <div *ngIf="isLoadingPrioritaires" class="loading-content">
-      <i class="fas fa-spinner fa-spin"></i> Chargement des déclarations prioritaires...
-    </div>
-  </div>
-
-  <!-- Charts Section -->
 <!-- Charts Section -->
 <div class="charts-section">
   <div class="charts-grid">

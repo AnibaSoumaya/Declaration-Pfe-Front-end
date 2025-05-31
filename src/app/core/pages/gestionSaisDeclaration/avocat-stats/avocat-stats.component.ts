@@ -35,15 +35,14 @@ export class AvocatStatsComponent implements OnInit {
     });
   }
 
- loadDashboardData(): void {
+  loadDashboardData(): void {
     this.isLoading = true;
     this.avocatGeneralStatsService.getDashboard(this.currentUserId).subscribe({
       next: (data) => {
         this.dashboardData = {
           statistiquesGlobales: data.statistiquesGlobales,
           chargeTravail: {
-            nouvelles: data.chargeTravail.nouvelles,
-            enCours: data.chargeTravail.enCours
+            enCours: data.chargeTravail.enCours // On ne garde que enCours
           },
           conclusionStats: data.conclusionStats
         };
@@ -61,8 +60,7 @@ export class AvocatStatsComponent implements OnInit {
             tauxTraitement: 0.0
           },
           chargeTravail: {
-            nouvelles: 0,
-            enCours: 0
+            enCours: 0 // On ne garde que enCours
           },
           conclusionStats: {
             totalConclusions: 0,

@@ -44,10 +44,6 @@ export class ConseillerStatisticsService {
     return this.http.get(`${this.baseUrl}/${conseillerId}/performance`);
   }
 
-  // NEW METHODS - Integration with your new backend endpoints
-  getDeclarationsPrioritaires(conseillerId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/${conseillerId}/declarations-prioritaires`);
-  }
 
   getRepartitionParType(conseillerId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/${conseillerId}/repartition-type`);

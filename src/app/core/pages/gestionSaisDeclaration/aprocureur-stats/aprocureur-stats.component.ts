@@ -173,53 +173,7 @@ export class ProcureurStatsComponent implements OnInit {
     }]
   };
 
-  // Graphique par acteur
-  public horizontalBarChartOptions: ChartConfiguration['options'] = {
-    indexAxis: 'y',
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: { 
-        beginAtZero: true,
-        grid: {
-          color: 'rgba(0,0,0,0.05)'
-        },
-        ticks: {
-          color: '#5a5a5a'
-        }
-      },
-      y: {
-        grid: {
-          display: false
-        },
-        ticks: {
-          color: '#5a5a5a'
-        }
-      }
-    },
-    plugins: {
-      legend: { display: false }
-    }
-  };
-  public horizontalBarChartType: ChartType = 'bar';
-  public horizontalBarChartData: ChartData<'bar'> = {
-    labels: ['Conseiller Rapporteur', 'Procureur Général', 'Avocat Général'],
-    datasets: [{
-      data: [0, 0, 0],
-      backgroundColor: [
-        this.orangeColors[0],
-        this.greenColors[0],
-        'rgba(153, 102, 255, 0.8)'
-      ],
-      borderWidth: 1,
-      borderColor: [
-        this.orangeColors[1],
-        this.greenColors[1],
-        'rgba(153, 102, 255, 1)'
-      ]
-    }]
-  };
-
+ 
   // Graphique par type de déclaration
   public declarationTypeChartOptions: ChartConfiguration['options'] = {
     responsive: true,
@@ -284,7 +238,6 @@ export class ProcureurStatsComponent implements OnInit {
         tauxAcceptation: this.calculateAcceptanceRate(data?.decisions),
         nouvellesDeclarations: data?.workflow?.nouveauxDossiers || 0,
         dossiersClotures: data?.workflow?.dossiersTermines || 0,
-        delaiMoyen: this.calculateAverageDelay(data?.advisorsPerformance),
         sanctionsAppliquees: data?.decisions?.declarationsRefusees || 0,
         tendancePositive: true // You can calculate this based on historical data
       };
@@ -304,14 +257,7 @@ export class ProcureurStatsComponent implements OnInit {
     return Math.round((decisions.declarationsAcceptees || 0) * 100 / total);
   }
 
-  private calculateAverageDelay(advisorsPerformance: any[]): number {
-    if (!advisorsPerformance || advisorsPerformance.length === 0) return 0;
-    
-    const totalDelay = advisorsPerformance.reduce((sum, advisor) => 
-      sum + (advisor.tempsMoyenTraitement || 0), 0);
-    
-    return Math.round(totalDelay / advisorsPerformance.length);
-  }
+  
 
   private updateChartsWithData(data: any): void {
     try {
@@ -336,17 +282,7 @@ export class ProcureurStatsComponent implements OnInit {
       // Update line chart - Monthly evolution (generate sample data since temporal data might not be available)
 
 
-      // Update horizontal bar chart - By actor (use advisors performance data)
-      if (data?.advisorsPerformance && data.advisorsPerformance.length > 0) {
-        const advisorData = data.advisorsPerformance[0]; // First advisor as example
-        this.horizontalBarChartData.datasets[0].data = [
-          advisorData.declarationsTraitees || 0,
-          advisorData.rapportsProduits || 0,
-          Math.round(advisorData.tauxAcceptation || 0)
-        ];
-        this.horizontalBarChart?.update();
-      }
-
+     
       // Update declaration type chart
       if (data?.declarations) {
         this.declarationTypeChartData.datasets[0].data = [

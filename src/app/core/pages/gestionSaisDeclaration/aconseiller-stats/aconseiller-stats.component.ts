@@ -33,7 +33,6 @@ export class ConseillerStatsComponent implements OnInit, AfterViewInit {
 
   // Data arrays
   declarationsAssignees: any[] = [];
-  declarationsPrioritaires: any[] = [];
   repartitionParEtat: any[] = [];
   repartitionParType: any[] = [];
   statistiquesValidation: any = {};
@@ -69,34 +68,28 @@ export class ConseillerStatsComponent implements OnInit, AfterViewInit {
     'rgba(66, 165, 245, 0.8)',
     'rgba(25, 118, 210, 0.8)'
   ];
+public declarationsChartOptions: ChartConfiguration['options'] = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    y: { beginAtZero: true }
+  },
+  plugins: {
+    legend: { display: true, position: 'top' }
+  }
+};
 
-  // Chart configurations
-  public declarationsChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { 
-        display: true, 
-        position: 'top',
-        labels: {
-          usePointStyle: true,
-          padding: 20
-        }
-      }
-    }
-  };
-  
-  public declarationsChartType: ChartType = 'pie';
-  public declarationsChartData: ChartData<'pie'> = {
-    labels: [],
-    datasets: [{
-      data: [],
-      backgroundColor: [...this.orangeColors, ...this.greenColors],
-      borderWidth: 2,
-      borderColor: '#ffffff'
-    }]
-  };
-
+public declarationsChartType: ChartType = 'bar';
+public declarationsChartData: ChartData<'bar'> = {
+  labels: [],
+  datasets: [{
+    data: [],
+    label: 'Nombre de déclarations',
+    backgroundColor: this.blueColors,
+    borderColor: '#ffffff',
+    borderWidth: 1
+  }]
+};
   public performanceChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -132,30 +125,29 @@ export class ConseillerStatsComponent implements OnInit, AfterViewInit {
       pointBorderWidth: 2
     }]
   };
+public typesChartOptions: ChartConfiguration['options'] = {
+  responsive: true,
+  maintainAspectRatio: false,
+  indexAxis: 'y', // Pour avoir des barres horizontales
+  scales: {
+    x: { beginAtZero: true }
+  },
+  plugins: {
+    legend: { display: false }
+  }
+};
 
-  public typesChartOptions: ChartConfiguration['options'] = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { 
-      legend: { 
-        display: true, 
-        position: 'top',
-        labels: { usePointStyle: true, padding: 15 }
-      }
-    }
-  };
-  
-  public typesChartType: ChartType = 'doughnut';
-  public typesChartData: ChartData<'doughnut'> = {
-    labels: [],
-    datasets: [{
-      data: [],
-      backgroundColor: [...this.blueColors, ...this.orangeColors],
-      borderWidth: 2,
-      borderColor: '#ffffff'
-    }]
-  };
-
+public typesChartType: ChartType = 'bar';
+public typesChartData: ChartData<'bar'> = {
+  labels: [],
+  datasets: [{
+    data: [],
+    label: 'Nombre',
+    backgroundColor: this.greenColors,
+    borderColor: '#ffffff',
+    borderWidth: 1
+  }]
+};
   // NEW: Validation statistics chart
   public validationChartOptions: ChartConfiguration['options'] = {
     responsive: true,
@@ -220,7 +212,6 @@ export class ConseillerStatsComponent implements OnInit, AfterViewInit {
 
   loadAllData(): void {
     this.loadDashboardData();
-    this.loadDeclarationsPrioritaires();
     this.loadRepartitionParType();
     this.loadStatistiquesValidation();
   }
@@ -243,22 +234,6 @@ export class ConseillerStatsComponent implements OnInit, AfterViewInit {
       }
     });
   }
-
-  loadDeclarationsPrioritaires(): void {
-    this.isLoadingPrioritaires = true;
-    this.conseillerStatisticsService.getDeclarationsPrioritaires(this.currentUserId).subscribe({
-      next: (data) => {
-        this.declarationsPrioritaires = data;
-        console.log('Déclarations prioritaires:', data);
-        this.isLoadingPrioritaires = false;
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement des déclarations prioritaires:', err);
-        this.isLoadingPrioritaires = false;
-      }
-    });
-  }
-
   loadRepartitionParType(): void {
     this.conseillerStatisticsService.getRepartitionParType(this.currentUserId).subscribe({
       next: (data) => {
@@ -482,26 +457,14 @@ export class ConseillerStatsComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // NEW: Additional utility methods
-  getPriorityLevel(joursDepuisDeclaration: number): string {
-    if (joursDepuisDeclaration > 60) return 'Critique';
-    if (joursDepuisDeclaration > 30) return 'Élevée';
-    if (joursDepuisDeclaration > 15) return 'Moyenne';
-    return 'Normale';
-  }
 
-  getPriorityClass(joursDepuisDeclaration: number): string {
-    if (joursDepuisDeclaration > 60) return 'priority-critical';
-    if (joursDepuisDeclaration > 30) return 'priority-high';
-    if (joursDepuisDeclaration > 15) return 'priority-medium';
-    return 'priority-normal';
-  }
+
+
 
   exportStatistics(): void {
     // Implement export functionality
     const data = {
       conseillerStats: this.conseillerStats,
-      declarationsPrioritaires: this.declarationsPrioritaires,
       statistiquesValidation: this.statistiquesValidation,
       exportDate: new Date().toISOString()
     };
