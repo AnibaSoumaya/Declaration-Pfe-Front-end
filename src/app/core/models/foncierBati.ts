@@ -11,13 +11,18 @@ export class FoncierBati {
   referencesCadastrales?: string;
   superficie?: number;
   localite?: string;
-  localisation?:string
+  localis?:Vocabulaire
   typeUsage?: Vocabulaire;
   coutAcquisitionFCFA?: number;
   coutInvestissements?: number;
   dateCreation: Date;
   declaration: Declaration;
   isEdit: boolean;
+
+  etatGeneral?: Vocabulaire;     
+  nbrChambres?: number;          
+  isSynthese?: boolean;        
+
 
   fileName?: string;
   fileType?: string;

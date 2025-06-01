@@ -24,6 +24,7 @@ import { Creance } from 'src/app/core/models/creance';
 import { MeubleMeublant } from 'src/app/core/models/meubleMeublant';
 import { Revenu } from 'src/app/core/models/revenu';
 import { Titre } from 'src/app/core/models/titre';
+import { PredictionResult } from 'src/app/core/models/PredictionResult';
 
 @Component({
   selector: 'app-controle-declaration',
@@ -46,6 +47,15 @@ export class ControleDeclarationComponent implements OnInit {
   conclusions: any[] = [];
   newLettreContent = '';
   selectedFile: File | null = null;
+
+foncierNonBatiPredictions: PredictionResult[] = [];
+showNonBatiPredictions = false;
+
+vehiculePredictions: PredictionResult[] = [];
+showVehiculePredictions = false;
+
+foncierBatiPredictions: PredictionResult[] = [];
+showPredictions = false;
 
   commentaires: { [key: string]: CommentaireGenerique[] } = {};
   showComments: { [key: string]: boolean } = {};
@@ -73,6 +83,8 @@ export class ControleDeclarationComponent implements OnInit {
   requisitoireType: 'acceptation' | 'refus' | null = null;
   formSubmitted: boolean = false;
   showGenerationForm: boolean = false;
+
+
   
 
 
@@ -121,6 +133,176 @@ export class ControleDeclarationComponent implements OnInit {
     });
   }
 
+  // Méthodes pour les prédictions véhicules
+toggleVehiculePredictions(): void {
+  if (!this.showVehiculePredictions && this.vehiculePredictions.length === 0) {
+    this.loadVehiculePredictions();
+  } else {
+    this.showVehiculePredictions = !this.showVehiculePredictions;
+  }
+}
+
+loadVehiculePredictions(): void {
+  this.isGeneratingReport = true;
+  this.declarationService.getPredictionsForDeclarationvh(this.declarationId).subscribe({
+    next: (results) => {
+      this.vehiculePredictions = results;
+      this.showVehiculePredictions = true;
+      this.isGeneratingReport = false;
+    },
+    error: (error) => {
+      console.error('Erreur lors du chargement des prédictions', error);
+      this.isGeneratingReport = false;
+    }
+  });
+}
+
+getVehiculePredictionValue(vehicule: Vehicule): number {
+  const prediction = this.vehiculePredictions.find(p => p.vehicule.id === vehicule.id);
+  return prediction?.prediction || 0;
+}
+
+getVehiculeEcartPercentage(vehicule: Vehicule): number {
+  const declared = vehicule.valeurAcquisition;
+  const predicted = this.getVehiculePredictionValue(vehicule);
+  if (!declared || !predicted) return 0;
+  return (Math.abs(declared - predicted) / declared) * 100;
+}
+
+getVehiculeEcartClass(vehicule: Vehicule): string {
+  const ecart = this.getVehiculeEcartPercentage(vehicule);
+  if (ecart > 20) return 'high';
+  if (ecart > 10) return 'medium';
+  return 'low';
+}
+
+
+toggleNonBatiPredictions(): void {
+  if (!this.showNonBatiPredictions && this.foncierNonBatiPredictions.length === 0) {
+    this.loadNonBatiPredictions();
+  } else {
+    this.showNonBatiPredictions = !this.showNonBatiPredictions;
+  }
+}
+
+loadNonBatiPredictions(): void {
+  this.isGeneratingReport = true;
+  this.declarationService.getPredictionsForDeclarationfnb(this.declarationId).subscribe({
+    next: (results) => {
+      this.foncierNonBatiPredictions = results;
+      this.showNonBatiPredictions = true;
+      this.isGeneratingReport = false;
+    },
+    error: (error) => {
+      console.error('Erreur lors du chargement des prédictions', error);
+      this.isGeneratingReport = false;
+    }
+  });
+}
+
+getNonBatiPredictionValue(foncier: FoncierNonBati): number {
+  const prediction = this.foncierNonBatiPredictions.find(p => p.foncierNonBati.id === foncier.id);
+  return prediction?.prediction || 0;
+}
+
+getNonBatiEcartPercentage(foncier: FoncierNonBati): number {
+  const declared = foncier.valeurAcquisFCFA;
+  const predicted = this.getNonBatiPredictionValue(foncier);
+  if (!declared || !predicted) return 0;
+  return (Math.abs(declared - predicted) / declared) * 100;
+}
+
+getNonBatiEcartClass(foncier: FoncierNonBati): string {
+  const ecart = this.getNonBatiEcartPercentage(foncier);
+  if (ecart > 20) return 'high';
+  if (ecart > 10) return 'medium';
+  return 'low';
+}
+
+  // Ajoutez ces méthodes
+togglePredictions(): void {
+  if (!this.showPredictions && this.foncierBatiPredictions.length === 0) {
+    this.loadPredictions();
+  } else {
+    this.showPredictions = !this.showPredictions;
+  }
+}
+
+loadPredictions(): void {
+  this.isGeneratingReport = true;
+  this.declarationService.getPredictionsForDeclaration(this.declarationId).subscribe({
+    next: (results) => {
+      this.foncierBatiPredictions = results;
+      this.showPredictions = true;
+      this.isGeneratingReport = false;
+    },
+    error: (error) => {
+      console.error('Erreur lors du chargement des prédictions', error);
+      this.isGeneratingReport = false;
+    }
+  });
+}
+
+
+
+getPredictionValue(foncier: any): number {
+  const prediction = this.foncierBatiPredictions.find(p => p.foncierBati.id === foncier.id);
+  return prediction?.prediction || 0;
+}
+
+getEcartPercentage(foncier: any): number {
+  const declared = foncier.coutAcquisitionFCFA;
+  const predicted = this.getPredictionValue(foncier);
+  if (!declared || !predicted) return 0;
+  return (Math.abs(declared - predicted) / declared) * 100;
+}
+
+
+getEcartClass(foncier: any): string {
+  const ecart = this.getEcartPercentage(foncier);
+  if (ecart > 20) return 'high';
+  if (ecart > 10) return 'medium';
+  return 'low'; // Cette ligne sera exécutée pour ecart <= 10
+}
+  showPredictionsFB(): void {
+  if (!this.declarationId) return;
+
+  this.isGeneratingReport = true;
+  
+  this.declarationService.getPredictionsForDeclaration(this.declarationId).subscribe({
+    next: (results) => {
+      // Calculer l'écart en pourcentage pour chaque résultat
+      results.forEach(result => {
+        const declaredValue = result.foncierBati.coutAcquisitionFCFA;
+        result.ecartPourcentage = this.calculateEcartPercentage(declaredValue, result.prediction);
+      });
+      
+      // Stocker les résultats pour les afficher dans le template
+      this.foncierBatiPredictions = results;
+      this.isGeneratingReport = false;
+    },
+    error: (error) => {
+      console.error('Erreur lors de la récupération des prédictions', error);
+      this.isGeneratingReport = false;
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Impossible de récupérer les prédictions',
+        life: 5000
+      });
+    }
+  });
+}
+
+getEcartColor(ecart: number): string {
+  if (ecart > 20) return '#ff0000';  // Rouge pour écart important
+  if (ecart > 10) return '#ff9900';  // Orange pour écart moyen
+  return '#009900';                  // Vert pour écart faible
+}
+
+private calculateEcartPercentage(declared: number, predicted: number): number {
+  return (Math.abs(declared - predicted) / declared) * 100;
+}
   resolveDeclarationId(): Promise<void> {
     return new Promise((resolve) => {
       if (this.declarationId) {

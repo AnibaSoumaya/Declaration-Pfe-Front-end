@@ -109,76 +109,96 @@
       </div>
   
       <!-- Section 2: Véhicules -->
-      <div class="section-card" *ngIf="declaration.vehicules && declaration.vehicules.length > 0">
-        <div class="section-header" (click)="toggleSection('Vehicule')">
-          <h2>Véhicules</h2>
-          <i class="fas" [ngClass]="isSectionExpanded('Vehicule') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-        </div>
-        <div class="section-content" *ngIf="isSectionExpanded('Vehicule')">
-          <div class="prediction-actions">
-        <button class="prediction-btn" 
-                (click)="generatePredictionReportVH()"
-                [disabled]="isGeneratingReport">
-          <i class="pi pi-chart-line"></i>
-          <span>Analyse Prédictive des Véhicules</span>
-          <div class="pulse-effect"></div>
-        </button>
-      </div>
-          <div class="table-responsive">
-            <table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Désignation</th>
-      <th>Marque</th>
-      <th>Immatriculation</th>
-      <th>Transmission</th>
-      <th>Carburant</th>
-      <th>Année</th>
-      <th>Valeur (FCFA)</th>
-      <th>Document</th> <!-- Nouvelle colonne -->
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let vehicule of declaration.vehicules">
-      <td>{{vehicule.designation?.intitule || 'N/A'}}</td>
-      <td>{{vehicule.marque?.intitule || 'N/A'}}</td>
-      <td>{{vehicule.immatriculation || 'N/A'}}</td>
-      <td>{{vehicule.transmission?.intitule || 'N/A'}}</td>
-      <td>{{vehicule.carburant?.intitule || 'N/A'}}</td>
-      <td>{{vehicule.anneeAcquisition || 'N/A'}}</td>
-      <td>{{formatNumber(vehicule.valeurAcquisition)}}</td>
-      <td>
-        <!-- Bouton de téléchargement -->
-        <button *ngIf="vehicule.fileName" 
-                class="btn btn-sm btn-outline-primary"
-                (click)="downloadVehiculeFile(vehicule)"
-                title="Télécharger le document">
-          <i class="pi pi-download"></i> {{vehicule.fileName}}
-        </button>
-        <span *ngIf="!vehicule.fileName">N/A</span>
-      </td>
-    </tr>
-  </tbody>
-</table>          </div>
-          <br>
-              <!-- Bouton pour afficher/masquer les commentaires -->
-              <button class="btn btn-sm btn-outline-primary mb-2"
-              *ngIf="isSectionExpanded('Vehicule')"
-              (click)="showComments['Vehicule'] = !showComments['Vehicule']"><i class="pi pi-comments"style="color: orange;"></i>
-              {{ showComments['Vehicule'] ? 'Masquer les observations' : 'Voir les observations' }}
-              </button>
+<div class="section-card" *ngIf="declaration.vehicules && declaration.vehicules.length > 0">
+  <div class="section-header" (click)="toggleSection('Vehicule')">
+    <h2>Véhicules</h2>
+    <i class="fas" [ngClass]="isSectionExpanded('Vehicule') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+  </div>
+  <div class="section-content" *ngIf="isSectionExpanded('Vehicule')">
+    <div class="prediction-actions">
+      <button class="prediction-btn" 
+              (click)="generatePredictionReportVH()"
+              [disabled]="isGeneratingReport"
+               pTooltip="Télècharger PDF d'analyse"
+            tooltipPosition="top">
+        <i class="pi pi-file-pdf"></i>
+      </button>
+      
+      <button class="prediction-btn ml-2" 
+              (click)="toggleVehiculePredictions()"
+              [disabled]="isGeneratingReport">
+        <i class="pi pi-chart-line"></i>
+        <span>{{showVehiculePredictions ? 'Masquer' : 'Afficher'}} les prédictions</span>
+      </button>
+    </div>
 
-              <!-- Composant de commentaires -->
-              <app-section-comments 
-              *ngIf="showComments['Vehicule']"
-              [declarationId]="declarationId"
-              [sectionType]="'Vehicule'"
-              [currentUserId]="currentUser?.id"
-              (commentAdded)="onCommentAdded($event, 'Vehicule')"
-              (commentDeleted)="onCommentDeleted($event, 'Vehicule')">
-              </app-section-comments>
-        </div>
-      </div>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Désignation</th>
+            <th>Marque</th>
+            <th>Immatriculation</th>
+            <th>Transmission</th>
+            <th>Carburant</th>
+            <th>Année</th>
+            <th>Valeur (FCFA)</th>
+            <th *ngIf="showVehiculePredictions">Prédiction</th>
+            <th *ngIf="showVehiculePredictions">Écart</th>
+            <th>Document</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let vehicule of declaration.vehicules" 
+              [ngClass]="{
+                'high-discrepancy': showVehiculePredictions && getVehiculeEcartClass(vehicule) === 'high',
+                'medium-discrepancy': showVehiculePredictions && getVehiculeEcartClass(vehicule) === 'medium',
+                'low-discrepancy': showVehiculePredictions && getVehiculeEcartClass(vehicule) === 'low'
+              }">
+            <td>{{vehicule.designation?.intitule || 'N/A'}}</td>
+            <td>{{vehicule.marque?.intitule || 'N/A'}}</td>
+            <td>{{vehicule.immatriculation || 'N/A'}}</td>
+            <td>{{vehicule.transmission?.intitule || 'N/A'}}</td>
+            <td>{{vehicule.carburant?.intitule || 'N/A'}}</td>
+            <td>{{vehicule.anneeAcquisition || 'N/A'}}</td>
+            <td>{{formatNumber(vehicule.valeurAcquisition)}} FCFA</td>
+            <td *ngIf="showVehiculePredictions">
+              {{getVehiculePredictionValue(vehicule) | number:'1.0-0'}} FCFA
+            </td>
+            <td *ngIf="showVehiculePredictions">
+              {{getVehiculeEcartPercentage(vehicule) | number:'1.0-1'}}%
+            </td>
+            <td>
+              <button *ngIf="vehicule.fileName" 
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="downloadVehiculeFile(vehicule)"
+                      title="Télécharger le document">
+                <i class="pi pi-download"></i> {{vehicule.fileName}}
+              </button>
+              <span *ngIf="!vehicule.fileName">N/A</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bouton pour afficher/masquer les commentaires -->
+    <button class="btn btn-sm btn-outline-primary mb-2"
+            *ngIf="isSectionExpanded('Vehicule')"
+            (click)="showComments['Vehicule'] = !showComments['Vehicule']"><i class="pi pi-comments"style="color: orange;"></i>
+      {{ showComments['Vehicule'] ? 'Masquer les observations' : 'Voir les observations' }}
+    </button>
+
+    <app-section-comments 
+      *ngIf="showComments['Vehicule']"
+      [declarationId]="declarationId"
+      [sectionType]="'Vehicule'"
+      [currentUserId]="currentUser?.id"
+      (commentAdded)="onCommentAdded($event, 'Vehicule')"
+      (commentDeleted)="onCommentDeleted($event, 'Vehicule')">
+    </app-section-comments>
+  </div>
+</div>
   
       <!-- Section 3: Revenus -->
       <div class="section-card" *ngIf="declaration.revenus && declaration.revenus.length > 0">
@@ -236,153 +256,192 @@
       </div>
   
       <!-- Section 4: Biens Fonciers Bâtis -->
-      <div class="section-card" *ngIf="declaration.fonciersBatis && declaration.fonciersBatis.length > 0">
-        <div class="section-header" (click)="toggleSection('FoncierBati')">
-          <h2>Biens Fonciers Bâtis</h2>
-          <i class="fas" [ngClass]="isSectionExpanded('FoncierBati') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-        </div>
-        <div class="section-content" *ngIf="isSectionExpanded('FoncierBati')">
-            <div class="prediction-actions">
-        <button class="prediction-btn" 
-                (click)="generatePredictionReportFB()"
-                [disabled]="isGeneratingReport">
-          <i class="pi pi-chart-line"></i>
-          <span>Analyse Prédictive des Biens Bâtis</span>
-          <div class="pulse-effect"></div>
-        </button>
-      </div>
-          <div class="table-responsive">
-           <table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Nature</th>
-      <th>Année Construction</th>
-      <th>Mode Acquisition</th>
-      <th>Superficie</th>
-      <th>Localisation</th>
-      <th>Usage</th>
-      <th>Coût (FCFA)</th>
-      <th>Document</th> <!-- Nouvelle colonne -->
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let foncier of declaration.fonciersBatis">
-      <td>{{foncier.nature?.intitule || 'N/A'}}</td>
-      <td>{{foncier.anneeConstruction || 'N/A'}}</td>
-      <td>{{foncier.modeAcquisition?.intitule || 'N/A'}}</td>
-      <td>{{foncier.superficie || 'N/A'}}</td>
-      <td>{{foncier.localisation?.intitule || 'N/A'}}</td> <!-- Corrigé de localis à localisation -->
-      <td>{{foncier.typeUsage?.intitule || 'N/A'}}</td>
-      <td>{{formatNumber(foncier.coutAcquisitionFCFA)}} FCFA</td>
-      <td>
-        <button *ngIf="foncier.fileName && !isDownloading" 
-                class="btn btn-sm btn-outline-primary"
-                (click)="downloadFoncierBatiFile(foncier)"
-                title="Télécharger {{foncier.fileName}}"><i class="pi pi-comments"style="color: orange;"></i>
-          <i class="pi pi-file-pdf"></i> {{foncier.fileName}}
-        </button>
-        <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
-          <i class="pi pi-spinner pi-spin"></i> Chargement...
-        </button>
-        <span *ngIf="!foncier.fileName">N/A</span>
-      </td>
-    </tr>
-  </tbody>
-</table>
-          </div>
-          <br>
-              <!-- Bouton pour afficher/masquer les commentaires -->
-              <button class="btn btn-sm btn-outline-primary mb-2"
-              *ngIf="isSectionExpanded('FoncierBati')"
-              (click)="showComments['FoncierBati'] = !showComments['FoncierBati']">
-              {{ showComments['FoncierBati'] ? 'Masquer les observations' : 'Voir les observations' }}
-              </button>
+<div class="section-card" *ngIf="declaration.fonciersBatis && declaration.fonciersBatis.length > 0">
+  <div class="section-header" (click)="toggleSection('FoncierBati')">
+    <h2>Biens Fonciers Bâtis</h2>
+    <i class="fas" [ngClass]="isSectionExpanded('FoncierBati') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+  </div>
+  <div class="section-content" *ngIf="isSectionExpanded('FoncierBati')">
+    <div class="prediction-actions">
+      <button class="prediction-btn" 
+              (click)="generatePredictionReportFB()"
+              [disabled]="isGeneratingReport"
+               pTooltip="Télècharger PDF d'analyse"
+            tooltipPosition="top">
+        <i class="pi pi-file-pdf"></i>
+      </button>
+      
+      <button class="prediction-btn ml-2" 
+              (click)="togglePredictions()"
+              [disabled]="isGeneratingReport">
+        <i class="pi pi-chart-line"></i>
+        <span>{{showPredictions ? 'Masquer' : 'Afficher'}} les prédictions</span>
+      </button>
+    </div>
 
-              <!-- Composant de commentaires -->
-              <app-section-comments 
-              *ngIf="showComments['FoncierBati']"
-              [declarationId]="declarationId"
-              [sectionType]="'FoncierBati'"
-              [currentUserId]="currentUser?.id"
-              (commentAdded)="onCommentAdded($event, 'FoncierBati')"
-              (commentDeleted)="onCommentDeleted($event, 'FoncierBati')">
-              </app-section-comments>
-        </div>
-      </div>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Nature</th>
+            <th>Année Construction</th>
+            <th>Mode Acquisition</th>
+            <th>Superficie</th>
+            <th>Nombre des chambres</th>
+            <th>Etat Géneral</th>
+            <th>Localisation</th>
+            <th>Usage</th>
+            <th>Coût (FCFA)</th>
+            <th *ngIf="showPredictions">Prédiction</th>
+            <th *ngIf="showPredictions">Écart</th>
+            <th>Document</th>
+          </tr>
+        </thead>
+        <tbody>
+<tr *ngFor="let foncier of declaration.fonciersBatis" 
+    [ngClass]="{
+      'high-discrepancy': showPredictions && getEcartClass(foncier) === 'high',
+      'medium-discrepancy': showPredictions && getEcartClass(foncier) === 'medium',
+      'low-discrepancy': showPredictions && getEcartClass(foncier) === 'low'
+    }">
+            <td>{{foncier.nature?.intitule || 'N/A'}}</td>
+            <td>{{foncier.anneeConstruction || 'N/A'}}</td>
+            <td>{{foncier.modeAcquisition?.intitule || 'N/A'}}</td>
+            <td>{{foncier.superficie || 'N/A'}}</td>
+            <td>{{foncier.nbrChambres || 'N/A'}}</td>
+            <td>{{foncier.etatGeneral?.intitule || 'N/A'}}</td>
+            <td>{{foncier.localis?.intitule || 'N/A'}}</td>
+            <td>{{foncier.typeUsage?.intitule || 'N/A'}}</td>
+            <td>{{formatNumber(foncier.coutAcquisitionFCFA)}} FCFA</td>
+            <td *ngIf="showPredictions">
+              {{getPredictionValue(foncier) | number:'1.0-0'}} FCFA
+            </td>
+            <td *ngIf="showPredictions">
+              {{getEcartPercentage(foncier) | number:'1.0-1'}}%
+            </td>
+            <td>
+              <button *ngIf="foncier.fileName && !isDownloading" 
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="downloadFoncierBatiFile(foncier)"
+                      title="Télécharger {{foncier.fileName}}">
+                <i class="pi pi-file-pdf"></i> {{foncier.fileName}}
+              </button>
+              <span *ngIf="!foncier.fileName">N/A</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bouton pour afficher/masquer les commentaires -->
+    <button class="btn btn-sm btn-outline-primary mb-2"
+            *ngIf="isSectionExpanded('FoncierBati')"
+            (click)="showComments['FoncierBati'] = !showComments['FoncierBati']"><i class="pi pi-comments"style="color: orange;"></i>
+      {{ showComments['FoncierBati'] ? 'Masquer les observations' : 'Voir les observations' }}
+    </button>
+
+    <app-section-comments 
+      *ngIf="showComments['FoncierBati']"
+      [declarationId]="declarationId"
+      [sectionType]="'FoncierBati'"
+      [currentUserId]="currentUser?.id"
+      (commentAdded)="onCommentAdded($event, 'FoncierBati')"
+      (commentDeleted)="onCommentDeleted($event, 'FoncierBati')">
+    </app-section-comments>
+  </div>
+</div>
   
       <!-- Section 5: Biens Fonciers Non Bâtis -->
       <div class="section-card" *ngIf="declaration.fonciersNonBatis && declaration.fonciersNonBatis.length > 0">
-        <div class="section-header" (click)="toggleSection('FoncierNonBati')">
-          <h2>Biens Fonciers Non Bâtis</h2>
-          <i class="fas" [ngClass]="isSectionExpanded('FoncierNonBati') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-        </div>
-        <div class="section-content" *ngIf="isSectionExpanded('FoncierNonBati')">
-  <div class="prediction-actions">
-        <button class="prediction-btn" 
-                (click)="generatePredictionReport()"
-                [disabled]="isGeneratingReport"><i class="pi pi-comments"style="color: orange;"></i>
-          <i class="pi pi-chart-line"></i>
-          <span>Analyse Prédictive des Terrains</span>
-          <div class="pulse-effect"></div>
-        </button>
-      </div>
-          <div class="table-responsive">
-            <table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Nature</th>
-      <th>Mode Acquisition</th>
-      <th>Superficie</th>
-      <th>Localité</th>
-      <th>Titre Propriété</th>
-      <th>Année</th>
-      <th>Valeur (FCFA)</th>
-      <th>Document</th> <!-- Nouvelle colonne -->
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let foncier of declaration.fonciersNonBatis">
-      <td>{{foncier.nature?.intitule || 'N/A'}}</td>
-      <td>{{foncier.modeAcquisition?.intitule || 'N/A'}}</td>
-      <td>{{foncier.superficie || 'N/A'}}</td>
-      <td>{{foncier.localite || 'N/A'}}</td>
-      <td>{{foncier.titrePropriete || 'N/A'}}</td>
-      <td>{{foncier.dateAquis | date:'yyyy' || 'N/A'}}</td> <!-- Corrigé dateAcquis en dateAquis -->
-      <td>{{formatNumber(foncier.valeurAcquisFCFA)}} FCFA</td>
-      <td>
-        <button *ngIf="foncier.fileName && !isDownloading" 
-                class="btn btn-sm btn-outline-primary"
-                (click)="downloadFoncierNonBatiFile(foncier)"
-                title="Télécharger {{foncier.fileName}}">
-          <i class="pi pi-file-pdf"></i> {{foncier.fileName}}
-        </button>
-        <button *ngIf="isDownloading" class="btn btn-sm btn-outline-primary" disabled>
-          <i class="pi pi-spinner pi-spin"></i> Chargement...
-        </button>
-        <span *ngIf="!foncier.fileName">N/A</span>
-      </td>
-    </tr>
-  </tbody>
-</table>
-          </div>
-           <!-- Bouton pour afficher/masquer les commentaires -->
-           <button class="btn btn-sm btn-outline-primary mb-2"
-           *ngIf="isSectionExpanded('FoncierNonBati')"
-           (click)="showComments['FoncierNonBati'] = !showComments['FoncierNonBati']"><i class="pi pi-comments"style="color: orange;"></i>
-           {{ showComments['FoncierNonBati'] ? 'Masquer les observations' : 'Voir les observations' }}
-           </button>
+  <div class="section-header" (click)="toggleSection('FoncierNonBati')">
+    <h2>Biens Fonciers Non Bâtis</h2>
+    <i class="fas" [ngClass]="isSectionExpanded('FoncierNonBati') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+  </div>
+  <div class="section-content" *ngIf="isSectionExpanded('FoncierNonBati')">
+    <div class="prediction-actions">
+      <button class="prediction-btn" 
+              (click)="generatePredictionReport()"
+              [disabled]="isGeneratingReport" pTooltip="Télècharger PDF d'analyse"
+            tooltipPosition="top">
+        <i class="pi pi-file-pdf"></i>
 
-           <!-- Composant de commentaires -->
-           <app-section-comments 
-           *ngIf="showComments['FoncierNonBati']"
-           [declarationId]="declarationId"
-           [sectionType]="'FoncierNonBati'"
-           [currentUserId]="currentUser?.id"
-           (commentAdded)="onCommentAdded($event, 'FoncierNonBati')"
-           (commentDeleted)="onCommentDeleted($event, 'FoncierNonBati')">
-           </app-section-comments>
-        </div>
-      </div>
+      </button>
+      
+      <button class="prediction-btn ml-2" 
+              (click)="toggleNonBatiPredictions()"
+              [disabled]="isGeneratingReport">
+        <i class="pi pi-chart-line"></i>
+        <span>{{showNonBatiPredictions ? 'Masquer' : 'Afficher'}} les prédictions</span>
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Type Terrain</th>
+            <th>Mode Acquisition</th>
+            <th>Superficie</th>
+            <th>Localité</th>
+            <th>Titre Propriété</th>
+            <th>Année</th>
+            <th>Valeur (FCFA)</th>
+            <th *ngIf="showNonBatiPredictions">Prédiction</th>
+            <th *ngIf="showNonBatiPredictions">Écart</th>
+            <th>Document</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let foncier of declaration.fonciersNonBatis" 
+              [ngClass]="{
+                'high-discrepancy': showNonBatiPredictions && getNonBatiEcartClass(foncier) === 'high',
+                'medium-discrepancy': showNonBatiPredictions && getNonBatiEcartClass(foncier) === 'medium',
+                'low-discrepancy': showNonBatiPredictions && getNonBatiEcartClass(foncier) === 'low'
+              }">
+            <td>{{foncier.typeTerrain?.intitule || 'N/A'}}</td>
+            <td>{{foncier.modeAcquisition?.intitule || 'N/A'}}</td>
+            <td>{{foncier.superficie || 'N/A'}}</td>
+            <td>{{foncier.localite || 'N/A'}}</td>
+            <td>{{foncier.titrePropriete || 'N/A'}}</td>
+            <td>{{foncier.dateAcquis | date:'yyyy' || 'N/A'}}</td>
+            <td>{{formatNumber(foncier.valeurAcquisFCFA)}} FCFA</td>
+            <td *ngIf="showNonBatiPredictions">
+              {{getNonBatiPredictionValue(foncier) | number:'1.0-0'}} FCFA
+            </td>
+            <td *ngIf="showNonBatiPredictions">
+              {{getNonBatiEcartPercentage(foncier) | number:'1.0-1'}}%
+            </td>
+            <td>
+              <button *ngIf="foncier.fileName && !isDownloading" 
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="downloadFoncierNonBatiFile(foncier)"
+                      title="Télécharger {{foncier.fileName}}">
+                <i class="pi pi-file-pdf"></i> {{foncier.fileName}}
+              </button>
+              <span *ngIf="!foncier.fileName">N/A</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Bouton pour afficher/masquer les commentaires -->
+    <button class="btn btn-sm btn-outline-primary mb-2"
+            *ngIf="isSectionExpanded('FoncierNonBati')"
+            (click)="showComments['FoncierNonBati'] = !showComments['FoncierNonBati']"><i class="pi pi-comments"style="color: orange;"></i>
+      {{ showComments['FoncierNonBati'] ? 'Masquer les observations' : 'Voir les observations' }}
+    </button>
+
+    <app-section-comments 
+      *ngIf="showComments['FoncierNonBati']"
+      [declarationId]="declarationId"
+      [sectionType]="'FoncierNonBati'"
+      [currentUserId]="currentUser?.id"
+      (commentAdded)="onCommentAdded($event, 'FoncierNonBati')"
+      (commentDeleted)="onCommentDeleted($event, 'FoncierNonBati')">
+    </app-section-comments>
+  </div>
+</div>
   
       <!-- Section 6: Emprunts -->
       <div class="section-card" *ngIf="declaration.emprunts && declaration.emprunts.length > 0">
@@ -614,7 +673,7 @@
            <!-- Bouton pour afficher/masquer les commentaires -->
            <button class="btn btn-sm btn-outline-primary mb-2"
            *ngIf="isSectionExpanded('Animaux')"
-           (click)="showComments['Animaux'] = !showComments['Animaux']">
+           (click)="showComments['Animaux'] = !showComments['Animaux']"><i class="pi pi-comments"style="color: orange;"></i>
            {{ showComments['Animaux'] ? 'Masquer les observations' : 'Voir les observations' }}
            </button>
 

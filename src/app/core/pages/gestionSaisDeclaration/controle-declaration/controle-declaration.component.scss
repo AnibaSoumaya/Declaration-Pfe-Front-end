@@ -1487,3 +1487,31 @@ textarea {
   i { color: #9b59b6; } // Violet
   &:hover i { color: #8e44ad; }
 }
+
+/* Ajoutez cette classe */
+.low-discrepancy {
+  background-color: rgba(0, 128, 0, 0.1) !important; /* Vert clair */
+  border-left: 3px solid #008000;
+}
+
+.high-discrepancy {
+  background-color: rgba(255, 0, 0, 0.1) !important; /* Rouge clair */
+  border-left: 3px solid #ff0000;
+}
+
+.medium-discrepancy {
+  background-color: rgba(255, 165, 0, 0.1) !important; /* Orange clair */
+  border-left: 3px solid #ffa500;
+}
+
+.prediction-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.prediction-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}

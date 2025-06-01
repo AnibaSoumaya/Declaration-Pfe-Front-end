@@ -4,6 +4,7 @@ import { catchError, map, Observable, of } from 'rxjs';
 import { Declaration } from '../models/declaration';
 import { HistoriqueDeclarationUser } from '../models/HistoriqueDeclarationUser';
 import { User } from '../models/User.model';
+import { PredictionResult } from '../models/PredictionResult';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,17 @@ export class DeclarationService {
   constructor(private http: HttpClient) { }
 
 
+  getPredictionsForDeclarationvh(declarationId: number): Observable<PredictionResult[]> {
+  return this.http.get<PredictionResult[]>(`${this.apiUrlpredVH}/predictions-vehicule/${declarationId}`);
+}
+  
+  getPredictionsForDeclarationfnb(declarationId: number): Observable<PredictionResult[]> {
+  return this.http.get<PredictionResult[]>(`${this.apiUrlpredFNB}/predictions-foncier-non-bati/${declarationId}`);
+}
+  
+getPredictionsForDeclaration(declarationId: number): Observable<PredictionResult[]> {
+  return this.http.get<PredictionResult[]>(`${this.apiUrlpredFB}/predictions-foncier-bati/${declarationId}`);
+}
   downloadVehiculeFile(vehiculeId: number): Observable<Blob> {
   const url = `${this.apiUrlpredVH}/download/${vehiculeId}`;
   
