@@ -30,76 +30,73 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     // Si l'utilisateur est déjà connecté, le rediriger vers la page d'accueil
     if (this.loginService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/profil']);
     }
   }
 
   onLogin(): void {
-    this.isFormInvalid = false;
-    this.isEmailInvalid = false;
-    this.errorMessage = '';
+  this.isFormInvalid = false;
+  this.isEmailInvalid = false;
+  this.errorMessage = '';
 
-    if (!this.email || !this.password) {
-      this.isFormInvalid = true;
-      this.errorMessage = 'Veuillez remplir tous les champs pour vous connecter.';
-      return;
-    }
-
-    if (!this.email.includes('@')) {
-      this.isEmailInvalid = true;
-      this.errorMessage = 'L\'adresse email doit être valide (ex: user@example.com).';
-      return;
-    }
-
-    this.loginService.login(this.email, this.password).subscribe({
-      next: (response) => {
-        console.log('Utilisateur connecté:', response);
-
-        // Stocker le token, l'ID, le prénom et le nom de l'utilisateur
-        this.loginService.setAuthData(
-          response.token,
-          response.id.toString(),
-          response.firstname,
-          response.lastname,
-        );
-
-        // Récupérer l'ID de l'utilisateur depuis le localStorage
-        const userId = this.loginService.getUserId();
-
-        if (userId) {
-          const userIdNumber = Number(userId);
-
-          if (!isNaN(userIdNumber)) {
-            this.userService.getUserById(userIdNumber).subscribe({
-              next: (userData) => {
-                const isFirstLogin = userData.firstLogin;
-                console.log("First login:", isFirstLogin);
-
-                // Redirection selon le cas
-                if (isFirstLogin) {
-                  this.router.navigate(['/securite/acces']);
-                } else {
-                  this.router.navigate(['/dashboard']);
-                }
-              },
-              error: (error) => {
-                console.error('Erreur lors de la récupération des informations utilisateur:', error);
-                this.errorMessage = 'Erreur lors de la récupération des informations utilisateur.';
-              }
-            });
-          } else {
-            this.errorMessage = 'ID utilisateur invalide.';
-          }
-        } else {
-          this.errorMessage = 'ID utilisateur introuvable.';
-        }
-      },
-      error: (error) => {
-        console.error('Échec de la connexion:', error);
-        this.errorMessage = 'Échec de la connexion. Vérifiez vos identifiants.';
-      }
-    });
+  if (!this.email || !this.password) {
+    this.isFormInvalid = true;
+    this.errorMessage = 'Veuillez remplir tous les champs pour vous connecter.';
+    return;
   }
+
+  if (!this.email.includes('@')) {
+    this.isEmailInvalid = true;
+    this.errorMessage = 'L\'adresse email doit être valide (ex: user@example.com).';
+    return;
+  }
+
+  this.loginService.login(this.email, this.password).subscribe({
+    next: (response) => {
+      this.loginService.setAuthData(
+        response.token,
+        response.id.toString(),
+        response.firstname,
+        response.lastname,
+      );
+
+      // Récupération des données complètes de l'utilisateur
+      this.userService.getCurrentUser().subscribe({
+        next: (userData) => {
+          console.log('User role:', userData.role);
+          
+          // Redirection basée sur le rôle ET firstLogin
+          if (userData.firstLogin) {
+            this.router.navigate(['/securite/acces']);
+          } else {
+            this.redirectByRole(userData.role);
+          }
+        },
+        error: (error) => {
+          console.error('Erreur récupération utilisateur:', error);
+          this.errorMessage = 'Erreur lors de la récupération du profil.';
+        }
+      });
+    },
+    error: (error) => {
+      console.error('Échec connexion:', error);
+      this.errorMessage = 'Échec de la connexion. Vérifiez vos identifiants.';
+    }
+  });
+}
+
+// Nouvelle méthode pour gérer la redirection par rôle
+private redirectByRole(role: string): void {
+  const routes: {[key: string]: string} = {
+    'administrateur': '/Assujetti/AdminStat',
+    'conseiller_rapporteur': '/Assujetti/conseillerstat',
+    'procureur_general': '/Assujetti/pgStat',
+    'avocat_general': '/Assujetti/avocatstat'
+  };
+
+  const defaultRoute = '/profil';
+  this.router.navigate([routes[role] || defaultRoute]);
+}
 
   // Ouvrir la dialog de récupération de mot de passe
   openForgotPasswordDialog(): void {

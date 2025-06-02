@@ -5,17 +5,40 @@ import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { MenuService } from './app.menu.service';
 import { LayoutService } from './service/app.layout.service';
+import { UserService } from '../core/services/user.service';
+import { User } from '../core/models/User.model';
 
 @Component({
     // eslint-disable-next-line @angular-eslint/component-selector
     selector: '[app-menuitem]',
     template: `
 <ng-container>
+
+
     <!-- Root menu title -->
-    <div *ngIf="root && item.visible !== false"
-         class="menu-root-item">
-        {{item.label}}
+    <div *ngIf="root && item.visible !== false" class="menu-root-item white-background">
+       <div class="logo-section">
+            <div class="logo-icon">
+                <i class="pi pi-shield"></i>
+            </div>
+            <div class="logo-text">
+                <h3>CDB NIGER</h3>
+                <span>Contrôle des déclarations des biens cour des comptes <b> NIGER</b></span>
+            </div>
+        </div>
+        
+        <div class="user-info" *ngIf="currentUser">
+            <div class="user-avatar">
+                <span class="user-initials">{{getUserInitials(currentUser)}}</span>
+            </div>
+            <div class="user-details">
+                <span class="user-name">{{currentUser.firstname}} {{currentUser.lastname}}</span>
+                <span class="user-role">{{getRoleDisplayName(currentUser.role)}}</span>
+            </div>
+        </div>
     </div>
+    <br>
+ 
     <!-- Link without routerLink or with sub-items -->
     <a *ngIf="(!item.routerLink || item.items) && item.visible !== false"
        [attr.href]="item.url"
@@ -64,6 +87,74 @@ import { LayoutService } from './service/app.layout.service';
     
     <!-- Styles for the menu -->
     <style>
+        /* Header styles */
+        .menu-header {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .logo-text h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+
+        .logo-text span {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
         /* Root menu item style */
         .menu-root-item {
             font-weight: 600;
@@ -250,10 +341,70 @@ import { LayoutService } from './service/app.layout.service';
             padding-left: 10px;
             font-weight: 600;
         }
+            .user-avatar {
+    margin-right: 1rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 1rem;
+    color: white;
+}
+
+.user-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+    /* Ajoutez ces styles à votre balise <style> */
+
+.white-background {
+    background-color: white !important;
+    border: 2px solid #F57C00 !important;
+    color: #333 !important;
+}
+
+.white-background .logo-icon i {
+    color: #F57C00 !important;
+}
+
+.white-background .logo-text h3 {
+    color: #F57C00 !important;
+}
+
+.white-background .logo-text span {
+    color: #666 !important;
+}
+
+.white-background .logo-text span b {
+    color: #F57C00 !important;
+}
+
+.white-background .user-info {
+    background-color: #f8f8f8 !important;
+    border: 1px solid #F57C00 !important;
+}
+
+.white-background .user-avatar {
+    background-color: #F57C00 !important;
+    color: white !important;
+}
+
+.white-background .user-name {
+    color: #333 !important;
+}
+
+.white-background .user-role {
+    color: #666 !important;
+}
     </style>
 </ng-container>
-
-
     `,
     animations: [
         trigger('children', [
@@ -268,24 +419,24 @@ import { LayoutService } from './service/app.layout.service';
     ]
 })
 export class AppMenuitemComponent implements OnInit, OnDestroy {
-
     @Input() item: any;
-
     @Input() index!: number;
-
     @Input() @HostBinding('class.layout-root-menuitem') root!: boolean;
-
     @Input() parentKey!: string;
 
     active = false;
-
     menuSourceSubscription: Subscription;
-
     menuResetSubscription: Subscription;
-
     key: string = "";
+    currentUser: User | null = null;
 
-    constructor(public layoutService: LayoutService, private cd: ChangeDetectorRef, public router: Router, private menuService: MenuService) {
+    constructor(
+        public layoutService: LayoutService, 
+        private cd: ChangeDetectorRef, 
+        public router: Router, 
+        private menuService: MenuService,
+        private userService: UserService
+    ) {
         this.menuSourceSubscription = this.menuService.menuSource$.subscribe(value => {
             Promise.resolve(null).then(() => {
                 if (value.routeEvent) {
@@ -317,7 +468,38 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
         if (this.item.routerLink) {
             this.updateActiveStateFromRoute();
         }
+
+        this.loadCurrentUser();
     }
+
+    loadCurrentUser() {
+        this.userService.getCurrentUser().subscribe({
+            next: (user) => {
+                this.currentUser = user;
+                this.cd.detectChanges();
+            },
+            error: (err) => {
+                console.error('Failed to load current user', err);
+            }
+        });
+    }
+
+    getRoleDisplayName(role: string): string {
+        const roleNames: {[key: string]: string} = {
+            'administrateur': 'Administrateur',
+            'avocat_general': 'Avocat Général',
+            'procureur_general': 'Procureur Général',
+            'conseiller_rapporteur': 'Conseiller Rapporteur'
+        };
+        return roleNames[role] || role;
+    }
+
+    getUserInitials(user: User): string {
+    if (!user) return '';
+    const firstInitial = user.firstname?.charAt(0)?.toUpperCase() || '';
+    const lastInitial = user.lastname?.charAt(0)?.toUpperCase() || '';
+    return `${firstInitial}${lastInitial}`;
+}
 
     updateActiveStateFromRoute() {
         let activeRoute = this.router.isActive(this.item.routerLink[0], { paths: 'exact', queryParams: 'ignored', matrixParams: 'ignored', fragment: 'ignored' });
@@ -328,18 +510,15 @@ export class AppMenuitemComponent implements OnInit, OnDestroy {
     }
 
     itemClick(event: Event) {
-        // avoid processing disabled items
         if (this.item.disabled) {
             event.preventDefault();
             return;
         }
 
-        // execute command
         if (this.item.command) {
             this.item.command({ originalEvent: event, item: this.item });
         }
 
-        // toggle active state
         if (this.item.items) {
             this.active = !this.active;
         }

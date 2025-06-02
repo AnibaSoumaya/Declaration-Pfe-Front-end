@@ -35,43 +35,52 @@ export class AppMenuComponent implements OnInit {
     }
 
     buildMenu() {
-        const isAdmin = this.currentUser?.role === 'administrateur'; // Adjust based on your role property name
+        const isAdmin = this.currentUser?.role === 'administrateur';
+        const userRole = this.currentUser?.role;
+        
+        // Déterminer quelle page de statistiques afficher en fonction du rôle
+        let roleSpecificStatItem = [];
+        
+        if (userRole === 'avocat_general') {
+            roleSpecificStatItem = [
+                { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/Assujetti/avocatstat'] }
+            ];
+        } else if (userRole === 'procureur_general') {
+            roleSpecificStatItem = [
+                { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/Assujetti/pgStat'] }
+            ];
+        } else if (userRole === 'conseiller_rapporteur') {
+            roleSpecificStatItem = [
+                { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/Assujetti/conseillerstat'] }
+            ];
+        }
         
         this.model = [
             {
-                label: 'Pfe',
+                label: 'CDB NIGER',
                 items: [
-                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
+                    //{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/Assujetti/conseillerstat'] },
                     
                     // Admin-only items
                     ...(isAdmin ? [
+                        { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/Assujetti/AdminStat'] },
+                        //{ label: 'AdminStat', icon: 'pi pi-fw pi-chart-line', routerLink: ['/Assujetti/AdminStat'] },
                         { label: 'Gestion des assujettis', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti'] },
                         { label: 'Gestion des utilisateurs', icon: 'pi pi-fw pi-users', routerLink: ['/utilisateur'] },
                         {
                             label: 'Paramétrage',
                             icon: 'pi pi-wrench',
-                            items: [
-                                {
-                                    label: 'Vocabulaire',
-                                    icon: 'pi pi-language',
-                                    routerLink: ['/vocabulaire']
-                                },
-                                {
-                                    label: 'Paramètres',
-                                    icon: 'pi pi-cog',
-                                    routerLink: ['/parametres']
-                                },
-                            ]
+                            routerLink: ['/vocabulaire']
                         }
                     ] : []),
-                    
+
+                    // Afficher seulement la statistique correspondante au rôle
+                    ...roleSpecificStatItem,
                     // Items visible to all users
-                    { label: 'Declarations Assujettis', icon: 'pi pi-fw pi-user', routerLink: ['Assujetti/decDetails'] },
-                    { label: 'Profil', icon: 'pi pi-fw pi-users', routerLink: ['/profil'] },
-                    { label: 'AdminStat', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/AdminStat'] },
-                    { label: 'pgStat', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/pgStat'] },
-                    { label: 'conseillerstat', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/conseillerstat'] },
-                    { label: 'avocatstat', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti/avocatstat'] },
+                    { label: 'Declarations Assujettis', icon: 'pi pi-fw pi-file', routerLink: ['Assujetti/decDetails'] },
+                    { label: 'Profil', icon: 'pi pi-fw pi-user', routerLink: ['/profil'] },
+                    
+                    
 
                     { label: 'Historique', icon: 'pi pi-history', routerLink: ['/historique'] },                    
                 ]
