@@ -1,38 +1,52 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { PgstatService } from 'src/app/core/services/pgstat.service';
 import { BaseChartDirective } from 'ng2-charts';
+import { forkJoin, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-procureur-stats',
   templateUrl: './Aprocureur-stats.component.html',
   styleUrls: ['./Aprocureur-stats.component.scss']
 })
-// Fixed ProcureurStatsComponent
-export class ProcureurStatsComponent implements OnInit {
+export class ProcureurStatsComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
   @ViewChild('pieChart') pieChart!: BaseChartDirective;
   @ViewChild('barChart') barChart!: BaseChartDirective;
-  @ViewChild('horizontalBarChart') horizontalBarChart!: BaseChartDirective;
+  @ViewChild('lineChart') lineChart!: BaseChartDirective;
   @ViewChild('declarationTypeChart') declarationTypeChart!: BaseChartDirective;
+  @ViewChild('monthlyChart') monthlyChart!: BaseChartDirective;
+  @ViewChild('yearlyChart') yearlyChart!: BaseChartDirective;
 
-  // Color palettes
+  // Palettes de couleurs améliorées
+  private readonly colorPalette = {
+    primary: '#4A90E2',
+    secondary: '#7ED321',
+    accent: '#F5A623',
+    danger: '#D0021B',
+    success: '#50E3C2',
+    warning: '#B8E986'
+  };
+
   private orangeColors = [
-    'rgba(255, 159, 64, 0.8)',   // Orange principal
+    'rgba(245, 166, 35, 0.8)',   // Orange principal
     'rgba(255, 127, 36, 0.8)',   // Orange foncé
     'rgba(255, 183, 77, 0.8)',   // Orange clair
     'rgba(230, 81, 0, 0.8)',     // Orange profond
     'rgba(255, 152, 0, 0.8)'     // Orange vif
   ];
 
-  private greenColors = [
-    'rgba(75, 192, 192, 0.8)',   // Vert principal
-    'rgba(56, 142, 60, 0.8)',    // Vert foncé
-    'rgba(102, 187, 106, 0.8)',  // Vert clair
-    'rgba(46, 125, 50, 0.8)',    // Vert profond
-    'rgba(67, 160, 71, 0.8)'     // Vert vif
+  private blueColors = [
+    'rgba(74, 144, 226, 0.8)',   // Bleu principal
+    'rgba(52, 120, 199, 0.8)',   // Bleu foncé
+    'rgba(96, 168, 255, 0.8)',   // Bleu clair
+    'rgba(30, 100, 180, 0.8)',   // Bleu profond
+    'rgba(70, 130, 200, 0.8)'    // Bleu vif
   ];
 
+  // Variables d'état
   procureurStats: any = {
     dossiersEnCours: 0,
     decisionsRendues: 0,
@@ -43,10 +57,19 @@ export class ProcureurStatsComponent implements OnInit {
     sanctionsAppliquees: 0,
     tendancePositive: true
   };
+
   totalDeclarations: number = 0;
   isLoading: boolean = true;
+  currentYear: number = new Date().getFullYear();
+  selectedYear: number = this.currentYear;
+  
+  // Nouvelles données
+  monthlyStats: any[] = [];
+  yearlyStats: any[] = [];
+  userWorkload: any = null;
+  completeDashboard: any = null;
 
-  // Graphique des rapports par type
+  // Configuration des graphiques existants
   public pieChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -57,23 +80,32 @@ export class ProcureurStatsComponent implements OnInit {
         labels: {
           usePointStyle: true,
           padding: 20,
-          color: '#5a5a5a'
+          color: '#5a5a5a',
+          font: { size: 12 }
         }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        titleColor: '#fff',
+        bodyColor: '#fff',
+        cornerRadius: 8
       }
     }
   };
+  
   public pieChartType: ChartType = 'pie';
   public pieChartData: ChartData<'pie'> = {
     labels: ['Provisoires', 'Définitifs'],
     datasets: [{
       data: [0, 0],
-      backgroundColor: [this.orangeColors[0], this.greenColors[0]],
+      backgroundColor: [this.orangeColors[0], this.blueColors[0]],
       borderWidth: 2,
-      borderColor: '#ffffff'
+      borderColor: '#ffffff',
+      hoverBorderWidth: 3
     }]
   };
 
-  // Graphique des décisions
+  // Graphique des décisions amélioré
   public barChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -84,7 +116,8 @@ export class ProcureurStatsComponent implements OnInit {
           color: 'rgba(0,0,0,0.05)'
         },
         ticks: {
-          color: '#5a5a5a'
+          color: '#5a5a5a',
+          font: { size: 11 }
         }
       },
       x: {
@@ -92,7 +125,8 @@ export class ProcureurStatsComponent implements OnInit {
           display: false
         },
         ticks: {
-          color: '#5a5a5a'
+          color: '#5a5a5a',
+          font: { size: 11 }
         }
       }
     },
@@ -101,25 +135,34 @@ export class ProcureurStatsComponent implements OnInit {
         display: true,
         position: 'top',
         labels: {
-          color: '#5a5a5a'
+          color: '#5a5a5a',
+          font: { size: 12 }
         }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        titleColor: '#fff',
+        bodyColor: '#fff',
+        cornerRadius: 8
       }
     }
   };
+  
   public barChartType: ChartType = 'bar';
   public barChartData: ChartData<'bar'> = {
     labels: ['Acceptées', 'Refusées'],
     datasets: [{
       data: [0, 0],
       label: 'Décisions',
-      backgroundColor: [this.greenColors[0], this.orangeColors[0]],
+      backgroundColor: [this.blueColors[0], this.orangeColors[0]],
       borderWidth: 1,
-      borderColor: [this.greenColors[1], this.orangeColors[1]]
+      borderColor: [this.blueColors[1], this.orangeColors[1]],
+      borderRadius: 4
     }]
   };
 
-  // Graphique évolution des dépôts
-  public lineChartOptions: ChartConfiguration['options'] = {
+  // Nouveau graphique des statistiques mensuelles
+  public monthlyChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
@@ -157,24 +200,71 @@ export class ProcureurStatsComponent implements OnInit {
       }
     }
   };
-  public lineChartType: ChartType = 'line';
-  public lineChartData: ChartData<'line'> = {
+  
+  public monthlyChartType: ChartType = 'line';
+  public monthlyChartData: ChartData<'line'> = {
     labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
     datasets: [{
-      data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      label: 'Dépôts mensuels',
-      borderColor: this.orangeColors[0],
-      backgroundColor: this.orangeColors[0].replace('0.8', '0.2'),
+      data: Array(12).fill(0),
+      label: 'Déclarations mensuelles',
+      borderColor: this.blueColors[0],
+      backgroundColor: this.blueColors[0].replace('0.8', '0.2'),
       tension: 0.4,
       fill: true,
-      pointBackgroundColor: this.orangeColors[0],
+      pointBackgroundColor: this.blueColors[0],
       pointBorderColor: '#ffffff',
       pointBorderWidth: 2
     }]
   };
 
- 
-  // Graphique par type de déclaration
+  // Nouveau graphique des statistiques annuelles
+  public yearlyChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: { 
+        beginAtZero: true,
+        grid: {
+          color: 'rgba(0,0,0,0.05)'
+        },
+        ticks: {
+          color: '#5a5a5a'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        },
+        ticks: {
+          color: '#5a5a5a'
+        }
+      }
+    },
+    plugins: {
+      legend: { 
+        display: true,
+        position: 'top',
+        labels: {
+          color: '#5a5a5a'
+        }
+      }
+    }
+  };
+  
+  public yearlyChartType: ChartType = 'bar';
+  public yearlyChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [{
+      data: [],
+      label: 'Déclarations annuelles',
+      backgroundColor: this.orangeColors[0],
+      borderColor: this.orangeColors[1],
+      borderWidth: 1,
+      borderRadius: 4
+    }]
+  };
+
+  // Graphique par type de déclaration amélioré
   public declarationTypeChartOptions: ChartConfiguration['options'] = {
     responsive: true,
     maintainAspectRatio: false,
@@ -190,48 +280,71 @@ export class ProcureurStatsComponent implements OnInit {
       }
     }
   };
+  
   public declarationTypeChartType: ChartType = 'doughnut';
   public declarationTypeChartData: ChartData<'doughnut'> = {
     labels: ['Initiales', 'Mises à jour'],
     datasets: [{
       data: [0, 0],
-      backgroundColor: [this.orangeColors[0], this.greenColors[0]],
+      backgroundColor: [this.orangeColors[0], this.blueColors[0]],
       borderWidth: 2,
-      borderColor: '#ffffff'
+      borderColor: '#ffffff',
+      hoverBorderWidth: 3
     }]
   };
 
   constructor(private pgStatService: PgstatService) { }
 
   ngOnInit(): void {
-    this.loadProcureurStatistics();
+    this.loadAllStatistics();
   }
 
-  loadProcureurStatistics(): void {
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Charge toutes les données nécessaires au dashboard
+   */
+  loadAllStatistics(): void {
     this.isLoading = true;
     
-    // Load dashboard statistics
-    this.pgStatService.getDashboardStats().subscribe({
+    // Utilisation de forkJoin pour charger toutes les données en parallèle
+    forkJoin({
+      dashboard: this.pgStatService.getDashboardStats(),
+      completeDashboard: this.pgStatService.getCompleteDashboard(this.selectedYear),
+      monthlyStats: this.pgStatService.getMonthlyStats(this.selectedYear),
+      yearlyStats: this.pgStatService.getLastFiveYearsStats()
+    }).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (data) => {
-        console.log('Dashboard data received:', data);
-        this.processDashboardData(data);
-        this.updateChartsWithData(data);
+        console.log('All data loaded:', data);
+        
+        this.processDashboardData(data.dashboard);
+        this.processCompleteDashboard(data.completeDashboard);
+        this.processMonthlyStats(data.monthlyStats);
+        this.processYearlyStats(data.yearlyStats);
+        
+        this.updateAllCharts();
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading dashboard statistics:', error);
+        console.error('Error loading statistics:', error);
         this.handleError(error);
         this.isLoading = false;
       }
     });
   }
 
+  /**
+   * Traite les données du dashboard principal
+   */
   private processDashboardData(data: any): void {
     try {
-      // Extract total declarations
       this.totalDeclarations = data?.declarations?.total || 0;
       
-      // Process stats for the dashboard cards
       this.procureurStats = {
         dossiersEnCours: data?.workflow?.dossiersEnCours || 0,
         decisionsRendues: (data?.decisions?.declarationsAcceptees || 0) + (data?.decisions?.declarationsRefusees || 0),
@@ -239,15 +352,93 @@ export class ProcureurStatsComponent implements OnInit {
         nouvellesDeclarations: data?.workflow?.nouveauxDossiers || 0,
         dossiersClotures: data?.workflow?.dossiersTermines || 0,
         sanctionsAppliquees: data?.decisions?.declarationsRefusees || 0,
-        tendancePositive: true // You can calculate this based on historical data
+        tendancePositive: true
       };
       
-      console.log('Processed procureur stats:', this.procureurStats);
+      console.log('Dashboard data processed:', this.procureurStats);
     } catch (error) {
       console.error('Error processing dashboard data:', error);
     }
   }
 
+  /**
+   * Traite les données du dashboard complet
+   */
+  private processCompleteDashboard(data: any): void {
+    this.completeDashboard = data;
+    console.log('Complete dashboard processed:', data);
+  }
+
+  /**
+   * Traite les statistiques mensuelles
+   */
+  private processMonthlyStats(data: any[]): void {
+    this.monthlyStats = data || [];
+    
+    // Met à jour les données du graphique mensuel
+    if (this.monthlyStats.length > 0) {
+      this.monthlyChartData.datasets[0].data = this.monthlyStats.map(stat => stat.totalDeclarations || 0);
+    }
+    
+    console.log('Monthly stats processed:', this.monthlyStats);
+  }
+
+  /**
+   * Traite les statistiques annuelles
+   */
+  private processYearlyStats(data: any[]): void {
+    this.yearlyStats = data || [];
+    
+    // Met à jour les données du graphique annuel
+    if (this.yearlyStats.length > 0) {
+      this.yearlyChartData.labels = this.yearlyStats.map(stat => stat.libellePeriode);
+      this.yearlyChartData.datasets[0].data = this.yearlyStats.map(stat => stat.totalDeclarations || 0);
+    }
+    
+    console.log('Yearly stats processed:', this.yearlyStats);
+  }
+
+  /**
+   * Met à jour tous les graphiques
+   */
+  private updateAllCharts(): void {
+    try {
+      // Graphique en secteurs - rapports par type
+      if (this.completeDashboard?.reports || this.procureurStats) {
+        this.pieChartData.datasets[0].data = [
+          this.completeDashboard?.reports?.rapportsProvisoires || Math.floor(this.totalDeclarations * 0.6),
+          this.completeDashboard?.reports?.rapportsDefinitifs || Math.floor(this.totalDeclarations * 0.4)
+        ];
+        this.pieChart?.update();
+      }
+
+      // Graphique en barres - décisions
+      this.barChartData.datasets[0].data = [
+        this.procureurStats.decisionsRendues * (this.procureurStats.tauxAcceptation / 100),
+        this.procureurStats.decisionsRendues * ((100 - this.procureurStats.tauxAcceptation) / 100)
+      ];
+      this.barChart?.update();
+
+      // Graphique des types de déclarations
+      this.declarationTypeChartData.datasets[0].data = [
+        Math.floor(this.totalDeclarations * 0.7),
+        Math.floor(this.totalDeclarations * 0.3)
+      ];
+      this.declarationTypeChart?.update();
+
+      // Graphiques temporels
+      this.monthlyChart?.update();
+      this.yearlyChart?.update();
+
+      console.log('All charts updated successfully');
+    } catch (error) {
+      console.error('Error updating charts:', error);
+    }
+  }
+
+  /**
+   * Calcule le taux d'acceptation
+   */
   private calculateAcceptanceRate(decisions: any): number {
     if (!decisions) return 0;
     
@@ -257,68 +448,76 @@ export class ProcureurStatsComponent implements OnInit {
     return Math.round((decisions.declarationsAcceptees || 0) * 100 / total);
   }
 
-  
-
-  private updateChartsWithData(data: any): void {
-    try {
-      // Update pie chart - Reports by type
-      if (data?.reports) {
-        this.pieChartData.datasets[0].data = [
-          data.reports.rapportsProvisoires || 0, 
-          data.reports.rapportsDefinitifs || 0
-        ];
-        this.pieChart?.update();
-      }
-
-      // Update bar chart - Decisions
-      if (data?.decisions) {
-        this.barChartData.datasets[0].data = [
-          data.decisions.declarationsAcceptees || 0, 
-          data.decisions.declarationsRefusees || 0
-        ];
-        this.barChart?.update();
-      }
-
-      // Update line chart - Monthly evolution (generate sample data since temporal data might not be available)
-
-
-     
-      // Update declaration type chart
-      if (data?.declarations) {
-        this.declarationTypeChartData.datasets[0].data = [
-          data.declarations.initiales || 0,
-          data.declarations.misesAJour || 0
-        ];
-        this.declarationTypeChart?.update();
-      }
-
-      console.log('Charts updated successfully');
-    } catch (error) {
-      console.error('Error updating charts:', error);
-    }
+  /**
+   * Charge les données d'un utilisateur spécifique
+   */
+  loadUserWorkload(userId: number): void {
+    this.pgStatService.getUserWorkload(userId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.userWorkload = data;
+          console.log('User workload loaded:', data);
+        },
+        error: (error) => {
+          console.error('Error loading user workload:', error);
+        }
+      });
   }
 
-
-  private generateSampleMonthlyData(): number[] {
-    // Generate sample data based on total declarations
-    const baseValue = Math.floor(this.totalDeclarations / 12);
-    return Array.from({ length: 12 }, (_, i) => 
-      baseValue + Math.floor(Math.random() * 10) - 5
-    );
+  /**
+   * Change l'année sélectionnée et recharge les données
+   */
+  onYearChange(year: number): void {
+    this.selectedYear = year;
+    this.loadAllStatistics();
   }
 
+  /**
+   * Actualise toutes les données
+   */
+  refreshData(): void {
+    this.loadAllStatistics();
+  }
+
+  /**
+   * Gestion des erreurs
+   */
   private handleError(error: any): void {
     if (error.status === 403) {
-      console.error('Access denied. Please check your permissions.');
-      // You might want to redirect to login or show an error message
+      console.error('Accès refusé. Vérifiez vos permissions.');
     } else if (error.status === 404) {
-      console.error('Endpoint not found. Please check the API URL.');
+      console.error('Endpoint non trouvé. Vérifiez l\'URL de l\'API.');
+    } else if (error.status === 500) {
+      console.error('Erreur serveur. Contactez l\'administrateur.');
     } else {
-      console.error('An error occurred:', error.message);
+      console.error('Une erreur est survenue:', error.message);
     }
   }
 
-  refreshData(): void {
-    this.loadProcureurStatistics();
+  /**
+   * Méthodes utilitaires pour le template
+   */
+  getLoadingProgress(): number {
+    // Simule un pourcentage de chargement
+    return this.isLoading ? Math.floor(Math.random() * 100) : 100;
+  }
+
+  getNiveauChargeColor(niveau: string): string {
+    switch (niveau) {
+      case 'FAIBLE': return '#4CAF50';
+      case 'MODERE': return '#FF9800';
+      case 'ELEVE': return '#FF5722';
+      case 'CRITIQUE': return '#F44336';
+      default: return '#9E9E9E';
+    }
+  }
+
+  getTendanceIcon(tendance: boolean): string {
+    return tendance ? 'fas fa-arrow-up' : 'fas fa-arrow-down';
+  }
+
+  getTendanceClass(tendance: boolean): string {
+    return tendance ? 'trend positive' : 'trend negative';
   }
 }

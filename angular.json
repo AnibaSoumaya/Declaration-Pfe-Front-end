@@ -32,7 +32,13 @@
                         "styles": [
                             "src/styles.scss"
                         ],
-                        "scripts": []
+                        "scripts": [],"allowedCommonJsDependencies": [
+        "core-js",
+        "raf",
+        "rgbcolor",
+        "html2canvas",
+        "moment"
+      ]
                     },
                     "configurations": {
                         "production": {

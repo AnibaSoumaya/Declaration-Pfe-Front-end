@@ -3,7 +3,9 @@ import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { StatisticsService } from 'src/app/core/services/statistique.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { AdminstatService } from 'src/app/core/services/adminstat.service';
-
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
+import * as moment from 'moment';
 @Component({
   selector: 'app-admin-stats',
   templateUrl: './admin-stats.component.html',
@@ -313,4 +315,91 @@ export class AdminStatsComponent  implements OnInit {
     };
     return icons[type] || 'fas fa-info-circle';
   }
+  
+
+  // Ajoutez ces nouvelles propriétés
+  selectedYear: number = new Date().getFullYear();
+  years: number[] = [];
+  monthlyStats: any = {};
+  yearlyStats: any = {};
+  
+
+
+
+  
+  // Méthode pour exporter en PDF
+  exportToPDF(): void {
+    const element = document.querySelector('.dashboard-container') as HTMLElement;
+    const filename = `statistiques_admin_${moment().format('YYYY-MM-DD')}.pdf`;
+    
+    html2canvas(element, {
+      scale: 2,
+      logging: true,
+      useCORS: true,
+      allowTaint: true
+    }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(filename);
+    });
+  }
+generatePDFReport(): void {
+  const doc = new jsPDF('p', 'pt', 'a4');
+  const title = `Rapport Statistiques Administratives - ${moment().format('LL')}`;
+  
+  // Titre
+  doc.setFontSize(18);
+  doc.text(title, 40, 40);
+  
+  // Statistiques principales
+  doc.setFontSize(14);
+  doc.text('Statistiques Globales', 40, 80);
+  
+  let y = 100;
+  doc.setFontSize(12);
+  doc.text(`• Déclarations totales: ${this.dashboardStats.totalDeclarations}`, 50, y);
+  y += 20;
+  doc.text(`• Utilisateurs actifs: ${this.dashboardStats.activeUsers}/${this.dashboardStats.totalUsers}`, 50, y);
+  y += 20;
+  doc.text(`• Assujettis actifs: ${this.dashboardStats.activeAssujettis}/${this.dashboardStats.totalAssujettis}`, 50, y);
+  y += 40;
+  
+  // Graphiques
+  doc.setFontSize(14);
+  doc.text('Graphiques Statistiques', 40, y);
+  y += 20;
+  
+  // Convertir les graphiques en images et les ajouter au PDF
+  this.addChartToPDF(doc, 'performanceChart', y);
+  y += 200;
+  
+  this.addChartToPDF(doc, 'etatChart', y);
+  y += 200;
+  
+  // Statistiques détaillées
+  doc.addPage();
+  doc.setFontSize(14);
+  doc.text('Statistiques Détaillées par Mois', 40, 40);
+  
+
+  
+  // Sauvegarder le PDF
+  doc.save(`rapport_statistiques_${moment().format('YYYY-MM-DD')}.pdf`);
+}
+
+private addChartToPDF(doc: jsPDF, chartId: string, y: number): void {
+  const chartElement = document.getElementById(chartId) as HTMLCanvasElement;
+  
+  if (chartElement) {
+    const chartData = chartElement.toDataURL('image/png');
+    doc.addImage(chartData, 'PNG', 50, y, 500, 200);
+  }
+}
+
+
 }
