@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { PgstatService } from 'src/app/core/services/pgstat.service';
 import { BaseChartDirective } from 'ng2-charts';
@@ -8,7 +8,9 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'app-procureur-stats',
   templateUrl: './Aprocureur-stats.component.html',
-  styleUrls: ['./Aprocureur-stats.component.scss']
+  styleUrls: ['./Aprocureur-stats.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush // Add this line
+
 })
 export class ProcureurStatsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -293,7 +295,8 @@ export class ProcureurStatsComponent implements OnInit, OnDestroy {
     }]
   };
 
-  constructor(private pgStatService: PgstatService) { }
+  constructor(private pgStatService: PgstatService,    private cdr: ChangeDetectorRef
+) { }
 
   ngOnInit(): void {
     this.loadAllStatistics();
@@ -303,41 +306,40 @@ export class ProcureurStatsComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
-  /**
-   * Charge toutes les données nécessaires au dashboard
-   */
-  loadAllStatistics(): void {
-    this.isLoading = true;
-    
-    // Utilisation de forkJoin pour charger toutes les données en parallèle
-    forkJoin({
-      dashboard: this.pgStatService.getDashboardStats(),
-      completeDashboard: this.pgStatService.getCompleteDashboard(this.selectedYear),
-      monthlyStats: this.pgStatService.getMonthlyStats(this.selectedYear),
-      yearlyStats: this.pgStatService.getLastFiveYearsStats()
-    }).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (data) => {
-        console.log('All data loaded:', data);
-        
-        this.processDashboardData(data.dashboard);
-        this.processCompleteDashboard(data.completeDashboard);
-        this.processMonthlyStats(data.monthlyStats);
-        this.processYearlyStats(data.yearlyStats);
-        
+loadAllStatistics(): void {
+  this.isLoading = true;
+  
+  forkJoin({
+    dashboard: this.pgStatService.getDashboardStats(),
+    completeDashboard: this.pgStatService.getCompleteDashboard(this.selectedYear),
+    monthlyStats: this.pgStatService.getMonthlyStats(this.selectedYear),
+    yearlyStats: this.pgStatService.getLastFiveYearsStats()
+  }).pipe(
+    takeUntil(this.destroy$)
+  ).subscribe({
+    next: (data) => {
+      console.log('All data loaded:', data);
+      
+      this.processDashboardData(data.dashboard);
+      this.processCompleteDashboard(data.completeDashboard);
+      this.processMonthlyStats(data.monthlyStats);
+      this.processYearlyStats(data.yearlyStats);
+      
+      // Use setTimeout to ensure chart updates happen after view check
+      setTimeout(() => {
         this.updateAllCharts();
         this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading statistics:', error);
-        this.handleError(error);
-        this.isLoading = false;
-      }
-    });
-  }
-
+        this.cdr.detectChanges(); // Manually trigger change detection
+      });
+    },
+    error: (error) => {
+      console.error('Error loading statistics:', error);
+      this.handleError(error);
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
   /**
    * Traite les données du dashboard principal
    */
@@ -398,44 +400,47 @@ export class ProcureurStatsComponent implements OnInit, OnDestroy {
     console.log('Yearly stats processed:', this.yearlyStats);
   }
 
-  /**
-   * Met à jour tous les graphiques
-   */
-  private updateAllCharts(): void {
-    try {
-      // Graphique en secteurs - rapports par type
-      if (this.completeDashboard?.reports || this.procureurStats) {
-        this.pieChartData.datasets[0].data = [
-          this.completeDashboard?.reports?.rapportsProvisoires || Math.floor(this.totalDeclarations * 0.6),
-          this.completeDashboard?.reports?.rapportsDefinitifs || Math.floor(this.totalDeclarations * 0.4)
-        ];
-        this.pieChart?.update();
-      }
-
-      // Graphique en barres - décisions
-      this.barChartData.datasets[0].data = [
-        this.procureurStats.decisionsRendues * (this.procureurStats.tauxAcceptation / 100),
-        this.procureurStats.decisionsRendues * ((100 - this.procureurStats.tauxAcceptation) / 100)
-      ];
-      this.barChart?.update();
-
-      // Graphique des types de déclarations
-      this.declarationTypeChartData.datasets[0].data = [
-        Math.floor(this.totalDeclarations * 0.7),
-        Math.floor(this.totalDeclarations * 0.3)
-      ];
-      this.declarationTypeChart?.update();
-
-      // Graphiques temporels
-      this.monthlyChart?.update();
-      this.yearlyChart?.update();
-
-      console.log('All charts updated successfully');
-    } catch (error) {
-      console.error('Error updating charts:', error);
+ private updateAllCharts(): void {
+  try {
+    // Ensure charts are properly initialized before updating
+    if (!this.pieChart || !this.barChart || !this.declarationTypeChart || 
+        !this.monthlyChart || !this.yearlyChart) {
+      console.warn('Charts not initialized yet');
+      return;
     }
-  }
 
+    // Graphique en secteurs - rapports par type
+    if (this.completeDashboard?.reports || this.procureurStats) {
+      this.pieChartData.datasets[0].data = [
+        this.completeDashboard?.reports?.rapportsProvisoires || Math.floor(this.totalDeclarations * 0.6),
+        this.completeDashboard?.reports?.rapportsDefinitifs || Math.floor(this.totalDeclarations * 0.4)
+      ];
+      this.pieChart.chart?.update();
+    }
+
+    // Graphique en barres - décisions
+    this.barChartData.datasets[0].data = [
+      this.procureurStats.decisionsRendues * (this.procureurStats.tauxAcceptation / 100),
+      this.procureurStats.decisionsRendues * ((100 - this.procureurStats.tauxAcceptation) / 100)
+    ];
+    this.barChart.chart?.update();
+
+    // Graphique des types de déclarations
+    this.declarationTypeChartData.datasets[0].data = [
+      Math.floor(this.totalDeclarations * 0.7),
+      Math.floor(this.totalDeclarations * 0.3)
+    ];
+    this.declarationTypeChart.chart?.update();
+
+    // Graphiques temporels
+    this.monthlyChart.chart?.update();
+    this.yearlyChart.chart?.update();
+
+    console.log('All charts updated successfully');
+  } catch (error) {
+    console.error('Error updating charts:', error);
+  }
+}
   /**
    * Calcule le taux d'acceptation
    */
@@ -520,4 +525,7 @@ export class ProcureurStatsComponent implements OnInit, OnDestroy {
   getTendanceClass(tendance: boolean): string {
     return tendance ? 'trend positive' : 'trend negative';
   }
+  ngAfterViewInit(): void {
+  this.loadAllStatistics();
+}
 }
