@@ -917,6 +917,39 @@ textarea.form-control:focus {
   padding-bottom: 20px;
 }
 
+.viewer-tabs {
+  display: flex;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.viewer-tabs button {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #6c757d;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.viewer-tabs button:hover {
+  color: #495057;
+}
+
+.viewer-tabs button.active {
+  color: #fd9d0d;
+  border-bottom-color: #fd9d0d;
+  font-weight: 500;
+}
+
+.viewer-tabs button i {
+  font-size: 1.1rem;
+}
 /* Style pour le bouton de génération de rapport */
 .btn-primary {
   background-color: #2c3e50;
@@ -1514,4 +1547,75 @@ textarea {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+/* Styles pour le PDF Viewer */
+.pdf-viewer-container {
+  margin: 20px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  background: #fff;
+  
+  .pdf-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    
+    h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #333;
+    }
+  }
+  
+  .pdf-frame-container {
+    position: relative;
+    min-height: 600px;
+    
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    
+    .loading-pdf, .no-pdf {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 600px;
+      
+      i {
+        font-size: 3rem;
+        color: #ccc;
+        margin-bottom: 15px;
+      }
+      
+      p {
+        color: #666;
+        margin-top: 10px;
+      }
+    }
+  }
+}
+
+/* Adaptation pour les petits écrans */
+@media (max-width: 768px) {
+  .pdf-viewer-container {
+    .pdf-frame-container {
+      min-height: 400px;
+      
+      iframe {
+        height: 400px;
+      }
+      
+      .loading-pdf, .no-pdf {
+        height: 400px;
+      }
+    }
+  }
 }

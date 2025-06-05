@@ -115,8 +115,8 @@
     <i class="fas" [ngClass]="isSectionExpanded('Vehicule') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
   </div>
   <div class="section-content" *ngIf="isSectionExpanded('Vehicule')">
-    <div class="prediction-actions">
-      <button class="prediction-btn" 
+<div class="prediction-actions" *ngIf="hasCRRole() ">
+        <button class="prediction-btn" 
               (click)="generatePredictionReportVH()"
               [disabled]="isGeneratingReport"
                pTooltip="Télècharger PDF d'analyse"
@@ -262,7 +262,7 @@
     <i class="fas" [ngClass]="isSectionExpanded('FoncierBati') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
   </div>
   <div class="section-content" *ngIf="isSectionExpanded('FoncierBati')">
-    <div class="prediction-actions">
+    <div class="prediction-actions"  *ngIf="hasCRRole() ">
       <button class="prediction-btn" 
               (click)="generatePredictionReportFB()"
               [disabled]="isGeneratingReport"
@@ -358,7 +358,7 @@
     <i class="fas" [ngClass]="isSectionExpanded('FoncierNonBati') ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
   </div>
   <div class="section-content" *ngIf="isSectionExpanded('FoncierNonBati')">
-    <div class="prediction-actions">
+    <div class="prediction-actions"  *ngIf="hasCRRole() ">
       <button class="prediction-btn" 
               (click)="generatePredictionReport()"
               [disabled]="isGeneratingReport" pTooltip="Télècharger PDF d'analyse"
@@ -1034,14 +1034,61 @@
   <!-- Section Réservée à l'Avocat Général -->
 <!-- Section Réservée à l'Avocat Général -->
 <div *ngIf="isAvocatGeneral" class="section-card avocat-general-section">
+  <div class="viewer-tabs">
+
+      <button 
+      *ngIf="isAvocatGeneral"
+      [class.active]="activeTab === 'rapport'"
+      (click)="openPdfViewer('rapport')">
+      <i class="pi pi-file-edit"></i> Rapport Provisoire
+    </button>
+  </div>
+
   <div class="section-header">
     <h2>Avocat Général : <span class="value">{{declaration.utilisateur?.lastname || 'N/A'}} {{declaration.utilisateur?.firstname || 'N/A'}}</span></h2>
   </div>
-  
+
+   <div class="section-content">
+    <!-- Affichage du PDF en iframe -->
+    <div class="pdf-viewer-container" *ngIf="showPdfViewer">
+  <div class="pdf-header">
+    <h3>Rapport Provisoire #{{declarationId}}</h3>
+    <button pButton 
+            icon="pi pi-times" 
+            class="p-button-rounded p-button-text close-btn"
+            (click)="closePdfViewer()"
+            pTooltip="Fermer">
+    </button>
+  </div>
+
+  <div class="pdf-frame-container">
+    <div *ngIf="isLoadingPdf" class="loading-pdf">
+      <p-progressSpinner></p-progressSpinner>
+      <p>Chargement du rapport...</p>
+    </div>
+    
+    <iframe *ngIf="pdfUrl && !isLoadingPdf"
+            [src]="pdfUrl"
+            width="100%" 
+            height="600px" 
+            style="border: none;">
+    </iframe>
+    
+    <div *ngIf="!pdfUrl && !isLoadingPdf" class="no-pdf">
+      <i class="pi pi-file-excel"></i>
+      <p>Aucun rapport disponible</p>
+      <button pButton 
+              label="Réessayer" 
+              (click)="loadRapport()"
+              class="p-button-outlined">
+      </button>
+    </div>
+  </div>
+</div>
   <div class="section-content">
     <!-- Formulaire pour générer un Délibéré Officiel - Masqué s'il y a des conclusions -->
     <div class="delibere-block" *ngIf="conclusions.length === 0">
-      <h4><i class="pi pi-file-edit"></i>Conclusion Officiel</h4>
+      <h4><i class="pi pi-file-edit"></i>Réquisitoire Officiel</h4>
       <div class="form-group mb-4">
         <div class="radio-group d-flex gap-3">
           <!-- Boutons radio -->
@@ -1076,7 +1123,7 @@
           </div>
 
           <div class="form-group mb-4">
-            <label for="lettreContent" class="form-label fw-bold">Contenu de la conclusion <span class="required">*</span></label>
+            <label for="lettreContent" class="form-label fw-bold">Contenu de la réquisitoire <span class="required">*</span></label>
             <textarea id="lettreContent" class="form-control" rows="8" 
                       placeholder="Rédigez votre délibéré officiel ici..."
                       [(ngModel)]="newLettreContent"></textarea>
@@ -1099,16 +1146,16 @@
 
     <!-- Liste des conclusions existantes - TOUJOURS visible -->
     <div>
-      <div class="conclusions-header">
+      <!-- <div class="conclusions-header">
         <h4><i class="pi pi-folder-open"></i>Conclusions Existantes</h4>
         <span class="conclusions-count">{{conclusions.length}}</span>
-      </div>
+      </div> -->
       
       <div class="table-responsive">
         <div class="card" style="border-top: 6px solid #F57C00; border-radius: 8px; overflow: hidden;">
           <div class="flex justify-content-between align-items-center mb-4">
             <h3 class="m-0" style="font-weight: 500; color: #333; border-left: 3px solid #F57C00; padding-left: 10px;">
-              Liste des Conclusions
+              Réquisitoire
             </h3>
           </div>
 

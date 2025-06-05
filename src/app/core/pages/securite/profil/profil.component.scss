@@ -53,10 +53,11 @@
     color: #495057;
   }
   
+  /* Style unifié pour l'avatar */
   .profile-avatar {
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     border: 3px solid #ffffff;
     overflow: hidden;
@@ -64,6 +65,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    /* Supprimé margin: 0 auto pour garder l'alignement à gauche */
   }
   
   .profile-avatar img {
@@ -83,6 +86,24 @@
     font-size: 2.2rem;
     font-weight: 600;
     text-transform: uppercase;
+  }
+
+  /* Actions sur l'avatar (boutons camera/trash) */
+  .avatar-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .profile-avatar:hover .avatar-actions {
+    opacity: 1;
   }
   
   .role-badge {
@@ -203,7 +224,7 @@
     }
       
     .profile-avatar {
-      margin: 0 auto;
+      margin: 0 auto; /* Centré uniquement sur mobile */
     }
       
     .profile-form-container {
@@ -220,3 +241,37 @@
       justify-content: flex-start;
     }
   }
+  /* Styles pour le bouton FileUpload en orange clair */
+::ng-deep .p-fileupload-choose {
+  background-color: #FFB74D !important; /* Orange clair */
+  border-color: #FFB74D !important;
+  color: #fff !important;
+}
+
+::ng-deep .p-fileupload-choose:hover {
+  background-color: #FFA726 !important; /* Orange plus foncé au survol */
+  border-color: #FFA726 !important;
+}
+
+::ng-deep .p-fileupload-choose:focus {
+  background-color: #FFB74D !important;
+  border-color: #FFB74D !important;
+  box-shadow: 0 0 0 2px rgba(255, 183, 77, 0.2) !important;
+}
+
+::ng-deep .p-fileupload-choose:not(:disabled):active {
+  background-color: #FF9800 !important; /* Orange plus foncé quand cliqué */
+  border-color: #FF9800 !important;
+}
+
+/* Alternative sans ::ng-deep si vous préférez */
+.p-fileupload ::ng-deep .p-fileupload-choose {
+  background-color: #FFB74D !important;
+  border-color: #FFB74D !important;
+  color: #fff !important;
+}
+
+.p-fileupload ::ng-deep .p-fileupload-choose:hover {
+  background-color: #FFA726 !important;
+  border-color: #FFA726 !important;
+}

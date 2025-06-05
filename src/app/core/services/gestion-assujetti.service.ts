@@ -30,10 +30,15 @@ export class gestionAssujettiService {
   }
     
 
-  getVocabulaireByTypeId(typeId: number): Observable<Vocabulaire[]> {
+  /* getVocabulaireByTypeId(typeId: number): Observable<Vocabulaire[]> {
     return this.http.get<Vocabulaire[]>(`${this.baseUrl2}/vocabulaire/type/${typeId}`, { headers: this.getAuthHeaders() })
       .pipe(catchError(this.handleError));
+  } */
+  getVocabulaireByTypeId(typeId: number): Observable<Vocabulaire[]> {
+  return this.http.get<Vocabulaire[]>(`${this.baseUrl2}/vocabulaire/type/${typeId}`, { headers: this.getAuthHeaders() })
+      .pipe(catchError(this.handleError));
   }
+
 
 
   getTypesVocabulaire(): Observable<TypeVocabulaire[]> {

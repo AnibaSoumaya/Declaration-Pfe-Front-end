@@ -18,6 +18,9 @@ export class ProfilComponent implements OnInit {
   loading: boolean = false;
   userProfileImage: string | null = null;
 
+   uploadedFiles: any[] = [];
+  displayImageDialog: boolean = false;
+
   constructor(
     private userService: UserService, 
     private fb: FormBuilder,
@@ -44,7 +47,7 @@ export class ProfilComponent implements OnInit {
       next: (userData: User) => {
         this.user = userData;
         this.userRole = userData.role;
-        
+        this.userProfileImage = this.userService.getProfileImageUrl(userData.imageProfil);        
         this.userForm.patchValue({
           firstname: this.user.firstname,
           lastname: this.user.lastname,
@@ -64,6 +67,64 @@ export class ProfilComponent implements OnInit {
       }
     });
   }
+
+  // Méthode pour l'upload d'image
+  onUpload(event: any, userId: number): void {
+     if (!event?.files?.length) return;
+    
+    this.loading = true;
+    this.userService.uploadProfileImage(userId, event.files[0]).subscribe({
+      next: (response: any) => {
+        this.userProfileImage = this.userService.getProfileImageUrl(response.imageUrl);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Profile image updated'
+        });
+        this.loading = false;
+        this.displayImageDialog = false;
+      },
+      error: (err) => {
+        console.error('Erreur lors de l\'upload de l\'image', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Échec de la mise à jour de l\'image'
+        });
+        this.loading = false;
+      }
+    });
+  }
+
+// Méthode pour supprimer l'image
+removeImage(userId: number): void {
+  this.loading = true;
+  this.userService.removeProfileImage(userId).subscribe({
+    next: (response) => {
+      this.userProfileImage = null;
+      // Update the user object as well
+      if (this.user) {
+        this.user.imageProfil = null;
+      }
+      
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Succès',
+        detail: response?.message || 'Image de profil supprimée'
+      });
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Erreur lors de la suppression de l\'image', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: err.message || 'Échec de la suppression de l\'image'
+      });
+      this.loading = false;
+    }
+  });
+}
 
   enableEdit(): void {
     this.editMode = true;

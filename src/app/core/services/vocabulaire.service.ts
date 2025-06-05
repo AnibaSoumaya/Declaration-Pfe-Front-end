@@ -25,7 +25,7 @@ export class VocabulaireService {
 
 
   getVocabulaireByType(typeId: number): Observable<Vocabulaire[]> {
-    return this.http.get<Vocabulaire[]>(`${this.baseUrl}/type/${typeId}`);
+    return this.http.get<Vocabulaire[]>(`${this.baseUrl}/typeall/${typeId}`);
   }
 
 

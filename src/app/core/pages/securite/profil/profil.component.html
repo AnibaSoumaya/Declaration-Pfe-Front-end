@@ -8,6 +8,20 @@
             {{user?.firstname?.charAt(0) || ''}}{{user?.lastname?.charAt(0) || ''}}
           </div>
           <img *ngIf="userProfileImage" [src]="userProfileImage" alt="Photo de profil" class="border-circle" />
+           <!-- Boutons d'action pour l'image -->
+          <div class="avatar-actions">
+            <button pButton type="button" 
+                    icon="pi pi-camera" 
+                    class="p-button-rounded p-button-sm p-button-primary" 
+                    (click)="displayImageDialog = true"
+                    pTooltip="Changer la photo" tooltipPosition="top"></button>
+            
+            <button *ngIf="userProfileImage" pButton type="button" 
+                    icon="pi pi-trash" 
+                    class="p-button-rounded p-button-sm p-button-danger ml-2" 
+                    (click)="removeImage(user?.id)"
+                    pTooltip="Supprimer la photo" tooltipPosition="top"></button>
+          </div>
         </div>
         <div class="profile-header-info ml-0 md:ml-5 mt-3 md:mt-0 text-center md:text-left">
           <h1 class="m-0 text-dark">{{user?.firstname}} {{user?.lastname}}</h1>
@@ -24,6 +38,18 @@
         </div>
       </div>
     </div>
+    <!-- Dialog pour uploader une nouvelle image -->
+<p-dialog header="Changer la photo de profil" [(visible)]="displayImageDialog" [style]="{width: '450px'}" [modal]="true">
+  <p-fileUpload mode="basic" 
+              name="file" 
+              url=""  
+              accept="image/*" 
+              maxFileSize="1000000" 
+              (onSelect)="onUpload($event, user?.id)" 
+              chooseLabel="Sélectionner une image"
+              auto="true">
+</p-fileUpload>
+</p-dialog>
     
     <!-- Formulaire de profil -->
     <div class="profile-form-container p-4" [ngClass]="{'edit-mode': editMode}">

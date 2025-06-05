@@ -43,15 +43,15 @@ export class AppMenuComponent implements OnInit {
         
         if (userRole === 'avocat_general') {
             roleSpecificStatItem = [
-                { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/Assujetti/avocatstat'] }
+                { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['Assujetti/statistiqueAG'] }
             ];
         } else if (userRole === 'procureur_general') {
             roleSpecificStatItem = [
-                { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/Assujetti/pgStat'] }
+                { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['Assujetti/statistiquePG'] }
             ];
         } else if (userRole === 'conseiller_rapporteur') {
             roleSpecificStatItem = [
-                { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/Assujetti/conseillerstat'] }
+                { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['Assujetti/statistiqueCR'] }
             ];
         }
         
@@ -63,7 +63,7 @@ export class AppMenuComponent implements OnInit {
                     
                     // Admin-only items
                     ...(isAdmin ? [
-                        { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/Assujetti/AdminStat'] },
+                        { label: 'Statistiques', icon: 'pi pi-fw pi-chart-bar', routerLink: ['Assujetti/statistiqueA'] },
                         //{ label: 'AdminStat', icon: 'pi pi-fw pi-chart-line', routerLink: ['/Assujetti/AdminStat'] },
                         { label: 'Gestion des assujettis', icon: 'pi pi-fw pi-user', routerLink: ['/Assujetti'] },
                         { label: 'Gestion des utilisateurs', icon: 'pi pi-fw pi-users', routerLink: ['/utilisateur'] },
@@ -77,7 +77,7 @@ export class AppMenuComponent implements OnInit {
                     // Afficher seulement la statistique correspondante au rôle
                     ...roleSpecificStatItem,
                     // Items visible to all users
-                    { label: 'Declarations Assujettis', icon: 'pi pi-fw pi-file', routerLink: ['Assujetti/decDetails'] },
+                    { label: 'Declarations Assujettis', icon: 'pi pi-fw pi-file', routerLink: ['Assujetti/details-declaration'] },
                     { label: 'Profil', icon: 'pi pi-fw pi-user', routerLink: ['/profil'] },
                     
                     

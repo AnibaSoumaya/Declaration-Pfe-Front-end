@@ -139,7 +139,7 @@
             <th style="width: 3rem; background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">
               <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
-            <th pSortableColumn="code" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Code <p-sortIcon field="code"></p-sortIcon></th>
+            <th pSortableColumn="matricule" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">NIF <p-sortIcon field="matricule"></p-sortIcon></th>
             <th pSortableColumn="nom" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Nom <p-sortIcon field="nom"></p-sortIcon></th>
             <th pSortableColumn="prenom" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">Prénom <p-sortIcon field="prenom"></p-sortIcon></th>
             <th pSortableColumn="email" style="background: #f5f5f5; color: #555; font-weight: 600; border: 1px solid #e9ecef;">E-mail <p-sortIcon field="email"></p-sortIcon></th>
@@ -157,7 +157,7 @@
             <td style="border: 1px solid #e9ecef; padding: 0.75rem;">
               <p-tableCheckbox [value]="assujetti"></p-tableCheckbox>
             </td>
-            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.code }}</td>
+            <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.matricule }}</td>
             <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.nom }}</td>
             <td style="border: 1px solid #e9ecef; padding: 0.75rem;">{{ assujetti.prenom }}</td>
             <td style="border: 1px solid #e9ecef; padding: 0.75rem;"><a [href]="'mailto:' + assujetti.email">{{ assujetti.email }}</a></td>
@@ -247,7 +247,7 @@ styleClass="p-fluid modern-dialog"
 <div class="col-6">
 <div class="field">
 <label for="code" class="field-label">
-Code <span class="required-indicator">*</span>
+NCIN <span class="required-indicator">*</span>
 </label>
 <input type="text" pInputText id="code" [(ngModel)]="assujetti.code" required 
     class="p-inputtext" />
@@ -257,7 +257,7 @@ Code <span class="required-indicator">*</span>
 <div class="col-6">
 <div class="field">
 <label for="matricule" class="field-label">
-Matricule <span class="required-indicator">*</span>
+NIF <span class="required-indicator">*</span>
 </label>
 <input type="text" pInputText id="matricule" [(ngModel)]="assujetti.matricule" required 
     class="p-inputtext" />

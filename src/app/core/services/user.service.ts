@@ -10,7 +10,59 @@ export class UserService {
   private apiUrl = 'http://localhost:8084/api/utilisateurs';
 
   constructor(private http: HttpClient) {}
-// Add this method inside the UserService class
+
+getProfileImageUrl(imageProfil: string | null): string | null {
+  if (!imageProfil) {
+    return null;
+  }
+  
+  // If the imageProfil already contains the full API path, use it as is
+  if (imageProfil.startsWith('/images/')) {
+    return `${this.apiUrl}${imageProfil}`;
+  }
+  
+  // If it's just a filename, construct the full path
+  if (imageProfil.includes('profile_')) {
+    const filename = imageProfil.split('/').pop(); // Extract filename from path
+    return `${this.apiUrl}/images/${filename}`;
+  }
+  
+  // Fallback for other formats
+  return `${this.apiUrl}${imageProfil}`;
+}
+
+  uploadProfileImage(userId: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return this.http.post(`${this.apiUrl}/${userId}/image`, formData).pipe(
+      catchError(error => this.handleError(error))
+    );
+  }
+
+removeProfileImage(userId: number): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/${userId}/image`, {
+    // Specify that we expect JSON response
+    responseType: 'json'
+  }).pipe(
+    catchError(error => {
+      console.error('Erreur lors de la suppression de l\'image', error);
+      
+      // Create a more descriptive error message
+      let errorMessage = 'Erreur lors de la suppression de l\'image';
+      
+      if (error.status === 404) {
+        errorMessage = 'Utilisateur non trouvé';
+      } else if (error.status === 500) {
+        errorMessage = 'Erreur serveur lors de la suppression';
+      } else if (error.error?.message) {
+        errorMessage = error.error.message;
+      }
+      
+      return throwError(() => new Error(errorMessage));
+    })
+  );
+}
 getCurrentUser(): Observable<User> {
   return this.http.get<User>(`${this.apiUrl}/current`, { headers: this.getAuthHeaders() })
     .pipe(catchError(this.handleError));

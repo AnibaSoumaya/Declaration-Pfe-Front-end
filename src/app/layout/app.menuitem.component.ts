@@ -27,15 +27,22 @@ import { User } from '../core/models/User.model';
             </div>
         </div>
         
-        <div class="user-info" *ngIf="currentUser">
-            <div class="user-avatar">
-                <span class="user-initials">{{getUserInitials(currentUser)}}</span>
-            </div>
-            <div class="user-details">
-                <span class="user-name">{{currentUser.firstname}} {{currentUser.lastname}}</span>
-                <span class="user-role">{{getRoleDisplayName(currentUser.role)}}</span>
-            </div>
-        </div>
+<div class="user-info" *ngIf="currentUser">
+    <div class="user-avatar">
+        <img *ngIf="currentUser.imageProfil" 
+             [src]="userService.getProfileImageUrl(currentUser.imageProfil)" 
+             alt="Profile Image" 
+             class="profile-image"
+             onerror="this.style.display='none'">
+        <span *ngIf="!currentUser.imageProfil" class="user-initials">
+            {{getUserInitials(currentUser)}}
+        </span>
+    </div>
+    <div class="user-details">
+        <span class="user-name">{{currentUser.firstname}} {{currentUser.lastname}}</span>
+        <span class="user-role">{{getRoleDisplayName(currentUser.role)}}</span>
+    </div>
+</div>
     </div>
     <br>
  
@@ -128,17 +135,34 @@ import { User } from '../core/models/User.model';
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .user-avatar {
-            font-size: 1.5rem;
-            margin-right: 1rem;
-            background-color: rgba(255, 255, 255, 0.2);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+       .user-avatar {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #F57C00;
+    margin-right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 500;
+    font-size: 1rem;
+    overflow: hidden;
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.user-initials {
+    z-index: 1;
+}
 
         .user-details {
             display: flex;

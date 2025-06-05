@@ -5,6 +5,7 @@ import { LoginService } from '../core/services/login.service';
 import { Router } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
 import { NotificationService } from '../core/services/notification.service';
+import { UserService } from '../core/services/user.service';
 
 @Component({
   selector: 'app-topbar',
@@ -25,6 +26,8 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   unreadNotificationsCount: number = 0;
   showNotificationHighlight: boolean = false;
   
+    profileImageUrl: string | null = null;
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -32,7 +35,9 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
     public loginService: LoginService,
     private notificationService: NotificationService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private userService: UserService, // Ajoutez ce service
+
   ) {
     this.userId = Number(this.loginService.getUserId());
 }
@@ -40,18 +45,42 @@ export class AppTopBarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.initUserInfo();
     this.setupNotificationPolling();
+        this.loadCurrentUser();
+
   }
 
-  private initUserInfo(): void {
-    const nom = this.loginService.getUserNom();
-    const prenom = this.loginService.getUserPrenom();
-    this.nomPrenom = `${prenom ?? ''} ${nom ?? ''}`.trim();
-    
-    this.loginService.fetchAndStoreRole();
-    setTimeout(() => {
-      this.role = this.loginService.getRole() ?? '';
+  
+
+private initUserInfo(): void {
+  this.userService.getCurrentUser().subscribe({
+    next: (userData) => {
+      this.nomPrenom = `${userData.firstname ?? ''} ${userData.lastname ?? ''}`.trim();
+      this.role = userData.role ?? '';
+      this.profileImageUrl = this.userService.getProfileImageUrl(userData.imageProfil);
       this.cdr.detectChanges();
-    }, 500);
+    },
+    error: (err) => {
+      console.error('Erreur lors du chargement des infos utilisateur:', err);
+      // Fallback aux méthodes du LoginService
+      const nom = this.loginService.getUserNom();
+      const prenom = this.loginService.getUserPrenom();
+      this.nomPrenom = `${prenom ?? ''} ${nom ?? ''}`.trim();
+      this.role = this.loginService.getRole() ?? '';
+    }
+  });
+}
+
+   private loadCurrentUser(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: (userData) => {
+        this.profileImageUrl = this.userService.getProfileImageUrl(userData.imageProfil);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement du profil:', err);
+        this.profileImageUrl = null;
+      }
+    });
   }
 
   private setupNotificationPolling(): void {

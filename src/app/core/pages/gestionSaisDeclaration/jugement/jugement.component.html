@@ -1,7 +1,7 @@
 <div class="section-content">
       <p-toast></p-toast>
       <!-- Onglets de navigation -->
-  <div class="viewer-tabs">
+  <div class="viewer-tabs" >
     <button 
     *ngIf="currentUser?.role === 'procureur_general'"
       [class.active]="activeTab === 'conclusion'"
@@ -205,7 +205,7 @@
 
                       <!-- Bouton supprimer -->
                       <button 
-                        *ngIf="currentUser.id === r.utilisateur?.id"
+                        *ngIf="currentUser.id === r.utilisateur?.id && currentUser?.role === 'conseiller_rapporteur'"
                         pButton 
                         type="button" 
                         icon="pi pi-trash" 
@@ -260,6 +260,8 @@
       </div>
     </div>
   </div>
+
+  
 </div>
 <button class="custom-back-btn" (click)="goBack()">
   <i class="pi pi-arrow-left"></i> Liste des declarations

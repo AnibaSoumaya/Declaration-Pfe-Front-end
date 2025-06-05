@@ -63,6 +63,8 @@ export class LoginComponent implements OnInit {
       // Récupération des données complètes de l'utilisateur
       this.userService.getCurrentUser().subscribe({
         next: (userData) => {
+           console.log('User data:', userData); // <-- Ajoutez ce log
+          console.log('First login:', userData.firstLogin); 
           console.log('User role:', userData.role);
           
           // Redirection basée sur le rôle ET firstLogin
@@ -88,10 +90,10 @@ export class LoginComponent implements OnInit {
 // Nouvelle méthode pour gérer la redirection par rôle
 private redirectByRole(role: string): void {
   const routes: {[key: string]: string} = {
-    'administrateur': '/Assujetti/AdminStat',
-    'conseiller_rapporteur': '/Assujetti/conseillerstat',
-    'procureur_general': '/Assujetti/pgStat',
-    'avocat_general': '/Assujetti/avocatstat'
+    'administrateur': '/Assujetti/statistiqueA',
+    'conseiller_rapporteur': '/Assujetti/statistiqueCR',
+    'procureur_general': '/Assujetti/statistiquePG',
+    'avocat_general': '/Assujetti/statistiqueAG'
   };
 
   const defaultRoute = '/profil';

@@ -19,6 +19,8 @@ import { of } from 'rxjs';
 })
 export class JugementComponent implements OnInit {
   declarationId!: number;
+
+  declaration: any;
   pdfUrls: SafeResourceUrl[] = [];
   currentPdfIndex = 0;
   isLoading = true;
@@ -29,8 +31,9 @@ export class JugementComponent implements OnInit {
   decision: boolean | null = null;
   activeTab: 'conclusion' | 'rapport' = 'conclusion';
   rapportPdfUrls: SafeResourceUrl[] = [];
-  // Ajoutez cette propriété
-showPdfViewer: boolean = true;
+
+  showPdfViewer: boolean = true;
+  
 
   constructor(
     private route: ActivatedRoute,
@@ -48,7 +51,18 @@ showPdfViewer: boolean = true;
     this.loadCurrentUser();
     this.loadPdfs();
     this.loadRapports();
+    this.loadDeclaration();
   }
+
+  loadDeclaration(): void {
+  this.declarationService.getDeclarationById(this.declarationId).subscribe({
+    next: (declaration) => {
+      this.declaration = declaration;
+    },
+    error: (err) => {
+      console.error('Erreur lors du chargement de la déclaration', err);
+    }
+  });}
 
   setDecision(value: boolean): void {
   this.decision = value;
@@ -77,7 +91,7 @@ closePdfViewer(): void {
   this.showPdfViewer = false;
 }
   goBack(): void {
-    this.router.navigate(['/Assujetti/decDetails']);
+    this.router.navigate(['/Assujetti/details-declaration']);
   }
 
 loadPdfs(): void {

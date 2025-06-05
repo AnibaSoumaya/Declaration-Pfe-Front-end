@@ -19,17 +19,17 @@ import { AdminStatsComponent } from './admin-stats/admin-stats.component';
 @NgModule({
     imports: [RouterModule.forChild([
         { path: '',  component: CrudAssujettisComponent},
-        { path: 'decDetails',  component: DeclarationDetailsComponent},
+        { path: 'details-declaration',  component: DeclarationDetailsComponent},
         { path: 'commentaires',  component: SectionCommentsComponent},
         { path: 'notifications',  component: NotificationPanelComponent},
         { path: 'controleDeclaration/:id', component: ControleDeclarationComponent },
         { path: 'juge/:id', component: JugementComponent},
         //{ path: 'BI',  component: BIComponent},
         { path: 'historique',  component: MonHistoriqueComponent},
-                { path: 'AdminStat',  component: AdminStatsComponent},
-        { path: 'pgStat',  component: ProcureurStatsComponent},
-        { path: 'conseillerstat',  component: ConseillerStatsComponent},
-        { path: 'avocatstat',  component: AvocatStatsComponent},
+        { path: 'statistiqueA',  component: AdminStatsComponent},
+        { path: 'statistiquePG',  component: ProcureurStatsComponent},
+        { path: 'statistiqueCR',  component: ConseillerStatsComponent},
+        { path: 'statistiqueAG',  component: AvocatStatsComponent},
 
 
 

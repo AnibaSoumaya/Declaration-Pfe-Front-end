@@ -24,6 +24,9 @@ export class DeclarationService {
 
   constructor(private http: HttpClient) { }
 
+  getDeclarationById(id: number): Observable<Declaration> {
+    return this.http.get<Declaration>(`${this.apiUrl}/${id}`);
+  }
 
   getPredictionsForDeclarationvh(declarationId: number): Observable<PredictionResult[]> {
   return this.http.get<PredictionResult[]>(`${this.apiUrlpredVH}/predictions-vehicule/${declarationId}`);

@@ -28,7 +28,13 @@ resetPassword(email: string): Observable<any> {
     params: { email }
   });
 }
+ getUserImageProfil(): string | null {
+    return localStorage.getItem('imageProfil');
+  }
 
+  setUserImageProfil(imagePath: string): void {
+    localStorage.setItem('imageProfil', imagePath);
+  }
 checkEmailExists(email: string): Observable<boolean> {
   return this.http.get<User>(`${this.apiUrl1}/by-email`, {
     params: { email }

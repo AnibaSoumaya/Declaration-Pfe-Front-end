@@ -34,13 +34,19 @@ import { NgChartsModule } from 'ng2-charts';
         
 
     ],
-    providers: [
+/*     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         CountryService, CustomerService, EventService, IconService, NodeService,
         PhotoService, ProductService,
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
         
-    ],
+    ], */
+    providers: [
+    CountryService, CustomerService, EventService, IconService, NodeService,
+    PhotoService, ProductService,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+],
+
     bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -25,6 +25,8 @@ import { MeubleMeublant } from 'src/app/core/models/meubleMeublant';
 import { Revenu } from 'src/app/core/models/revenu';
 import { Titre } from 'src/app/core/models/titre';
 import { PredictionResult } from 'src/app/core/models/PredictionResult';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { RapportService } from 'src/app/core/services/rapport.service';
 
 @Component({
   selector: 'app-controle-declaration',
@@ -42,7 +44,8 @@ export class ControleDeclarationComponent implements OnInit {
   showPredictionDialog = false;
   predictionRemark = '';
   pendingPdfBlob: Blob | null = null;
-
+// Dans la partie propriétés de votre composant
+isConseillerRapporteur = false;
   isAvocatGeneral = false;
   conclusions: any[] = [];
   newLettreContent = '';
@@ -79,11 +82,17 @@ showPredictions = false;
   commentForm: FormGroup;
   currentSection: string = '';
   currentUser: User;
+  
   isGeneratingReport = false;
   requisitoireType: 'acceptation' | 'refus' | null = null;
   formSubmitted: boolean = false;
   showGenerationForm: boolean = false;
 
+  showPdfViewer = true; // Afficher directement le viewer
+  pdfUrl: SafeResourceUrl | null = null;
+  isLoadingPdf = false;
+
+  activeTab: string = '';
 
   
 
@@ -97,6 +106,10 @@ showPredictions = false;
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private messageService: MessageService,
+    private rapportService: RapportService,
+    private sanitizer: DomSanitizer
+
+
 
   ) {
     this.createCommentForm();
@@ -104,10 +117,91 @@ showPredictions = false;
 
   ngOnInit(): void {
     this.loadCurrentUserAndData();
+    if (this.isAvocatGeneral) {
+      this.loadRapport();
+      this.loadConclusions();
+    }
   }
 
   get hasExistingConclusion(): boolean {
   return this.conclusions && this.conclusions.length > 0;
+}
+
+
+getSafeUrl(url: string): SafeResourceUrl {
+  return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+}
+
+
+// Dans ngOnInit ou une méthode dédiée
+
+// Modifiez la méthode loadRapport() comme suit :
+loadRapport(): void {
+  // Réinitialiser l'état
+  this.isLoadingPdf = true;
+  this.pdfUrl = null;
+
+  // Vérifier que declarationId est valide
+  if (!this.declarationId) {
+    console.error('ID de déclaration non disponible');
+    this.isLoadingPdf = false;
+    return;
+  }
+
+  this.rapportService.getByDeclaration(this.declarationId).pipe(
+    switchMap(rapports => {
+      if (!rapports || rapports.length === 0) {
+        return of(null);
+      }
+
+      // Trouver le rapport provisoire ou le premier rapport disponible
+      const rapport = rapports.find(r => r.type?.toUpperCase() === 'PROVISOIRE') || rapports[0];
+      return this.rapportService.telecharger(rapport.id);
+    })
+  ).subscribe({
+    next: (blob: Blob | null) => {
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      }
+      this.isLoadingPdf = false;
+    },
+    error: (err) => {
+      console.error('Erreur lors du chargement du rapport:', err);
+      this.isLoadingPdf = false;
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Échec du chargement du rapport',
+        life: 5000
+      });
+    }
+  });
+}
+// Dans votre composant
+ngAfterViewInit(): void {
+  // Vérifier à nouveau après le rendu initial
+  setTimeout(() => {
+    if (this.isAvocatGeneral && !this.pdfUrl && !this.isLoadingPdf) {
+      this.loadRapport();
+    }
+  }, 500);
+}
+openPdfViewer(tab: string): void {
+  this.activeTab = tab;
+  
+  // Si le viewer est déjà ouvert, on ne fait rien
+  if (this.showPdfViewer) return;
+  
+  // Sinon on ouvre le viewer et on charge le rapport
+  this.showPdfViewer = true;
+  this.loadRapport();
+}
+
+// Méthode pour fermer le viewer
+closePdfViewer(): void {
+  this.showPdfViewer = false;
+  this.pdfUrl = null; // Optionnel: libérer la mémoire
 }
 
   
@@ -117,7 +211,7 @@ showPredictions = false;
       next: (user) => {
         this.currentUser = user;
         this.isAvocatGeneral = this.currentUser.role.includes('avocat_general');
-        
+
         this.resolveDeclarationId().then(() => {
           this.loadDeclaration();
           if (this.isAvocatGeneral) {
@@ -141,7 +235,10 @@ toggleVehiculePredictions(): void {
     this.showVehiculePredictions = !this.showVehiculePredictions;
   }
 }
+hasCRRole(): Boolean {
+    return this.currentUser?.role.includes('conseiller_rapporteur');
 
+}
 loadVehiculePredictions(): void {
   this.isGeneratingReport = true;
   this.declarationService.getPredictionsForDeclarationvh(this.declarationId).subscribe({
@@ -362,7 +459,7 @@ private calculateEcartPercentage(declared: number, predicted: number): number {
             life: 2000
           });
           setTimeout(() => {
-            this.router.navigate(['/Assujetti/decDetails']);
+            this.router.navigate(['/Assujetti/details-declaration']);
           }, 2000);
         }
       },
@@ -827,7 +924,7 @@ downloadMeubleFile(meuble: MeubleMeublant): void {
 }
 
   goBack(): void {
-    this.router.navigate(['/Assujetti/decDetails']);
+    this.router.navigate(['/Assujetti/details-declaration']);
   }
 
   formatDate(date: string | Date): string {
