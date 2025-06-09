@@ -43,32 +43,80 @@ restoreAssujettisDialog: boolean = false;
       private messageService: MessageService,
       private loginService: LoginService
     ) { }
+// 1. Correction des propriétés dans la classe
+civilites: Vocabulaire[] = [];
+administrations: Vocabulaire[] = [];
+fonctions: Vocabulaire[] = [];
+institutions: Vocabulaire[] = [];
+entites: Vocabulaire[] = [];
 
-    ngOnInit() {
-      this.cols = [
-        { field: 'code', header: 'Code' },
-        { field: 'nom', header: 'Nom & Prenom' },
-        { field: 'email', header: 'E-mail' },
-        { field: 'fonction', header: 'Fonction' },
-        { field: 'datep', header: 'Date Prise de Service' },
-        { field: 'contacttel', header: 'Contact' },
-        { field: 'etat', header: 'Etat' }
-      ];
+// 2. Correction du ngOnInit
+ngOnInit() {
+  this.cols = [
+    { field: 'code', header: 'Code' },
+    { field: 'nom', header: 'Nom & Prenom' },
+    { field: 'email', header: 'E-mail' },
+    { field: 'fonction', header: 'Fonction' },
+    { field: 'datep', header: 'Date Prise de Service' },
+    { field: 'contacttel', header: 'Contact' },
+    { field: 'etat', header: 'Etat' }
+  ];
 
-      this.assujettiService.getTypesVocabulaire().subscribe((types) => {
-        this.typesVocabulaire = types;
-        
-        this.typesVocabulaire.forEach(type => {
-          this.assujettiService.getVocabulaireByTypeId(type.id).subscribe((vocabulaire) => {
-            this.vocabulaireListByType[type.id] = vocabulaire;
-          });
-        });
-      });
+  // Charger les types de vocabulaire d'abord
+  this.assujettiService.getTypesVocabulaire().subscribe({
+    next: (types) => {
+      this.typesVocabulaire = types;
+      console.log('Types de vocabulaire chargés:', types);
       
-      this.getAllAssujettis();
-      this.loadAssujettis();
-    }
+      // Charger chaque type de vocabulaire spécifique
+      types.forEach(type => {
+        console.log('Traitement du type:', type.intitule, 'ID:', type.id);
+        switch(type.intitule.toLowerCase()) {
+          case 'civilite':
+            this.loadVocabulairesByType(type.id, 'civilites');
+            break;
+          case 'administration':
+            this.loadVocabulairesByType(type.id, 'administrations');
+            break;
+          case 'fonction':
+            this.loadVocabulairesByType(type.id, 'fonctions');
+            break;
+          case 'institution':
+            this.loadVocabulairesByType(type.id, 'institutions');
+            break;
+          case 'entite':
+            this.loadVocabulairesByType(type.id, 'entites');
+            break;
+          default:
+            console.warn('Type de vocabulaire non reconnu:', type.intitule);
+        }
+      });
+    },
+    error: (err) => console.error('Erreur chargement types vocabulaire', err)
+  });
+  
+  this.getAllAssujettis();
+  this.loadAssujettis();
+}
 
+// 3. Ajout de la méthode loadVocabulairesByType
+loadVocabulairesByType(typeId: number, propertyName: string) {
+  this.assujettiService.getVocabulaireByType(typeId).subscribe({
+    next: (vocabulaires) => {
+      console.log(`Vocabulaires ${propertyName} chargés:`, vocabulaires);
+      (this as any)[propertyName] = vocabulaires;
+    },
+    error: (err) => {
+      console.error(`Erreur chargement ${propertyName}:`, err);
+    }
+  });
+}
+
+
+
+getIntitule(vocabulaire: Vocabulaire): string {
+  return vocabulaire?.intitule || '';
+}
     loadAssujettis() {
       this.assujettiService.getAllAssujettis().subscribe((data) => {
         this.assujettis = data;
@@ -250,16 +298,29 @@ restoreAssujettisDialog: boolean = false;
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       return emailRegex.test(email);
     }
-
-    editAssujetti(assujetti: Assujetti) {
-      this.assujetti = { ...assujetti };
-      this.selectedVoc = {}; 
-      this.typesVocabulaire.forEach(type => {
-        const key = type.intitule; 
-        this.selectedVoc[key] = assujetti[key] ? assujetti[key] : null;
-      });
-      this.assujettiDialog = true;
-    }
+editAssujetti(assujetti: Assujetti) {
+  this.assujetti = { ...assujetti };
+  this.selectedVoc = {};
+  
+  // Mapper les vocabulaires existants
+  if (assujetti.civilite) {
+    this.selectedVoc['Civilites'] = assujetti.civilite;
+  }
+  if (assujetti.administration) {
+    this.selectedVoc['Administration'] = assujetti.administration;
+  }
+  if (assujetti.fonction) {
+    this.selectedVoc['Fonction'] = assujetti.fonction;
+  }
+  if (assujetti.institutions) {
+    this.selectedVoc['Institution'] = assujetti.institutions;
+  }
+  if (assujetti.entite) {
+    this.selectedVoc['Entites'] = assujetti.entite;
+  }
+  
+  this.assujettiDialog = true;
+}
     
     deleteAssujetti(assujetti: Assujetti) {
       this.assujetti = assujetti;

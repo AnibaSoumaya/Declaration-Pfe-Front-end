@@ -221,165 +221,222 @@
         </ng-template>
       </p-table>
       
-      <!-- Dialogue d'ajout/édition d'assujetti - Design professionnel -->
 <p-dialog [(visible)]="assujettiDialog" 
-[style]="{width: '750px', borderRadius: '12px'}" 
-[modal]="true" 
-styleClass="p-fluid modern-dialog"
-[contentStyle]="{'padding': '2rem'}"
-[showHeader]="false">
-<div class="dialog-custom-header mb-4">
-<h2 class="m-0 text-xl font-medium">Détails de l'Assujetti</h2>
-<button pButton pRipple type="button" icon="pi pi-times" 
-  class="p-button-rounded p-button-text" 
-  (click)="assujettiDialog = false"></button>
-</div>
+          [style]="{width: '750px', borderRadius: '12px'}" 
+          [modal]="true" 
+          styleClass="p-fluid modern-dialog"
+          [contentStyle]="{'padding': '2rem'}"
+          [showHeader]="false">
+  <div class="dialog-custom-header mb-4">
+    <h2 class="m-0 text-xl font-medium">Détails de l'Assujetti</h2>
+    <button pButton pRipple type="button" icon="pi pi-times" 
+            class="p-button-rounded p-button-text" 
+            (click)="assujettiDialog = false"></button>
+  </div>
 
-<div class="grid">
-<!-- Première section: Identité -->
-<div class="col-12 mb-3">
-<div class="section-title">
-<i class="pi pi-user mr-2"></i>
-<span>Identité</span>
-</div>
-</div>
+  <div class="grid">
+    <!-- Première section: Identité -->
+    <div class="col-12 mb-3">
+      <div class="section-title">
+        <i class="pi pi-user mr-2"></i>
+        <span>Identité</span>
+      </div>
+    </div>
 
-<div class="col-6">
-<div class="field">
-<label for="code" class="field-label">
-NCIN <span class="required-indicator">*</span>
-</label>
-<input type="text" pInputText id="code" [(ngModel)]="assujetti.code" required 
-    class="p-inputtext" />
-</div>
-</div>
+    <div class="col-6">
+      <div class="field">
+        <label for="code" class="field-label">
+          NCIN <span class="required-indicator">*</span>
+        </label>
+        <input type="text" pInputText id="code" [(ngModel)]="assujetti.code" required 
+               class="p-inputtext" />
+      </div>
+    </div>
 
-<div class="col-6">
-<div class="field">
-<label for="matricule" class="field-label">
-NIF <span class="required-indicator">*</span>
-</label>
-<input type="text" pInputText id="matricule" [(ngModel)]="assujetti.matricule" required 
-    class="p-inputtext" />
-</div>
-</div>
+    <div class="col-6">
+      <div class="field">
+        <label for="matricule" class="field-label">
+          NIF <span class="required-indicator">*</span>
+        </label>
+        <input type="text" pInputText id="matricule" [(ngModel)]="assujetti.matricule" required 
+               class="p-inputtext" />
+      </div>
+    </div>
 
-<div class="col-6">
-<div class="field">
-<label for="nom" class="field-label">
-Nom <span class="required-indicator">*</span>
-</label>
-<input type="text" pInputText id="nom" [(ngModel)]="assujetti.nom" required 
-    class="p-inputtext" />
-</div>
-</div>
+    <div class="col-6">
+      <div class="field">
+        <label for="nom" class="field-label">
+          Nom <span class="required-indicator">*</span>
+        </label>
+        <input type="text" pInputText id="nom" [(ngModel)]="assujetti.nom" required 
+               class="p-inputtext" />
+      </div>
+    </div>
 
-<div class="col-6">
-<div class="field">
-<label for="prenom" class="field-label">
-Prénom <span class="required-indicator">*</span>
-</label>
-<input type="text" pInputText id="prenom" [(ngModel)]="assujetti.prenom" required 
-    class="p-inputtext" />
-</div>
-</div>
+    <div class="col-6">
+      <div class="field">
+        <label for="prenom" class="field-label">
+          Prénom <span class="required-indicator">*</span>
+        </label>
+        <input type="text" pInputText id="prenom" [(ngModel)]="assujetti.prenom" required 
+               class="p-inputtext" />
+      </div>
+    </div>
 
-<!-- Deuxième section: Coordonnées -->
-<div class="col-12 mb-3 mt-4">
-<div class="section-title">
-<i class="pi pi-envelope mr-2"></i>
-<span>Coordonnées</span>
-</div>
-</div>
+    <!-- Deuxième section: Coordonnées -->
+    <div class="col-12 mb-3 mt-4">
+      <div class="section-title">
+        <i class="pi pi-envelope mr-2"></i>
+        <span>Coordonnées</span>
+      </div>
+    </div>
 
-<div class="col-6">
-<div class="field">
-<label for="email" class="field-label">
-E-mail <span class="required-indicator">*</span>
-</label>
-<div class="p-input-icon-left">
-<i class="pi pi-at"></i>
-<input type="email" pInputText id="email" [(ngModel)]="assujetti.email" required 
-      class="p-inputtext pl-5" />
-</div>
-</div>
-</div>
+    <div class="col-6">
+      <div class="field">
+        <label for="email" class="field-label">
+          E-mail <span class="required-indicator">*</span>
+        </label>
+        <div class="p-input-icon-left">
+          <i class="pi pi-at"></i>
+          <input type="email" pInputText id="email" [(ngModel)]="assujetti.email" required 
+                 class="p-inputtext pl-5" />
+        </div>
+      </div>
+    </div>
 
-<div class="col-6">
-<div class="field">
-<label for="contact" class="field-label">
-Contact <span class="required-indicator">*</span>
-</label>
-<div class="p-input-icon-left">
-<i class="pi pi-phone"></i>
-<input type="text" pInputText id="contact" [(ngModel)]="assujetti.contacttel" required 
-      class="p-inputtext pl-5" />
-</div>
-</div>
-</div>
+    <div class="col-6">
+      <div class="field">
+        <label for="contact" class="field-label">
+          Contact <span class="required-indicator">*</span>
+        </label>
+        <div class="p-input-icon-left">
+          <i class="pi pi-phone"></i>
+          <input type="text" pInputText id="contact" [(ngModel)]="assujetti.contacttel" required 
+                 class="p-inputtext pl-5" />
+        </div>
+      </div>
+    </div>
 
-<!-- Troisième section: Fonction -->
-<div class="col-12 mb-3 mt-4">
-<div class="section-title">
-<i class="pi pi-briefcase mr-2"></i>
-<span>Fonction</span>
-</div>
-</div>
+    <!-- Troisième section: Fonction -->
+    <div class="col-12 mb-3 mt-4">
+      <div class="section-title">
+        <i class="pi pi-briefcase mr-2"></i>
+        <span>Fonction</span>
+      </div>
+    </div>
 
-<div class="col-6">
-<div class="field">
-<label for="datep" class="field-label">
-Date Prise de Service <span class="required-indicator">*</span>
-</label>
-<div class="p-input-icon-left">
-<i class="pi pi-calendar"></i>
-<input type="date" pInputText id="datep" [(ngModel)]="assujetti.datePriseDeService" required 
-      class="p-inputtext pl-5" />
-</div>
-</div>
-</div>
+    <div class="col-6">
+      <div class="field">
+        <label for="datep" class="field-label">
+          Date Prise de Service <span class="required-indicator">*</span>
+        </label>
+        <div class="p-input-icon-left">
+          <i class="pi pi-calendar"></i>
+          <input type="date" pInputText id="datep" [(ngModel)]="assujetti.datePriseDeService" required 
+                 class="p-inputtext pl-5" />
+        </div>
+      </div>
+    </div>
 
-<!-- Quatrième section: Caractéristiques -->
-<div class="col-12 mb-3 mt-4">
-<div class="section-title">
-<i class="pi pi-list mr-2"></i>
-<span>Classification</span>
-</div>
-</div>
+    <!-- Quatrième section: Caractéristiques -->
+    <div class="col-12 mb-3 mt-4">
+      <div class="section-title">
+        <i class="pi pi-list mr-2"></i>
+        <span>Classification</span>
+      </div>
+    </div>
+    
+    <!-- Correction des dropdowns dans le dialogue -->
+    <div class="col-12">
+      <div class="field">
+        <label class="field-label">
+          <i class="pi pi-tags mr-2 text-orange-500"></i>Civilité <span class="text-danger">*</span>
+        </label>
+        <p-dropdown [options]="civilites" 
+                    optionLabel="intitule" 
+                    [appendTo]="'body'"
+                    [(ngModel)]="assujetti.civilite" 
+                    placeholder="Sélectionner une civilité"
+                    class="w-full p-inputtext-sm">
+        </p-dropdown>
+      </div>
+    </div>
 
-<div *ngFor="let type of typesVocabulaire" class="col-12">
-<div class="field">
-<label class="field-label">
-{{ type.intitule }} <span class="required-indicator">*</span>
-</label>
-<p-dropdown 
-[(ngModel)]="selectedVoc[type.intitule]" 
-[options]="vocabulaireListByType[type.id]" 
-optionLabel="intitule"
-placeholder="Choisir à partir de la liste..." 
-[showClear]="true" 
-styleClass="w-full custom-dropdown"
-required>
-</p-dropdown>
-</div>
-</div>
-</div>
+    <div class="col-12">
+      <div class="field">
+        <label class="field-label">
+          <i class="pi pi-tags mr-2 text-orange-500"></i>Administration <span class="text-danger">*</span>
+        </label>
+        <p-dropdown [options]="administrations" 
+                    optionLabel="intitule" 
+                    [appendTo]="'body'"
+                    [(ngModel)]="assujetti.administration" 
+                    placeholder="Sélectionner une administration"
+                    class="w-full p-inputtext-sm">
+        </p-dropdown>
+      </div>
+    </div>
 
-<div class="dialog-footer mt-4 pt-3">
-<button pButton pRipple 
-  label="Annuler" 
-  icon="pi pi-times" 
-  class="p-button-outlined p-button-secondary"
-  (click)="assujettiDialog = false"></button>
+    <div class="col-12">
+      <div class="field">
+        <label class="field-label">
+          <i class="pi pi-tags mr-2 text-orange-500"></i>Fonction <span class="text-danger">*</span>
+        </label>
+        <p-dropdown [options]="fonctions" 
+                    optionLabel="intitule" 
+                    [appendTo]="'body'"
+                    [(ngModel)]="assujetti.fonction" 
+                    placeholder="Sélectionner une fonction"
+                    class="w-full p-inputtext-sm">
+        </p-dropdown>
+      </div>
+    </div>
 
-<button pButton pRipple 
-  label="Enregistrer" 
-  icon="pi pi-check" 
-  class="p-button-primary ml-3"
-  (click)="saveAssujetti()"></button>
-</div>
+    <div class="col-12">
+      <div class="field">
+        <label class="field-label">
+          <i class="pi pi-tags mr-2 text-orange-500"></i>Institution <span class="text-danger">*</span>
+        </label>
+        <p-dropdown [options]="institutions" 
+                    optionLabel="intitule" 
+                    [appendTo]="'body'"
+                    [(ngModel)]="assujetti.institutions" 
+                    placeholder="Sélectionner une institution"
+                    class="w-full p-inputtext-sm">
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="field">
+        <label class="field-label">
+          <i class="pi pi-tags mr-2 text-orange-500"></i>Entité <span class="text-danger">*</span>
+        </label>
+        <p-dropdown [options]="entites" 
+                    optionLabel="intitule" 
+                    [appendTo]="'body'"
+                    [(ngModel)]="assujetti.entite" 
+                    placeholder="Sélectionner une entité"
+                    class="w-full p-inputtext-sm">
+        </p-dropdown>
+      </div>
+    </div>
+  </div> <!-- Closing the grid div -->
+
+  <div class="dialog-footer mt-4 pt-3">
+    <button pButton pRipple 
+            label="Annuler" 
+            icon="pi pi-times" 
+            class="p-button-outlined p-button-secondary"
+            (click)="assujettiDialog = false"></button>
+
+    <button pButton pRipple 
+            label="Enregistrer" 
+            icon="pi pi-check" 
+            class="p-button-primary ml-3"
+            (click)="saveAssujetti()"></button>
+  </div>
 </p-dialog>
-
 <!-- CSS à ajouter à votre fichier de styles -->
 <style>
 .modern-dialog .p-dialog-content {
