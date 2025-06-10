@@ -304,7 +304,7 @@ editAssujetti(assujetti: Assujetti) {
   
   // Mapper les vocabulaires existants
   if (assujetti.civilite) {
-    this.selectedVoc['Civilites'] = assujetti.civilite;
+    this.selectedVoc['civilites'] = assujetti.civilite;
   }
   if (assujetti.administration) {
     this.selectedVoc['Administration'] = assujetti.administration;
@@ -316,7 +316,7 @@ editAssujetti(assujetti: Assujetti) {
     this.selectedVoc['Institution'] = assujetti.institutions;
   }
   if (assujetti.entite) {
-    this.selectedVoc['Entites'] = assujetti.entite;
+    this.selectedVoc['entites'] = assujetti.entite;
   }
   
   this.assujettiDialog = true;

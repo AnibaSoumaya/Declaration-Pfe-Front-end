@@ -412,7 +412,7 @@
         <label class="field-label">
           <i class="pi pi-tags mr-2 text-orange-500"></i>Entité <span class="text-danger">*</span>
         </label>
-        <p-dropdown [options]="entites" 
+        <p-dropdown [options]="entites || []" 
                     optionLabel="intitule" 
                     [appendTo]="'body'"
                     [(ngModel)]="assujetti.entite" 
