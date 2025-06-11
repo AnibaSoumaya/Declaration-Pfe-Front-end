@@ -81,7 +81,7 @@ ngOnInit() {
           case 'fonction':
             this.loadVocabulairesByType(type.id, 'fonctions');
             break;
-          case 'institution':
+          case 'institutions':
             this.loadVocabulairesByType(type.id, 'institutions');
             break;
           case 'entite':
