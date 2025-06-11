@@ -313,7 +313,7 @@ editAssujetti(assujetti: Assujetti) {
     this.selectedVoc['Fonction'] = assujetti.fonction;
   }
   if (assujetti.institutions) {
-    this.selectedVoc['Institution'] = assujetti.institutions;
+    this.selectedVoc['institutions'] = assujetti.institutions;
   }
   if (assujetti.entite) {
     this.selectedVoc['entites'] = assujetti.entite;

@@ -230,14 +230,14 @@
               [disabled]="selectedDeclarations.length === 0">
           </button>
           <button *ngIf="hasProcureurGeneralRole()"
-        pButton 
-        icon="pi pi-share-alt" 
-        class="p-button-rounded p-button-help"
-        [disabled]="!canTransferDeclarations()"
-        (click)="openTransferDialog()"
-        pTooltip="Transférer à un autre procureur général"
-        tooltipPosition="top">
-</button>
+            pButton 
+            icon="pi pi-share-alt" 
+            class="p-button-rounded p-button-help"
+            [disabled]="!canTransferDeclarations()"
+            (click)="openTransferDialog()"
+            pTooltip="Transférer à un autre procureur général"
+            tooltipPosition="top">
+          </button>
 
 <!-- Dialogue de transfert -->
 <p-dialog header="Transfert à un autre Procureur Général" 

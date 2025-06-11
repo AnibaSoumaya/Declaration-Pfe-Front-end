@@ -536,7 +536,7 @@ canTransferDeclarations(): boolean {
   
   return this.selectedDeclarations.every(declaration => {
     const etat = declaration.etatDeclaration?.toLowerCase();
-    return ['nouveau', 'en_cours', 'traitement', 'jugement'].includes(etat);
+    return ['nouveau', 'en_cours', 'traitement', 'jugement','no_declaré'].includes(etat);
   });
 }
 
