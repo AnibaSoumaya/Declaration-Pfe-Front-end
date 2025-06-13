@@ -187,6 +187,7 @@ public typesChartData: ChartData<'bar'> = {
 
   ngOnInit(): void {
     this.getCurrentUser();
+      this.initializeEmptyData();
   }
 
   ngAfterViewInit(): void {
@@ -212,7 +213,6 @@ public typesChartData: ChartData<'bar'> = {
 
   loadAllData(): void {
     this.loadDashboardData();
-    this.loadRepartitionParType();
     this.loadStatistiquesValidation();
   }
 
@@ -234,18 +234,7 @@ public typesChartData: ChartData<'bar'> = {
       }
     });
   }
-  loadRepartitionParType(): void {
-    this.conseillerStatisticsService.getRepartitionParType(this.currentUserId).subscribe({
-      next: (data) => {
-        this.repartitionParType = data;
-        this.updateTypesChart();
-        console.log('Répartition par type:', data);
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement de la répartition par type:', err);
-      }
-    });
-  }
+
 
   loadStatistiquesValidation(): void {
     this.isLoadingValidation = true;
@@ -461,6 +450,63 @@ public typesChartData: ChartData<'bar'> = {
 
 
 
+// Ajoutez cette méthode pour initialiser les données vides
+private initializeEmptyData(): void {
+  this.conseillerStats = {
+    dossiersAssignes: 0,
+    dossiersTraites: 0,
+    dossiersEnCours: 0,
+    delaiMoyen: 0,
+    rapportsGeneres: 0,
+    observationsRealisees: 0,
+    tauxValidation: 0,
+    tauxRejet: 0
+  };
+
+  // Initialisez les graphiques avec des données vides
+  this.declarationsChartData = {
+    labels: ['En cours', 'Validé', 'Refusé', 'En attente', 'Traité'],
+    datasets: [{
+      data: [0, 0, 0, 0, 0],
+      label: 'Nombre de déclarations',
+      backgroundColor: this.blueColors,
+      borderColor: '#ffffff',
+      borderWidth: 1
+    }]
+  };
+
+  this.performanceChartData = {
+    labels: [],
+    datasets: [{
+      data: [],
+      label: 'Déclarations traitées par mois',
+      borderColor: this.greenColors[0],
+      backgroundColor: this.greenColors[0].replace('0.8', '0.2'),
+      tension: 0.4,
+      fill: true
+    }]
+  };
+
+  this.typesChartData = {
+    labels: [],
+    datasets: [{
+      data: [],
+      label: 'Nombre',
+      backgroundColor: this.greenColors,
+      borderColor: '#ffffff',
+      borderWidth: 1
+    }]
+  };
+
+  this.validationChartData = {
+    labels: ['Taux de Validation', 'Taux de Rejet'],
+    datasets: [{
+      data: [0, 0],
+      label: 'Pourcentage (%)',
+      backgroundColor: [this.greenColors[0], this.orangeColors[2]]
+    }]
+  };
+}
   exportStatistics(): void {
     // Implement export functionality
     const data = {
