@@ -3,6 +3,9 @@ import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { UserService } from 'src/app/core/services/user.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { ConseillerStatisticsService } from 'src/app/core/services/conseiller-statistics-service.service';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-conseiller-stats',
@@ -21,8 +24,6 @@ export class ConseillerStatsComponent implements OnInit, AfterViewInit {
   conseillerStats: any = {
     dossiersAssignes: 0,
     dossiersTraites: 0,
-    dossiersEnCours: 0,
-    delaiMoyen: 0,
     performanceVerification: null,
     // New properties for additional stats
     rapportsGeneres: 0,
@@ -33,7 +34,6 @@ export class ConseillerStatsComponent implements OnInit, AfterViewInit {
 
   // Data arrays
   declarationsAssignees: any[] = [];
-  repartitionParEtat: any[] = [];
   repartitionParType: any[] = [];
   statistiquesValidation: any = {};
   dashboardData: any = {};
@@ -180,42 +180,6 @@ public typesChartData: ChartData<'bar'> = {
     }]
   };
 
-  constructor(
-    private conseillerStatisticsService: ConseillerStatisticsService,
-    private userService: UserService
-  ) { }
-
-  ngOnInit(): void {
-    this.getCurrentUser();
-      this.initializeEmptyData();
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.updateAllCharts();
-    }, 100);
-  }
-
-  getCurrentUser(): void {
-    this.userService.getCurrentUser().subscribe({
-      next: (user) => {
-        this.currentUserId = user.id;
-        console.log('Current User ID:', this.currentUserId);
-        this.loadAllData();
-      },
-      error: (err) => {
-        console.error('Erreur lors de la récupération de l\'utilisateur:', err);
-        this.currentUserId = 36; // Fallback ID
-        this.loadAllData();
-      }
-    });
-  }
-
-  loadAllData(): void {
-    this.loadDashboardData();
-    this.loadStatistiquesValidation();
-  }
-
   loadDashboardData(): void {
     this.isLoadingDashboard = true;
     console.log('Loading dashboard data for user:', this.currentUserId);
@@ -236,64 +200,7 @@ public typesChartData: ChartData<'bar'> = {
   }
 
 
-  loadStatistiquesValidation(): void {
-    this.isLoadingValidation = true;
-    this.conseillerStatisticsService.getStatistiquesValidation(this.currentUserId).subscribe({
-      next: (data) => {
-        this.statistiquesValidation = data;
-        this.conseillerStats.tauxValidation = data.tauxValidation || 0;
-        this.conseillerStats.tauxRejet = data.tauxRejet || 0;
-        this.updateValidationChart();
-        console.log('Statistiques de validation:', data);
-        this.isLoadingValidation = false;
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement des statistiques de validation:', err);
-        this.isLoadingValidation = false;
-      }
-    });
-  }
 
-  private processLoadedData(data: any): void {
-    // Update main stats cards
-    this.conseillerStats.dossiersAssignes = data.nombreDeclarationsAssignees || 0;
-    this.conseillerStats.dossiersTraites = data.nombreDeclarationsTraitees || 0;
-    this.conseillerStats.dossiersEnCours = data.nombreDeclarationsEnCours || 0;
-    this.conseillerStats.delaiMoyen = Math.round(data.tempsTraitementMoyen || 0);
-
-    // Process repartition par etat for pie chart
-    if (data.repartitionParEtat && data.repartitionParEtat.length > 0) {
-      this.repartitionParEtat = data.repartitionParEtat;
-      this.updateDeclarationsChart();
-    }
-
-    // Process monthly statistics for line chart
-    if (data.statistiquesParMois && data.statistiquesParMois.length > 0) {
-      this.updatePerformanceChart(data.statistiquesParMois);
-    }
-
-    // Process performance data
-    if (data.performance) {
-      this.conseillerStats.performanceVerification = data.performance;
-      this.conseillerStats.rapportsGeneres = data.performance.totalRapportsGeneres || 0;
-      this.conseillerStats.observationsRealisees = data.performance.totalObservations || 0;
-    }
-  }
-
-  private updateDeclarationsChart(): void {
-    if (this.repartitionParEtat && this.repartitionParEtat.length > 0) {
-      this.declarationsChartData.labels = this.repartitionParEtat.map(item => 
-        this.translateEtatDeclaration(item.etat)
-      );
-      this.declarationsChartData.datasets[0].data = this.repartitionParEtat.map(item => item.nombre);
-      
-      setTimeout(() => {
-        if (this.declarationsChart) {
-          this.declarationsChart.update();
-        }
-      }, 50);
-    }
-  }
 
   private updatePerformanceChart(statistiquesParMois: any[]): void {
     if (statistiquesParMois && statistiquesParMois.length > 0) {
@@ -351,7 +258,6 @@ public typesChartData: ChartData<'bar'> = {
   }
 
   private updateMainCharts(): void {
-    this.updateDeclarationsChart();
     this.updatePerformanceChart(this.dashboardData.statistiquesParMois || []);
   }
 
@@ -401,10 +307,7 @@ public typesChartData: ChartData<'bar'> = {
     return months[monthName.toLowerCase()] || 1;
   }
 
-  // Action methods
-  refreshData(): void {
-    this.loadAllData();
-  }
+
 
   loadDeclarationsAssignees(): void {
     this.conseillerStatisticsService.consulterDeclarationsAssignees(this.currentUserId).subscribe({
@@ -455,8 +358,6 @@ private initializeEmptyData(): void {
   this.conseillerStats = {
     dossiersAssignes: 0,
     dossiersTraites: 0,
-    dossiersEnCours: 0,
-    delaiMoyen: 0,
     rapportsGeneres: 0,
     observationsRealisees: 0,
     tauxValidation: 0,
@@ -507,20 +408,153 @@ private initializeEmptyData(): void {
     }]
   };
 }
-  exportStatistics(): void {
-    // Implement export functionality
-    const data = {
-      conseillerStats: this.conseillerStats,
-      statistiquesValidation: this.statistiquesValidation,
-      exportDate: new Date().toISOString()
-    };
+
+  // Données supplémentaires
+  chargeTravail: any = {
+    declarationsEnCours: 0,
+    declarationsEnRetard: 0
+  };
+  
+  performanceAnnuelle: any = {
+    declarationsValidees: 0,
+    declarationsRejetees: 0,
+    tauxValidation: 0
+  };
+  
+  declarationsAnciennes: any[] = [];
+
+  // ... (vos autres propriétés existantes) ...
+
+  constructor(
+    private conseillerStatisticsService: ConseillerStatisticsService,
+    private userService: UserService
+  ) { }
+
+  ngOnInit(): void {
+    this.getCurrentUser();
+    this.initializeEmptyData();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.updateAllCharts();
+    }, 100);
+  }
+
+  getCurrentUser(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        this.currentUserId = user.id;
+        this.loadAllData();
+      },
+      error: (err) => {
+        console.error('Erreur lors de la récupération de l\'utilisateur:', err);
+        this.currentUserId = 36; // Fallback ID
+        this.loadAllData();
+      }
+    });
+  }
+
+  loadAllData(): void {
+    this.isLoadingDashboard = true;
     
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `statistiques_conseiller_${this.currentUserId}_${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    // Charge toutes les données via le dashboard complet
+    this.conseillerStatisticsService.getDashboardConseiller(this.currentUserId).subscribe({
+      next: (data) => {
+        this.processLoadedData(data);
+        this.isLoadingDashboard = false;
+      },
+      error: (err) => {
+        console.error('Error loading dashboard data:', err);
+        this.isLoadingDashboard = false;
+      }
+    });
+
+    // Charge les données supplémentaires
+    this.loadAdditionalData();
+  }
+
+  loadAdditionalData(): void {
+    // Charge la charge de travail
+    this.conseillerStatisticsService.getChargeUtilisateur(this.currentUserId).subscribe({
+      next: (data) => {
+        this.chargeTravail = data;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement de la charge de travail:', err);
+      }
+    });
+
+    // Charge la performance annuelle
+    this.conseillerStatisticsService.getPerformanceAnnuelle(this.currentUserId).subscribe({
+      next: (data) => {
+        this.performanceAnnuelle = data;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement de la performance annuelle:', err);
+      }
+    });
+
+    // Charge les déclarations anciennes
+    this.conseillerStatisticsService.getDeclarationsAnciennes(this.currentUserId).subscribe({
+      next: (data) => {
+        this.declarationsAnciennes = data;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des déclarations anciennes:', err);
+      }
+    });
+  }
+
+  private processLoadedData(data: any): void {
+    // Traitement des données existantes
+    this.conseillerStats.dossiersAssignes = data.statistiquesGenerales?.nombreDeclarationsAssignees || 0;
+    this.conseillerStats.dossiersTraites = data.statistiquesGenerales?.nombreDeclarationsTraitees || 0;
+    this.conseillerStats.rapportsGeneres = data.statistiquesGenerales?.nombreRapportsGeneres || 0;
+    this.conseillerStats.observationsRealisees = data.statistiquesGenerales?.nombreObservations || 0;
+
+    // Mise à jour des graphiques
+    if (data.statistiquesParMois) {
+      this.updatePerformanceChart(data.statistiquesParMois);
+    }
+
+    if (data.performanceVerification) {
+      this.updateValidationChartData(data.performanceVerification);
+    }
+
+    // Traitement des nouvelles données
+    if (data.chargeTravail) {
+      this.chargeTravail = data.chargeTravail;
+    }
+
+    if (data.performanceAnnuelle) {
+      this.performanceAnnuelle = data.performanceAnnuelle;
+    }
+
+    if (data.declarationsAnciennes) {
+      this.declarationsAnciennes = data.declarationsAnciennes;
+    }
+  }
+
+  private updateValidationChartData(performanceData: any): void {
+    this.validationChartData.datasets[0].data = [
+      performanceData.tauxValidation || 0,
+      performanceData.tauxRejet || 0
+    ];
+    
+    if (this.validationChart) {
+      this.validationChart.update();
+    }
+  }
+
+  // ... (vos autres méthodes existantes) ...
+
+  openDeclaration(declarationId: number): void {
+    // Implémentez la logique pour ouvrir une déclaration
+    console.log('Ouverture de la déclaration:', declarationId);
+  }
+
+  refreshData(): void {
+    this.loadAllData();
   }
 }

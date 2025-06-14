@@ -61,4 +61,41 @@ getDashboardStats(): Observable<any> {
   }
 
 
+getMonthlyPerformance(year: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/performance/monthly/${year}`);
+}
+
+getYearlyPerformance(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/performance/yearly`);
+}
+
+getTopUsersByRole(startDate: string, endDate: string, limit: number = 5): Observable<Map<any, any[]>> {
+  const params = new HttpParams()
+    .set('startDate', startDate)
+    .set('endDate', endDate)
+    .set('limit', limit.toString());
+    
+  return this.http.get<Map<any, any[]>>(`${this.baseUrl}/performance/top-users`, { params });
+}
+
+getPerformanceStatistics(year: number, startDate: string, endDate: string): Observable<any> {
+  const params = new HttpParams()
+    .set('year', year.toString())
+    .set('startDate', startDate)
+    .set('endDate', endDate);
+    
+  return this.http.get<any>(`${this.baseUrl}/performance/complete`, { params });
+}
+
+getCurrentYearPerformance(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/performance/current-year`);
+}
+
+getCurrentTopUsers(): Observable<Map<any, any[]>> {
+  return this.http.get<Map<any, any[]>>(`${this.baseUrl}/performance/current-top-users`);
+}
+
+getPerformanceDashboard(): Observable<any> {
+  return this.http.get(`${this.baseUrl}/performance/dashboard`);
+}
 }

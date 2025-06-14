@@ -36,24 +36,25 @@ export class ConseillerStatisticsService {
     return this.http.get<any[]>(`${this.baseUrl}/${conseillerId}/stats-mensuelles`);
   }
 
-  getRepartitionParEtat(conseillerId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/${conseillerId}/repartition-etat`);
-  }
+
 
   getPerformanceVerification(conseillerId: number): Observable<any> {
     return this.http.get(`${this.baseUrl}/${conseillerId}/performance`);
   }
 
 
-  getRepartitionParType(conseillerId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/${conseillerId}/repartition-type`);
+  // New methods for additional statistics
+  getChargeUtilisateur(conseillerId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${conseillerId}/charge-travail`);
   }
 
-  getStatistiquesValidation(conseillerId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/${conseillerId}/stats-validation`);
+  getPerformanceAnnuelle(conseillerId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${conseillerId}/performance-annuelle`);
   }
 
-  getStatistiquesTousConseillers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/all`);
+  getDeclarationsAnciennes(conseillerId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${conseillerId}/declarations-anciennes`);
   }
+
+
 }

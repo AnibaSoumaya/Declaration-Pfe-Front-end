@@ -34,6 +34,8 @@ export class AdminStatsComponent  implements OnInit {
 
   ngOnInit(): void {
     this.loadDashboardData();
+  this.loadPerformanceData(); 
+
   }
 
   loadDashboardData(): void {
@@ -129,7 +131,149 @@ export class AdminStatsComponent  implements OnInit {
     
     return activities;
   }
+// Mettez à jour la méthode updatePerformanceChart
+updatePerformanceChart(usersByRole: any): void {
+  const roles = Object.keys(usersByRole);
+  const counts = Object.values(usersByRole) as number[];
+  
+  if (roles.length === 0) {
+    this.performanceChartData = null;
+    return;
+  }
+  
+  this.performanceChartData = {
+    labels: roles.map(role => this.formatRoleName(role)),
+    datasets: [{
+      label: 'Nombre d\'utilisateurs',
+      data: counts,
+      backgroundColor: [
+        'rgba(99, 175, 250, 0.7)', // Bleu pastel
+        'rgba(141, 248, 141, 0.7)', // Vert pastel
+        'rgba(255, 185, 114, 0.7)', // Orange pastel
+        'rgba(207, 167, 251, 0.7)', // Violet pastel
+        'rgba(254, 123, 123, 0.7)'  // Rouge pastel
+      ],
+      borderColor: [
+        'rgb(49, 151, 253)',
+        'rgb(47, 245, 47)',
+        'rgb(240, 143, 45)',
+        'rgb(178, 104, 252)',
+        'rgb(255, 95, 95)'
+      ],
+      borderWidth: 1
+    }]
+  };
+}
 
+// Mettez à jour la méthode updateEtatChart
+updateEtatChart(declarationsByEtat: any): void {
+  const labels = Object.keys(declarationsByEtat);
+  const values = Object.values(declarationsByEtat) as number[];
+  
+  if (labels.length === 0) {
+    this.etatChartData = null;
+    return;
+  }
+  
+  this.etatChartData = {
+    labels: labels,
+    datasets: [{
+      data: values,
+      backgroundColor: [
+        'rgba(116, 253, 116, 0.7)', // Vert pastel
+        'rgba(92, 173, 253, 0.7)', // Bleu pastel
+        'rgba(252, 213, 95, 0.7)', // Jaune pastel
+        'rgba(253, 102, 102, 0.7)', // Rose pastel
+        'rgba(132, 132, 250, 0.7)'  // Lavande pastel
+      ],
+      borderColor: [
+        'rgb(48, 252, 48)',
+        'rgb(50, 151, 251)',
+        'rgb(249, 193, 25)',
+        'rgb(255, 80, 80)',
+        'rgb(120, 120, 250)'
+      ],
+      borderWidth: 1
+    }]
+  };
+}
+
+// Mettez à jour la méthode updatePeriodeChart
+updatePeriodeChart(declarationsByYear: any): void {
+  const years = Object.keys(declarationsByYear);
+  const counts = Object.values(declarationsByYear) as number[];
+  
+  if (years.length === 0) {
+    this.periodeChartData = {
+      labels: ['2023', '2024', '2025'],
+      datasets: [{
+        label: 'Déclarations par année',
+        data: [0, 0, 0],
+        borderColor: 'rgb(86, 170, 253)',
+        backgroundColor: 'rgba(0, 123, 246, 0.2)',
+        tension: 0.4,
+        fill: true
+      }]
+    };
+  } else {
+    this.periodeChartData = {
+      labels: years,
+      datasets: [{
+        label: 'Déclarations par année',
+        data: counts,
+        borderColor: 'rgb(109, 181, 253)',
+        backgroundColor: 'rgba(0, 128, 255, 0.2)',
+        tension: 0.4,
+        fill: true
+      }]
+    };
+  }
+}
+
+// Mettez à jour la méthode processPerformanceData
+processPerformanceData(stats: any): void {
+  this.monthlyPerformanceData = {
+    labels: stats.monthlyPerformance.map(m => this.getMonthName(m.month)),
+    datasets: [
+      {
+        label: 'Déclarations totales',
+        data: stats.monthlyPerformance.map(m => m.totalDeclarations),
+        backgroundColor: 'rgba(178, 255, 178, 0.5)', // Vert pastel
+        borderColor: 'rgba(102, 255, 102, 1)',
+        borderWidth: 1
+      },
+      {
+        label: 'Déclarations finales',
+        data: stats.monthlyPerformance.map(m => m.finalDeclarations),
+        backgroundColor: 'rgba(153, 204, 255, 0.5)', // Bleu pastel
+        borderColor: 'rgba(102, 178, 255, 1)',
+        borderWidth: 1
+      }
+    ]
+  };
+
+  this.yearlyPerformanceData = {
+    labels: stats.yearlyPerformance.map(y => y.year.toString()),
+    datasets: [
+      {
+        label: 'Déclarations totales',
+        data: stats.yearlyPerformance.map(y => y.totalDeclarations),
+        backgroundColor: 'rgba(255, 229, 153, 0.5)', // Jaune pastel
+        borderColor: 'rgba(255, 204, 51, 1)',
+        borderWidth: 1
+      },
+      {
+        label: 'Déclarations finales',
+        data: stats.yearlyPerformance.map(y => y.finalDeclarations),
+        backgroundColor: 'rgba(229, 204, 255, 0.5)', // Violet pastel
+        borderColor: 'rgba(204, 153, 255, 1)',
+        borderWidth: 1
+      }
+    ]
+  };
+
+  this.performanceRate = stats.globalPerformanceRate;
+}
   updateCharts(data: any): void {
     // Graphique des utilisateurs par rôle
     this.updatePerformanceChart(data.usersByRole || {});
@@ -137,104 +281,6 @@ export class AdminStatsComponent  implements OnInit {
     // Graphique des déclarations par état
     this.updateEtatChart(data.declarationsByEtat || {});
     
-  }
-
-  updatePerformanceChart(usersByRole: any): void {
-    const roles = Object.keys(usersByRole);
-    const counts = Object.values(usersByRole) as number[];
-    
-    if (roles.length === 0) {
-      this.performanceChartData = null;
-      return;
-    }
-    
-    this.performanceChartData = {
-      labels: roles.map(role => this.formatRoleName(role)),
-      datasets: [{
-        label: 'Nombre d\'utilisateurs',
-        data: counts,
-        backgroundColor: [
-          '#4CAF50',
-          '#2196F3',
-          '#FF9800',
-          '#9C27B0',
-          '#F44336'
-        ],
-        borderColor: [
-          '#45a049',
-          '#1976D2',
-          '#F57C00',
-          '#7B1FA2',
-          '#D32F2F'
-        ],
-        borderWidth: 2
-      }]
-    };
-  }
-
-  updateEtatChart(declarationsByEtat: any): void {
-    const labels = Object.keys(declarationsByEtat);
-    const values = Object.values(declarationsByEtat) as number[];
-    
-    if (labels.length === 0) {
-      // Si pas de déclarations, afficher un message
-      this.etatChartData = null;
-      return;
-    }
-    
-    this.etatChartData = {
-      labels: labels,
-      datasets: [{
-        data: values,
-        backgroundColor: [
-          '#4CAF50',
-          '#2196F3',
-          '#FF9800',
-          '#F44336',
-          '#9C27B0'
-        ],
-        borderColor: [
-          '#45a049',
-          '#1976D2',
-          '#F57C00',
-          '#D32F2F',
-          '#7B1FA2'
-        ],
-        borderWidth: 2
-      }]
-    };
-  }
-
-  updatePeriodeChart(declarationsByYear: any): void {
-    const years = Object.keys(declarationsByYear);
-    const counts = Object.values(declarationsByYear) as number[];
-    
-    if (years.length === 0) {
-      // Données de démonstration si pas de données
-      this.periodeChartData = {
-        labels: ['2023', '2024', '2025'],
-        datasets: [{
-          label: 'Déclarations par année',
-          data: [0, 0, 0],
-          borderColor: '#2196F3',
-          backgroundColor: 'rgba(33, 150, 243, 0.1)',
-          tension: 0.4,
-          fill: true
-        }]
-      };
-    } else {
-      this.periodeChartData = {
-        labels: years,
-        datasets: [{
-          label: 'Déclarations par année',
-          data: counts,
-          borderColor: '#2196F3',
-          backgroundColor: 'rgba(33, 150, 243, 0.1)',
-          tension: 0.4,
-          fill: true
-        }]
-      };
-    }
   }
 
   formatRoleName(role: string): string {
@@ -348,58 +394,43 @@ export class AdminStatsComponent  implements OnInit {
       pdf.save(filename);
     });
   }
-generatePDFReport(): void {
-  const doc = new jsPDF('p', 'pt', 'a4');
-  const title = `Rapport Statistiques Administratives - ${moment().format('LL')}`;
-  
-  // Titre
-  doc.setFontSize(18);
-  doc.text(title, 40, 40);
-  
-  // Statistiques principales
-  doc.setFontSize(14);
-  doc.text('Statistiques Globales', 40, 80);
-  
-  let y = 100;
-  doc.setFontSize(12);
-  doc.text(`• Déclarations totales: ${this.dashboardStats.totalDeclarations}`, 50, y);
-  y += 20;
-  doc.text(`• Utilisateurs actifs: ${this.dashboardStats.activeUsers}/${this.dashboardStats.totalUsers}`, 50, y);
-  y += 20;
-  doc.text(`• Assujettis actifs: ${this.dashboardStats.activeAssujettis}/${this.dashboardStats.totalAssujettis}`, 50, y);
-  y += 40;
-  
-  // Graphiques
-  doc.setFontSize(14);
-  doc.text('Graphiques Statistiques', 40, y);
-  y += 20;
-  
-  // Convertir les graphiques en images et les ajouter au PDF
-  this.addChartToPDF(doc, 'performanceChart', y);
-  y += 200;
-  
-  this.addChartToPDF(doc, 'etatChart', y);
-  y += 200;
-  
-  // Statistiques détaillées
-  doc.addPage();
-  doc.setFontSize(14);
-  doc.text('Statistiques Détaillées par Mois', 40, 40);
-  
+// Dans admin-stats.component.ts
 
+// Ajoutez ces propriétés
+performanceStats: any | null = null;
+monthlyPerformanceData: any;
+yearlyPerformanceData: any;
+topUsersData: any;
+performanceRate: number = 0;
+
+// Ajoutez ces méthodes
+loadPerformanceData(): void {
+  const currentYear = new Date().getFullYear();
+  const endDate = new Date().toISOString().split('T')[0];
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - 3);
+  const startDateStr = startDate.toISOString().split('T')[0];
+
+  this.loading = true;
   
-  // Sauvegarder le PDF
-  doc.save(`rapport_statistiques_${moment().format('YYYY-MM-DD')}.pdf`);
+  this.adminstatService.getPerformanceStatistics(currentYear, startDateStr, endDate)
+    .subscribe({
+      next: (stats) => {
+        this.performanceStats = stats;
+        this.processPerformanceData(stats);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading performance data:', error);
+        this.loading = false;
+      }
+    });
 }
 
-private addChartToPDF(doc: jsPDF, chartId: string, y: number): void {
-  const chartElement = document.getElementById(chartId) as HTMLCanvasElement;
-  
-  if (chartElement) {
-    const chartData = chartElement.toDataURL('image/png');
-    doc.addImage(chartData, 'PNG', 50, y, 500, 200);
-  }
+getMonthName(monthNumber: number): string {
+  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
+                 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  return months[monthNumber - 1];
 }
-
 
 }

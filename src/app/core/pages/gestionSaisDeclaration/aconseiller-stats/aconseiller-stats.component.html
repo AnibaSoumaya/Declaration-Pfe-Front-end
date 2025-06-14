@@ -7,6 +7,79 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+         /* Section filtres */
+        .filters-section {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .filters-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-purple), var(--primary-blue));
+        }
+
+        .filters-section h2 {
+            color: var(--dark-bg);
+            margin: 0 0 25px 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .filters-section h2 i {
+            color: var(--primary-purple);
+            font-size: 1.2rem;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(144, 238, 144, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(144, 238, 144, 0.4);
+        }
+
+        .export-btn:hover i {
+            animation: float 0.6s ease;
+        }
+
+        /* Style pour les graphiques */
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
         /* Variables couleurs */
         :root {
             --primary-orange: #FFB366;
@@ -584,146 +657,529 @@
             display: flex;
             justify-content: center;
         }
+        /* Styles pour les nouvelles cartes */
+.info-card.warning .card-icon {
+  background: linear-gradient(135deg, #FFC107, #FFA000);
+  box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
+}
+
+.info-card.danger .card-icon {
+  background: linear-gradient(135deg, #F44336, #D32F2F);
+  box-shadow: 0 8px 20px rgba(244, 67, 54, 0.4);
+}
+
+/* Styles pour la section des déclarations anciennes */
+.declarations-section {
+  margin-top: 40px;
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f5f7fa;
+}
+
+.section-header h2 {
+  color: #2C3E50;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-header h2 i {
+  color: #FF9800;
+}
+
+.declarations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.declaration-card {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  border-left: 4px solid #FF9800;
+}
+
+.declaration-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.declaration-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.declaration-id {
+  color: #5A6C7D;
+}
+
+.declaration-type {
+  background: #FFE5CC;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #E65100;
+}
+
+.declaration-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.declaration-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #5A6C7D;
+}
+
+.declaration-info i {
+  margin-right: 6px;
+  color: #8E9AAF;
+}
+
+.action-btn {
+  background: #FF9800;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-btn:hover {
+  background: #F57C00;
+  transform: translateY(-2px);
+}
+
+/* Styles pour les statistiques annuelles */
+.annual-stats {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  height: 100%;
+  align-items: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2C3E50;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #8E9AAF;
+}
+
+.stat-item.highlight .stat-value {
+  color: #4CAF50;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .declarations-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .annual-stats {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+/* Titre du dashboard */
+.dashboard-title {
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center;    /* Centre verticalement */
+    margin-bottom: 40px;
+    padding: 20px 0;
+    width: 100%;           /* Prend toute la largeur */
+    text-align: center;    /* Centre le texte en fallback */
+}
+
+.dashboard-title span {
+    font-size: 2.2rem;
+    color: var(--dark-bg);
+    font-weight: 700;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+/* Ligne de décoration optionnelle (si vous aviez un pseudo-élément) */
+.dashboard-title span::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;                   /* Centre la ligne */
+    transform: translateX(-50%); /* Ajustement précis */
+    width: 80px;                 /* Largeur de la ligne */
+    height: 3px;
+    background-color: var(--primary-color); /* Couleur de la ligne */
+}
+        /* Section actions améliorée */
+        .actions-section {
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .actions-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-purple), var(--primary-blue));
+        }
+
+        .actions-section h2 {
+            color: var(--dark-bg);
+            margin: 0 0 25px 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .actions-section h2 i {
+            color: var(--primary-purple);
+            font-size: 1.2rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 25px rgba(255, 179, 102, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1rem;
+            min-width: 200px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(255, 179, 102, 0.4);
+        }
+
+        .action-btn:hover::before {
+            opacity: 1;
+        }
+
+        .action-btn i {
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover i {
+            transform: scale(1.2);
+        }
+
+        .action-btn.export {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            box-shadow: 0 8px 25px rgba(144, 238, 144, 0.3);
+        }
+
+        .action-btn.export:hover {
+            box-shadow: 0 12px 35px rgba(144, 238, 144, 0.4);
+        }
+
+        .action-btn.refresh {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-purple));
+            box-shadow: 0 8px 25px rgba(156, 39, 176, 0.3);
+        }
+
+        .action-btn.refresh:hover {
+            box-shadow: 0 12px 35px rgba(156, 39, 176, 0.4);
+        }
+
+        .action-btn:disabled {
+            background: var(--gray-medium);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none !important;
+        }
+
+        .action-btn:disabled:hover::before {
+            opacity: 0;
+        }
+
+        .action-btn:disabled i {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Animation de rotation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Animation d'apparition */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+        .pdf-export-container {
+  background-color: white !important;
+  padding: 20px;
+  
+  /* Force les graphiques à avoir une taille fixe pour l'export */
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 800px !important;
+  }
+
+  /* Cache les éléments non désirés */
+  .no-export {
+    display: none !important;
+  }
+}
+#export-container {
+  background-color: white !important;
+  padding: 20px;
+  
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 800px !important;
+  }
+
+  .no-export {
+    display: none !important;
+  }
+  
+  /* Cachez les éléments que vous ne voulez pas dans le PDF */
+  .action-buttons, .loading-overlay {
+    display: none !important;
+  }
+}
     </style>
 </head>
 <body>
   <div class="conseiller-dashboard">
-  <!-- Loading Overlay -->
-  <div *ngIf="isLoadingDashboard" class="loading-overlay">
-    <div class="loading-spinner"></div>
-    <p>Chargement des statistiques...</p>
-  </div>
-
-  <!-- Header Section -->
-  <div class="dashboard-header">
-    <h1>Tableau de Bord - Conseiller Rapporteur</h1>
-    <div class="header-actions">
-      <button class="btn btn-refresh" (click)="refreshData()" [disabled]="isLoadingDashboard">
-        <i class="fas fa-sync-alt"></i> Actualiser
-      </button>
-      <button class="btn btn-export" (click)="exportStatistics()">
-        <i class="fas fa-download"></i> Exporter
-      </button>
-    </div>
-  </div>
-
-  <!-- Main Statistics Cards -->
-  <div class="info-cards-grid">
-    <div class="info-card primary">
-      <div class="card-icon">
-        <i class="fas fa-folder-open"></i>
-      </div>
-      <div class="card-content">
-        <h3>Dossiers assignés</h3>
-        <div class="big-number" style="color: #FF9800;">{{ conseillerStats.dossiersAssignes || 0 }}</div>
-        <small class="card-subtitle">Dossiers en cours</small>
-      </div>
-    </div>
-   
-    <div class="info-card success">
-      <div class="card-icon">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      <div class="card-content">
-        <h3>Dossiers traités</h3>
-        <div class="big-number" style="color: #4CAF50;">{{ conseillerStats.dossiersTraites || 0 }}</div>
-        <small class="card-subtitle">Total traité</small>
-      </div>
-    </div>
-   
-    <div class="info-card warning">
-      <div class="card-icon">
-        <i class="fas fa-clock"></i>
-      </div>
-      <div class="card-content">
-        <h3>En cours de traitement</h3>
-        <div class="big-number" style="color: #FF9800;">{{ conseillerStats.dossiersEnCours || 0 }}</div>
-        <small class="card-subtitle">Nécessitent action</small>
-      </div>
-    </div>
-   
-    <div class="info-card info">
-      <div class="card-icon">
-        <i class="fas fa-calendar-alt"></i>
-      </div>
-      <div class="card-content">
-        <h3>Délai moyen</h3>
-        <div class="big-number" style="color: #2196F3;">{{ conseillerStats.delaiMoyen || 0 }} j</div>
-        <small class="card-subtitle">Temps de traitement</small>
-      </div>
+    <!-- Loading Overlay -->
+    <div *ngIf="isLoadingDashboard" class="loading-overlay">
+      <div class="loading-spinner"></div>
+      <p>Chargement des statistiques...</p>
     </div>
 
-    <!-- New Statistics Cards -->
-    <div class="info-card accent">
-      <div class="card-icon">
-        <i class="fas fa-file-alt"></i>
+    <!-- Header Section -->
+        <h1 class="dashboard-title">
+            <span>Analyse de données statistiques</span>
+            
+        </h1>      
+
+    <!-- Main Statistics Cards -->
+    <div class="info-cards-grid">
+      <!-- Carte existante pour les dossiers assignés -->
+      <div class="info-card primary">
+        <div class="card-icon">
+          <i class="fas fa-folder-open"></i>
+        </div>
+        <div class="card-content">
+          <h3>Dossiers assignés</h3>
+          <div class="big-number" style="color: #FF9800;">{{ conseillerStats.dossiersAssignes || 0 }}</div>
+          <small class="card-subtitle">Dossiers en cours</small>
+        </div>
       </div>
-      <div class="card-content">
-        <h3>Rapports générés</h3>
-        <div class="big-number" style="color: #9C27B0;">{{ conseillerStats.rapportsGeneres || 0 }}</div>
-        <small class="card-subtitle">Rapports provisoires</small>
+     
+      <!-- Carte existante pour les dossiers traités -->
+      <div class="info-card success">
+        <div class="card-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="card-content">
+          <h3>Dossiers traités</h3>
+          <div class="big-number" style="color: #4CAF50;">{{ conseillerStats.dossiersTraites || 0 }}</div>
+          <small class="card-subtitle">Total traité</small>
+        </div>
+      </div>
+     
+      <!-- Carte existante pour les rapports générés -->
+      <div class="info-card accent">
+        <div class="card-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="card-content">
+          <h3>Rapports générés</h3>
+          <div class="big-number" style="color: #9C27B0;">{{ conseillerStats.rapportsGeneres || 0 }}</div>
+          <small class="card-subtitle">Rapports provisoires</small>
+        </div>
+      </div>
+
+      <!-- Carte existante pour les observations -->
+      <div class="info-card secondary">
+        <div class="card-icon">
+          <i class="fas fa-comment-dots"></i>
+        </div>
+        <div class="card-content">
+          <h3>Observations</h3>
+          <div class="big-number" style="color: #607D8B;">{{ conseillerStats.observationsRealisees || 0 }}</div>
+          <small class="card-subtitle">Total observations</small>
+        </div>
+      </div>
+
+      <!-- Nouvelle carte pour la charge de travail -->
+      <div class="info-card warning">
+        <div class="card-icon">
+          <i class="fas fa-tasks"></i>
+        </div>
+        <div class="card-content">
+          <h3>Charge de travail</h3>
+          <div class="big-number" style="color: #FFC107;">{{ chargeTravail.declarationsEnCours || 0 }}</div>
+          <small class="card-subtitle">Déclarations en cours</small>
+        </div>
+      </div>
+
+      <!-- Nouvelle carte pour les déclarations en retard -->
+      <div class="info-card danger">
+        <div class="card-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="card-content">
+          <h3>Déclarations en retard</h3>
+          <div class="big-number" style="color: #F44336;">{{ chargeTravail.declarationsEnRetard || 0 }}</div>
+          <small class="card-subtitle">Nécessitent attention</small>
+        </div>
       </div>
     </div>
 
-    <div class="info-card secondary">
-      <div class="card-icon">
-        <i class="fas fa-comment-dots"></i>
-      </div>
-      <div class="card-content">
-        <h3>Observations</h3>
-        <div class="big-number" style="color: #607D8B;">{{ conseillerStats.observationsRealisees || 0 }}</div>
-        <small class="card-subtitle">Total observations</small>
-      </div>
-    </div>
-  </div>
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="charts-grid">
+        <!-- Monthly Performance Chart -->
+        <div class="chart-container">
+          <h3>
+            <i class="fas fa-chart-line"></i> Performance Mensuelle
+          </h3>
+          <div class="chart-wrapper">
+            <canvas baseChart 
+                    [data]="performanceChartData"
+                    [options]="performanceChartOptions"
+                    [type]="performanceChartType">
+            </canvas>
+          </div>
+        </div>
 
-<!-- Charts Section -->
-<div class="charts-section">
-  <div class="charts-grid">
     
-    <!-- Status Distribution Chart -->
-    <div class="chart-container">
-      <h3>
-        <i class="fas fa-chart-pie"></i> Répartition par État
-      </h3>
-      <div class="chart-wrapper">
-        <canvas baseChart 
-                [data]="declarationsChartData"
-                [options]="declarationsChartOptions"
-                [type]="declarationsChartType">
-        </canvas>
+       
+    <!-- Old Declarations Section -->
+    <div class="declarations-section" *ngIf="declarationsAnciennes?.length > 0">
+      <div class="section-header">
+        <h2>
+          <i class="fas fa-exclamation-triangle"></i> Déclarations Anciennes à Contrôler
+        </h2>
+        <small>{{ declarationsAnciennes.length }} déclarations nécessitent votre attention</small>
       </div>
-    </div>
-    
-    <!-- Monthly Performance Chart -->
-    <div class="chart-container">
-      <h3>
-        <i class="fas fa-chart-line"></i> Performance Mensuelle
-      </h3>
-      <div class="chart-wrapper">
-        <canvas baseChart 
-                [data]="performanceChartData"
-                [options]="performanceChartOptions"
-                [type]="performanceChartType">
-        </canvas>
-      </div>
-    </div>
-    
-    
-    <!-- Validation Statistics Chart -->
-    <div class="chart-container">
-      <h3>
-        <i class="fas fa-check-double"></i> Statistiques de Validation
-      </h3>
-      <div class="chart-wrapper">
-        <canvas baseChart 
-                [data]="validationChartData"
-                [options]="validationChartOptions"
-                [type]="validationChartType">
-        </canvas>
+      
+      <div class="declarations-grid">
+        <div *ngFor="let decl of declarationsAnciennes" class="declaration-card">
+          <div class="declaration-header">
+            <span class="declaration-id">#{{ decl.id }}</span>
+            <span class="declaration-type">{{ translateTypeDeclaration(decl.type) }}</span>
+          </div>
+          <div class="declaration-body">
+            <div class="declaration-info">
+              <span><i class="fas fa-calendar"></i> {{ decl.dateDepot | date:'dd/MM/yyyy' }}</span>
+              <span><i class="fas fa-clock"></i> {{ decl.joursEnAttente }} jours en attente</span>
+            </div>
+            <button class="action-btn" (click)="openDeclaration(decl.id)">
+              <i class="fas fa-eye"></i> Voir
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
+  
+ <div class="actions-section">
+        <h2><i class="fas fa-bolt"></i> Actions Rapides</h2>
+        <div class="action-buttons">
+            <button class="action-btn refresh" (click)="refreshData()" [disabled]="isLoadingDashboard">
+                <i class="fas fa-sync-alt"></i> Actualiser les données
+            </button>
+         
+        </div>
+        </div>
+        </div>
+        </div>
 
-</div>
+</body>
+</html>
